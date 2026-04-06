@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-qobuz-api-refactor/`
 **Prerequisites**: plan.md, spec.md, data-model.md, contracts/public-api.md, research.md, quickstart.md
 
-**Tests**: Unit tests at bottom of files per AGENTS.md conventions. Test tasks are included per constitution Principle II (Test-First Engineering: Red-Green-Refactor).
+**Tests**: Unit tests at bottom of files per AGENTS.md conventions. Test tasks are included per constitution Principle II (Test-First Engineering: Red-Green-Refactor). Per the constitution, test tasks are listed FIRST in each implementation section — write tests (Red), implement (Green), then refactor.
 
 **Organization**: Tasks grouped by user story to enable independent implementation and testing.
 
@@ -46,7 +46,7 @@
 - [ ] T016 [P] Create `src/models/search.rs` with `SearchResult<T>`, `ItemSearchResult<T>`, `UserFavorites` structs per data-model.md
 - [ ] T017 [P] Create `src/models/subscription.rs` with `Subscription`, `User` structs per data-model.md
 - [ ] T018 Create `src/api/mod.rs` with module declarations for `service`, `requests`, `auth`, `content/`, `favorites` per plan.md
-- [ ] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()`, response parsing, and retry-with-backoff wrapper (max 3 retries, exponential backoff) per research.md sections 1 and 6
+- [ ] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()` (consumes signature functions from `src/signing.rs`), response parsing, and retry-with-backoff wrapper (max 3 retries, exponential backoff) per research.md sections 1 and 6
 - [ ] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md
 - [ ] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 (deterministic testing via trait abstraction)
 - [ ] T075 [P] Create declarative macros in `src/api/requests.rs` (`search_endpoint!`, `get_endpoint!`) to eliminate duplication across search (T027-T030) and get (T034-T038) method patterns per constitution Principle I
@@ -64,13 +64,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] Implement `authenticate_with_env()` in `src/api/auth.rs` — reads `QOBUZ_USER_ID`/`QOBUZ_USER_AUTH_TOKEN` or `QOBUZ_EMAIL`/`QOBUZ_PASSWORD` env vars, delegates to `login()` or `login_with_token()` per contracts/public-api.md
+- [ ] T077 [US1] Write unit tests in `src/api/auth.rs` (`#[cfg(test)] mod tests`) for: env auth with valid/invalid vars (including `QOBUZ_USERNAME` alias for `QOBUZ_EMAIL`), login success/failure, token auth success/failure, refresh-per-session constraint, and credential refresh flow per constitution Principle II
+- [ ] T021 [US1] Implement `authenticate_with_env()` in `src/api/auth.rs` — reads `QOBUZ_USER_ID`/`QOBUZ_USER_AUTH_TOKEN` or `QOBUZ_EMAIL`/`QOBUZ_PASSWORD`/`QOBUZ_USERNAME` (alias for `QOBUZ_EMAIL`) env vars, delegates to `login()` or `login_with_token()` per contracts/public-api.md
 - [ ] T022 [US1] Implement `login(email, password)` in `src/api/auth.rs` — MD5-hashes password, POSTs to `/user/login`, stores `user_auth_token` per contracts/public-api.md
 - [ ] T023 [US1] Implement `login_with_token(user_id, auth_token)` in `src/api/auth.rs` — POSTs to `/user/login` with token credentials, stores `user_auth_token` per contracts/public-api.md
 - [ ] T024 [US1] Implement `refresh_app_credentials()` in `src/api/auth.rs` — re-extracts from web player JS, writes to `.env`, enforces single-refresh-per-session constraint per contracts/public-api.md
 - [ ] T025 [US1] Wire auth methods into `QobuzApiService` in `src/api/service.rs` — expose `authenticate_with_env()`, `login()`, `login_with_token()`, `refresh_app_credentials()` as public methods delegating to `src/api/auth.rs`
 - [ ] T026 [US1] Add structured `tracing` instrumentation to all auth methods in `src/api/auth.rs` per AGENTS.md error handling rules
-- [ ] T077 [US1] Write unit tests in `src/api/auth.rs` (`#[cfg(test)] mod tests`) for: env auth with valid/invalid vars, login success/failure, token auth success/failure, refresh-per-session constraint, and credential refresh flow per constitution Principle II
 
 **Checkpoint**: Authentication fully functional and independently testable. Users can authenticate via any method.
 
@@ -84,6 +84,7 @@
 
 ### Implementation for User Story 2
 
+- [ ] T078 [US2] Write unit tests in each content module (`albums.rs`, `artists.rs`, `tracks.rs`, `playlists.rs`, `catalog.rs`) for: search result deserialization, empty result handling, pagination params, and error responses per constitution Principle II
 - [ ] T027 [P] [US2] Implement `search_albums()` in `src/api/content/albums.rs` — GET `/album/search` with query params, deserialize into `ItemSearchResult<Box<Album>>` per contracts/public-api.md
 - [ ] T028 [P] [US2] Implement `search_artists()` in `src/api/content/artists.rs` — GET `/artist/search` with query params, deserialize into `ItemSearchResult<Box<Artist>>` per contracts/public-api.md
 - [ ] T029 [P] [US2] Implement `search_tracks()` in `src/api/content/tracks.rs` — GET `/track/search` with query params, deserialize into `ItemSearchResult<Box<Track>>` per contracts/public-api.md
@@ -91,7 +92,6 @@
 - [ ] T031 [US2] Implement `search_catalog()` in `src/api/content/catalog.rs` — searches all content types, returns grouped `SearchResult` per contracts/public-api.md
 - [ ] T032 [US2] Wire search methods into `QobuzApiService` in `src/api/service.rs` — expose all search methods as public API
 - [ ] T033 [US2] Create `src/api/content/mod.rs` with module declarations for albums, artists, tracks, playlists, catalog
-- [ ] T078 [US2] Write unit tests in each content module (`albums.rs`, `artists.rs`, `tracks.rs`, `playlists.rs`, `catalog.rs`) for: search result deserialization, empty result handling, pagination params, and error responses per constitution Principle II
 
 **Checkpoint**: Search fully functional. Users can search for any content type and receive structured results.
 
@@ -105,6 +105,7 @@
 
 ### Implementation for User Story 3
 
+- [ ] T079 [US3] Write unit tests in each content module for: get-by-ID with valid/invalid IDs, `ResourceNotFoundError` on 404, optional `extra` param handling per constitution Principle II
 - [ ] T034 [P] [US3] Implement `get_album()` in `src/api/content/albums.rs` — GET `/album/get` with optional `extra` param, returns `Album` per contracts/public-api.md
 - [ ] T035 [P] [US3] Implement `get_artist()` in `src/api/content/artists.rs` — GET `/artist/get` with optional `extra` param, returns `Artist` per contracts/public-api.md
 - [ ] T036 [P] [US3] Implement `get_track()` in `src/api/content/tracks.rs` — GET `/track/get`, returns `Track` per contracts/public-api.md
@@ -112,7 +113,6 @@
 - [ ] T038 [P] [US3] Implement `get_release_list()` in `src/api/content/artists.rs` — GET `/artist/getReleasesList`, returns `ItemSearchResult<Box<Album>>` per contracts/public-api.md
 - [ ] T039 [US3] Wire content browsing methods into `QobuzApiService` in `src/api/service.rs` — expose all get methods as public API
 - [ ] T040 [US3] Add `ResourceNotFoundError` handling for non-existent content IDs in `src/api/requests.rs` response parsing
-- [ ] T079 [US3] Write unit tests in each content module for: get-by-ID with valid/invalid IDs, `ResourceNotFoundError` on 404, optional `extra` param handling per constitution Principle II
 
 **Checkpoint**: Content browsing fully functional. Users can retrieve detailed metadata for any content by ID.
 
@@ -126,6 +126,7 @@
 
 ### Implementation for User Story 4
 
+- [ ] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context per constitution Principle II
 - [ ] T041 [US4] Implement `get_track_file_url()` in `src/api/content/tracks.rs` — GET `/track/getFileUrl` with signed request (track file URL signature per research.md), returns `FileUrl` per contracts/public-api.md
 - [ ] T042 [US4] Implement streaming download function in `src/api/requests.rs` — `bytes_stream()` with `tokio::io::BufWriter` for efficient disk I/O per research.md section 1
 - [ ] T043 [US4] Implement `download_track()` in `src/api/content/tracks.rs` — gets file URL, streams to disk, formats filename as `{NN}. {title}.{ext}`, handles signature error recovery with credential refresh per contracts/public-api.md
@@ -133,7 +134,6 @@
 - [ ] T044 [US4] Implement `download_album()` in `src/api/content/albums.rs` — fetches album details, creates `{artist}/{album_title}/` directory, downloads all tracks with `tokio::sync::Semaphore` for bounded concurrency (default 4) per contracts/public-api.md
 - [ ] T045 [US4] Add download progress tracing and error context (track ID, album ID, quality) in `src/api/content/tracks.rs` and `src/api/content/albums.rs`
 - [ ] T046 [US4] Wire download methods into `QobuzApiService` in `src/api/service.rs` — expose `get_track_file_url()`, `download_track()`, `download_album()` as public API
-- [ ] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context per constitution Principle II
 
 **Checkpoint**: Downloads fully functional. Users can download tracks and albums at any quality level with concurrent downloads.
 
@@ -147,6 +147,7 @@
 
 ### Implementation for User Story 5
 
+- [ ] T081 [US5] Write unit tests in `src/metadata/extractor.rs` and `src/metadata/embedder.rs` for: comprehensive field extraction, artist deduplication, classical music conductor priority, FLAC/MP3 tag writing, separator formatting, `MetadataConfig` field toggling per constitution Principle II
 - [ ] T047 [P] [US5] Create `src/metadata/mod.rs` with module declarations and re-exports per plan.md
 - [ ] T048 [P] [US5] Create `src/metadata/config.rs` with `MetadataConfig` struct (all boolean fields, `Default` impl with `comment: false`, rest `true`) per data-model.md
 - [ ] T049 [US5] Create `src/metadata/extractor.rs` with `extract_comprehensive_metadata()` — extracts all metadata fields from API models (`Track`, `Album`, `Artist`) into a structured intermediate representation; uses `rayon::par_iter` for batch extraction when processing album tracks per contracts/public-api.md and constitution Principle IV
@@ -155,7 +156,6 @@
 - [ ] T052 [US5] Create `src/metadata/embedder.rs` with `embed_metadata_in_file()` — writes tags using `lofty`: Vorbis Comments for FLAC, ID3v2 for MP3, cover art via `Picture`, respects `MetadataConfig` field toggles; uses `rayon::par_iter` for batch embedding; formats multi-artist fields with comma separator for FLAC (Vorbis Comments) and slash separator for MP3 (ID3v2) per spec.md US5 acceptance scenario 3; per research.md section 3 and contracts/public-api.md
 - [ ] T053 [US5] Integrate metadata embedding into `download_track()` and `download_album()` in `src/api/content/tracks.rs` and `src/api/content/albums.rs` — call embedder when `config` is provided per contracts/public-api.md
 - [ ] T054 [US5] Wire metadata re-exports into `src/lib.rs` per contracts/public-api.md
-- [ ] T081 [US5] Write unit tests in `src/metadata/extractor.rs` and `src/metadata/embedder.rs` for: comprehensive field extraction, artist deduplication, classical music conductor priority, FLAC/MP3 tag writing, separator formatting, `MetadataConfig` field toggling per constitution Principle II
 
 **Checkpoint**: Metadata embedding fully functional. Downloaded files display complete metadata in music players.
 
@@ -169,13 +169,13 @@
 
 ### Implementation for User Story 6
 
+- [ ] T082 [US6] Write unit tests in `src/api/favorites.rs` for: add favorite, remove favorite, get favorites list, get favorite IDs, signed request generation per constitution Principle II
 - [ ] T055 [US6] Create `src/api/favorites.rs` with `add_user_favorites()` — POST `/favorite/create` with signed request, accepts `item_ids` slice and `item_type` string per contracts/public-api.md
 - [ ] T056 [US6] Implement `delete_user_favorites()` in `src/api/favorites.rs` — POST `/favorite/delete` with signed request per contracts/public-api.md
 - [ ] T057 [US6] Implement `get_user_favorites()` in `src/api/favorites.rs` — GET `/favorite/getUserFavorites` with signed request, returns `UserFavorites` per contracts/public-api.md
 - [ ] T058 [US6] Implement `get_user_favorite_ids()` in `src/api/favorites.rs` — GET `/favorite/getUserFavorites` with IDs-only mode, returns `UserFavorites` with populated `*_ids` fields per contracts/public-api.md
 - [ ] T059 [US6] Wire favorites methods into `QobuzApiService` in `src/api/service.rs` — expose all favorites methods as public API
 - [ ] T060 [US6] Add structured tracing for favorites operations in `src/api/favorites.rs`
-- [ ] T082 [US6] Write unit tests in `src/api/favorites.rs` for: add favorite, remove favorite, get favorites list, get favorite IDs, signed request generation per constitution Principle II
 
 **Checkpoint**: Favorites management fully functional. Users can add, remove, and list favorites.
 
@@ -189,14 +189,14 @@
 
 ### Implementation for User Story 7
 
+- [ ] T083 [US7] Write unit tests in `src/cli/interactive.rs` for: command parsing, search output formatting, download handler with quality selection, favorites commands, error output curation (no raw error dumps) per constitution Principle II and Principle III
 - [ ] T061 [US7] Create `src/cli/mod.rs` with module declarations per plan.md
-- [ ] T062 [US7] Create `src/cli/interactive.rs` with REPL loop — reads from `std::io::stdin`, parses commands (search, browse, download, favorites, quit), dispatches to `QobuzApiService` per research.md section 9
+- [ ] T062 [US7] Create `src/cli/interactive.rs` with REPL loop — reads from `std::io::stdin`, parses commands (search, browse, download, favorites, quit), dispatches to `QobuzApiService`; all user-facing error output must use curated messages (no raw error dumps), with structured `tracing` internally per constitution Principle III per research.md section 9
 - [ ] T063 [US7] Implement search command handler in `src/cli/interactive.rs` — displays numbered results with metadata (title, artist, album) per spec.md acceptance scenario 1
 - [ ] T064 [US7] Implement browse/detail command handler in `src/cli/interactive.rs` — shows detailed info for selected item per spec.md acceptance scenario 2
 - [ ] T065 [US7] Implement download command handler in `src/cli/interactive.rs` — initiates download with quality selection, progress indication, and completion confirmation per spec.md acceptance scenario 3
 - [ ] T066 [US7] Implement favorites command handler in `src/cli/interactive.rs` — add/remove/list favorites from REPL
 - [ ] T067 [US7] Wire CLI entry point in `src/main.rs` — initialize service, authenticate, launch REPL loop
-- [ ] T083 [US7] Write unit tests in `src/cli/interactive.rs` for: command parsing, search output formatting, download handler with quality selection, favorites commands per constitution Principle II
 
 **Checkpoint**: CLI fully functional. Users can interactively search, browse, download, and manage favorites.
 
@@ -212,7 +212,7 @@
 - [ ] T071 Verify all files are under 400-line limit per plan.md constraint
 - [ ] T072 Validate quickstart.md examples compile and run correctly against the implemented library
 - [ ] T073 Run `cargo test` and ensure all unit tests pass
-- [ ] T084 [P] Create `benches/` directory with `criterion` benchmarks for hot paths per research.md section 10: album download pipeline, metadata embedding (FLAC + MP3), search result deserialization, request signature generation (MD5). Add `[[bench]]` entries in `Cargo.toml` per constitution Principle IV
+- [ ] T084 [P] Create `benches/` directory with `criterion` benchmarks for hot paths per research.md section 10: album download pipeline, metadata embedding (FLAC + MP3), search result deserialization, request signature generation (MD5), authentication handshake timing (validate SC-001: auth within 5s on ≥10 Mbps/≤100ms latency). Add `[[bench]]` entries in `Cargo.toml` per constitution Principle IV
 - [ ] T085 [P] Audit all public items for `///` documentation (including `# Arguments` and `# Returns` where applicable) and all modules for `//!` module-level docs per constitution Principle I
 
 ---
@@ -244,8 +244,9 @@ US1 (Auth)
 
 ### Within Each User Story
 
+- Write tests FIRST (Red-Green-Refactor per constitution Principle II)
 - Models before services (where applicable)
-- Core implementation before integration
+- Core implementation until tests pass (Green), then refactor
 - Wire into `QobuzApiService` last (expose public API)
 - Add tracing after core logic is working
 
@@ -340,6 +341,6 @@ T038: get_release_list  ┘
 - All public items must have `///` documentation per AGENTS.md
 - All errors use structured `tracing` with fields per AGENTS.md
 - Max 400 lines per file, zero clippy pedantic warnings, no unsafe code
-- Test tasks (T077-T083) follow constitution Principle II (Test-First Engineering): write tests before or alongside implementation
+- Test tasks (T077-T083) follow constitution Principle II (Test-First Engineering): listed FIRST in each implementation section to enforce Red-Green-Refactor — write tests, implement until green, then refactor
 - Benchmark tasks (T084) cover hot paths identified in research.md section 10 per constitution Principle IV
 - `HttpClient` trait (T074) enables deterministic testing per research.md section 8 recommendation

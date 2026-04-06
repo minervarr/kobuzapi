@@ -12,7 +12,7 @@
 - Q: What is the scope boundary for this refactor? → A: In scope: auth + search + download + metadata; out: streaming, social features
 - Q: Are Favorites and CLI in scope? → A: Both Favorites and CLI are in scope
 - Q: How should credentials be stored? → A: .env file only, with chmod 600 advisory / auto-set permissions
-- Q: What is the download concurrency model? → A: Configurable concurrent limit with a sensible default (e.g., 3-4)
+- Q: What is the download concurrency model? → A: Configurable concurrent limit with a sensible default of 4
 - Q: How should rate limiting be handled? → A: Automatic retry with exponential backoff (capped at ~3 retries)
 
 ## Out of Scope
@@ -38,7 +38,7 @@ A developer using the library needs to authenticate with the Qobuz music streami
 2. **Given** the user provides a valid user ID and auth token, **When** token-based authentication is attempted, **Then** the library validates the token and stores it for subsequent requests
 3. **Given** environment variables contain valid credentials, **When** automatic authentication is triggered, **Then** the library reads credentials and establishes a session without manual input
 4. **Given** invalid credentials are provided, **When** authentication is attempted, **Then** a clear error message indicates the authentication failure reason
-5. **Given** the user has an active session, **When** app credentials expire or become invalid, **Then** the library automatically refreshes them from the Qobuz web player without requiring user intervention
+5. **Given** the user has an active session, **When** app credentials expire or become invalid, **Then** the library automatically refreshes them from the Qobuz web player without requiring user intervention (see FR-004)
 
 ---
 
@@ -91,9 +91,10 @@ A user wants to download individual tracks or entire albums from Qobuz at a chos
 
 1. **Given** a valid track ID and quality level, **When** download is initiated, **Then** the audio file is downloaded and saved to the specified path with a sanitized filename
 2. **Given** a valid album ID and quality level, **When** album download is initiated, **Then** all tracks are downloaded sequentially into a directory named after the album and artist
-3. **Given** a download fails due to expired credentials, **When** the library detects a signature error, **Then** credentials are automatically refreshed and the download is retried
+3. **Given** a download fails due to expired credentials, **When** the library detects a signature error, **Then** credentials are automatically refreshed and the download is retried (see FR-009)
 4. **Given** a chosen quality level (MP3, FLAC, Hi-Res 24-bit), **When** the file URL is requested, **Then** the correct format URL matching the requested quality is returned
 5. **Given** a download is in progress, **When** a network interruption occurs, **Then** the error is reported with context about which track failed and whether retry is possible
+6. **Given** a partially downloaded file exists on disk, **When** download is re-initiated for the same track, **Then** the download resumes from the last received byte using HTTP range requests (see FR-023)
 
 ---
 
@@ -146,12 +147,13 @@ A developer or end-user wants an interactive command-line interface to search fo
 1. **Given** the application is launched, **When** the user enters a search query, **Then** matching results are displayed with numbered options
 2. **Given** search results are displayed, **When** the user selects an item, **Then** detailed information about the selected item is shown
 3. **Given** a selected album or track, **When** the user chooses to download, **Then** the download begins with progress indication and completion confirmation
+4. **Given** the REPL is active, **When** the user issues a favorites command (add, remove, list), **Then** the operation completes with confirmation feedback
 
 ---
 
 ### Edge Cases
 
-- What happens when the Qobuz API returns rate limit errors? The library should automatically retry with exponential backoff, up to a maximum of 3 retries, before surfacing a clear rate limit error.
+- What happens when the Qobuz API returns rate limit errors? The library should automatically retry with exponential backoff, up to a maximum of 3 retries, before surfacing a clear rate limit error (see FR-018b).
 - How does the system handle network timeouts or connection failures during downloads? Errors should be reported with context about the operation that failed.
 - What happens when the web player credential extraction fails (e.g., Qobuz changes their web player structure)? A clear error should indicate that automatic credential refresh is unavailable and manual configuration is needed.
 - How does the system handle tracks or albums that are not available in the user's region or subscription tier? An appropriate error should indicate unavailability.
@@ -164,9 +166,9 @@ A developer or end-user wants an interactive command-line interface to search fo
 
 - **FR-001**: The library MUST authenticate users with the Qobuz API using email/password credentials
 - **FR-002**: The library MUST authenticate users with the Qobuz API using user ID and auth token
-- **FR-003**: The library MUST support automatic authentication from environment variables (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`, `QOBUZ_USERNAME`)
+- **FR-003**: The library MUST support automatic authentication from environment variables (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`). `QOBUZ_USERNAME` is treated as an alias for `QOBUZ_EMAIL` for backward compatibility
 - **FR-004**: The library MUST automatically extract and refresh application credentials (app ID and app secret) from the Qobuz web player JavaScript bundle
-- **FR-005**: The library MUST search for albums, artists, tracks, playlists, and catalog items by text query
+- **FR-005**: The library MUST search for albums, artists, tracks, and playlists by text query, and MUST support a combined catalog search that returns results grouped by content type via `SearchResult`
 - **FR-006**: The library MUST retrieve detailed information for albums, artists, tracks, and playlists by their unique identifiers
 - **FR-007**: The library MUST download individual tracks at user-selected quality levels (MP3 320kbps, FLAC, Hi-Res 24-bit/96kHz, Hi-Res 24-bit/192kHz)
 - **FR-008**: The library MUST download complete albums with all tracks organized into artist/album directory structure, using a configurable concurrency limit (default: 4 simultaneous downloads)
@@ -179,7 +181,8 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-015**: The library MUST add and remove items from the user's Qobuz favorites list
 - **FR-016**: The library MUST retrieve the user's favorites list and favorite IDs
 - **FR-017**: The library MUST sign API requests with MD5-based request signatures when required
-- **FR-018**: The library MUST provide clear, structured error types for all failure scenarios (authentication, network, API, metadata, download, rate limiting, resource not found) and MUST automatically retry rate-limited requests with exponential backoff (max 3 retries)
+- **FR-018a**: The library MUST provide clear, structured error types for all failure scenarios (authentication, network, API, metadata, download, rate limiting, resource not found)
+- **FR-018b**: The library MUST automatically retry rate-limited requests with exponential backoff (max 3 retries)
 - **FR-019**: The library MUST sanitize filenames for cross-platform compatibility
 - **FR-020**: The project MUST provide an interactive CLI binary for searching, browsing, and downloading music
 - **FR-021**: The library MUST support reading and writing application credentials to `.env` files for persistence, and MUST set file permissions to `0600` (owner read/write only) when creating or writing the file
@@ -197,17 +200,17 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FileUrl**: A download URL for a track at a specific quality level
 - **MetadataConfig**: Configuration object specifying which metadata fields to embed in audio files
 - **UserFavorites**: The user's collection of favorited albums, artists, and tracks
-- **Credential**: Authentication credential data including user ID, auth token, email, and hashed password
+- **Credential**: Authentication credential data including user ID, `user_auth_token`, email, and hashed password
 - **QobuzApiError**: Structured error type covering authentication, network, API response, metadata, download, and rate limiting failures
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can authenticate with Qobuz and perform API operations within 5 seconds of providing credentials on standard broadband connections
+- **SC-001**: Users can authenticate with Qobuz and perform API operations within 5 seconds of providing credentials on a connection with ≥10 Mbps downstream and ≤100ms latency to the Qobuz API
 - **SC-002**: Search queries return structured results for all supported content types (albums, artists, tracks, playlists)
 - **SC-003**: Downloads complete successfully with files saved in the correct format and quality level as selected by the user
-- **SC-004**: Downloaded audio files display complete metadata (title, artist, album, cover art, genre, composer, etc.) correctly in standard music players
+- **SC-004**: Downloaded audio files display complete metadata (title, artist, album, cover art, genre, composer, etc.) correctly in any player supporting Vorbis Comments (FLAC) or ID3v2 (MP3)
 - **SC-005**: The library recovers automatically from expired credentials without user intervention, completing downloads that would otherwise fail
 - **SC-006**: All error scenarios produce clear, actionable error messages that indicate the specific failure reason
 - **SC-007**: The codebase passes all lint checks with zero warnings
@@ -222,4 +225,4 @@ A developer or end-user wants an interactive command-line interface to search fo
 - The `.env` file format is acceptable for local credential persistence during development; the library auto-sets `0600` permissions on the file
 - The refactored application targets Linux as the primary platform
 - The existing API endpoint structure (`https://www.qobuz.com/api.json/0.2/`) remains stable
-- Environment variable names (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`, `QOBUZ_USERNAME`) remain unchanged for backward compatibility
+- Environment variable names (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`) remain unchanged for backward compatibility; `QOBUZ_USERNAME` is supported as an alias for `QOBUZ_EMAIL`
