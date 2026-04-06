@@ -1,5 +1,6 @@
-.env
-/metadata_test/downloads
-/QobuzApiSharp
-/QobuzDownloaderX-MOD
 /target
+.specify/init-options.json
+.specify/integration.json
+.specify/integrations
+.specify/scripts
+.specify/templates
