@@ -1,198 +1,101 @@
-use thiserror::Error;
+//! Error types for the Qobuz API client.
 
-/// Custom error types for the Qobuz API Rust library.
+use std::io::Error as IoError;
+
+use {reqwest::Error as ReqwestError, thiserror::Error};
+
+/// Error type for all Qobuz API operations.
 ///
-/// This enum represents all possible errors that can occur when using the Qobuz API library.
-/// It includes errors from API responses, network operations, parsing, authentication, and more.
-///
-/// # Examples
-///
-/// ```
-/// use qobuz_api_rust::QobuzApiError;
-///
-/// fn handle_error(error: QobuzApiError) {
-///     match error {
-///         QobuzApiError::ApiErrorResponse { code, message, status } => {
-///             eprintln!("API Error: {} - {} (Status: {})", code, message, status);
-///         }
-///         QobuzApiError::HttpError(e) => {
-///             eprintln!("HTTP Error: {}", e);
-///         }
-///         _ => eprintln!("Other error occurred: {:?}", error),
-///     }
-/// }
-/// ```
+/// Implements `Send + Sync + 'static` for use in async Tokio tasks.
 #[derive(Error, Debug)]
 pub enum QobuzApiError {
-    /// Error response from the Qobuz API.
-    ///
-    /// This variant represents an error response received from the Qobuz API itself,
-    /// containing the error code, message, and status returned by the API.
-    ///
-    /// # Fields
-    ///
-    /// * `code` - The error code returned by the API
-    /// * `message` - The error message provided by the API
-    /// * `status` - The status string returned by the API
-    #[error("API Error - Code: {code}, Message: {message}, Status: {status}")]
-    ApiErrorResponse {
-        /// The error code returned by the API
-        code: String,
-        /// The error message provided by the API
+    /// Authentication failure (invalid credentials, expired tokens).
+    #[error("Authentication failed: {message}")]
+    AuthenticationError {
+        /// Error description.
         message: String,
-        /// The status string returned by the API
+    },
+
+    /// HTTP request failure (network, timeout).
+    #[error("HTTP request failed: {0}")]
+    HttpError(#[from] ReqwestError),
+
+    /// I/O failure (file system, permissions).
+    #[error("I/O error: {0}")]
+    IoError(#[from] IoError),
+
+    /// API returned an error response with code and message.
+    #[error("API error {code}: {message}")]
+    ApiErrorResponse {
+        /// API error code.
+        code: i32,
+        /// API error message.
+        message: String,
+        /// API error status.
         status: String,
     },
 
-    /// Error when parsing API response.
-    ///
-    /// This variant represents an error that occurs when attempting to parse the
-    /// response from the Qobuz API into a Rust data structure. It includes the
-    /// original content that failed to parse and the underlying parsing error.
-    ///
-    /// # Fields
-    ///
-    /// * `content` - The raw content that failed to parse
-    /// * `source` - The underlying parsing error from `serde_json`
-    #[error("Failed to parse API response: {source}")]
+    /// Failed to parse the API response body.
+    #[error("Failed to parse API response: {content}")]
     ApiResponseParseError {
-        /// The raw content that failed to parse
+        /// The content that failed to parse.
         content: String,
-        /// The underlying parsing error from `serde_json`
-        #[source]
-        source: serde_json::Error,
+        /// Optional source of the parse failure.
+        source_info: Option<String>,
     },
 
-    /// Error during API initialization.
-    ///
-    /// This variant represents an error that occurs during the initialization
-    /// of the Qobuz API service, such as when failing to extract credentials
-    /// from the web player or when required configuration is missing.
-    ///
-    /// # Fields
-    ///
-    /// * `message` - A description of the initialization error
-    #[error("Qobuz API initialization error: {message}")]
-    QobuzApiInitializationError {
-        /// A description of the initialization error
+    /// Service initialization failure.
+    #[error("Service initialization failed: {message}")]
+    InitializationError {
+        /// Error description.
         message: String,
     },
 
-    /// HTTP request error.
-    ///
-    /// This variant wraps errors from the `reqwest` crate that occur during
-    /// HTTP communication with the Qobuz API. This includes connection errors,
-    /// timeout errors, and other network-related issues.
-    #[error("HTTP request error: {0}")]
-    HttpError(#[from] reqwest::Error),
-
-    /// Network/IO error.
-    ///
-    /// This variant wraps errors from the standard library's `std::io::Error`
-    /// that occur during network or file I/O operations, such as when downloading
-    /// tracks or reading local files.
-    #[error("Network/IO error: {0}")]
-    IoError(#[from] std::io::Error),
-
-    /// Lofty library error.
-    ///
-    /// This variant wraps errors from the `lofty` crate that occur during
-    /// audio file metadata operations, such as reading, writing, or modifying tags.
-    /// This includes errors when reading from or saving to audio files.
-    #[error("Lofty metadata error: {0}")]
-    LoftyError(#[from] lofty::error::LoftyError),
-
-    /// URL parsing error.
-    ///
-    /// This variant wraps errors from the `url` crate that occur when parsing
-    /// or constructing URLs for API endpoints.
-    #[error("URL parsing error: {0}")]
-    UrlError(#[from] url::ParseError),
-
-    /// Authentication error.
-    ///
-    /// This variant represents an error that occurs during authentication
-    /// with the Qobuz API, such as invalid credentials or expired tokens.
-    ///
-    /// # Fields
-    ///
-    /// * `message` - A description of the authentication error
-    #[error("Authentication error: {message}")]
-    AuthenticationError {
-        /// A description of the authentication error
-        message: String,
-    },
-
-    /// Error when credentials are missing or invalid.
-    ///
-    /// This variant represents an error that occurs when required credentials
-    /// (app ID, app secret, user token, etc.) are missing, empty, or invalid.
-    #[error("Missing or invalid credentials: {message}")]
+    /// Invalid or missing credentials.
+    #[error("Invalid credentials: {message}")]
     CredentialsError {
-        /// A description of the credential issue
+        /// Error description.
         message: String,
     },
 
-    /// Error when downloading content.
-    ///
-    /// This variant represents an error that occurs during content download operations,
-    /// such as when downloading tracks, images, or other media files.
-    #[error("Download error: {message}")]
+    /// Download failure (file creation, network, disk).
+    #[error("Download failed: {message}")]
     DownloadError {
-        /// A description of the download issue
+        /// Error description.
         message: String,
     },
 
-    /// Error when processing metadata.
-    ///
-    /// This variant represents an error that occurs during metadata extraction,
-    /// embedding, or processing operations.
-    #[error("Metadata processing error: {source}")]
-    MetadataError {
-        /// The underlying error from metadata operations
-        #[source]
-        source: Box<dyn std::error::Error + Send + Sync>,
-    },
+    /// Metadata tagging failure.
+    #[error("Metadata error: {0}")]
+    MetadataError(String),
 
-    /// Error when a required resource is not found.
-    ///
-    /// This variant represents an error that occurs when a requested resource
-    /// (track, album, artist, etc.) is not found in the Qobuz API.
-    #[error("Resource not found: {resource_type} with ID {resource_id}")]
+    /// Requested resource not found by ID.
+    #[error("{resource_type} not found: {resource_id}")]
     ResourceNotFoundError {
-        /// The type of resource that was not found
+        /// Type of resource (album, artist, track, playlist).
         resource_type: String,
-        /// The ID of the resource that was not found
+        /// Identifier that was not found.
         resource_id: String,
     },
 
-    /// Error when a rate limit is exceeded.
-    ///
-    /// This variant represents an error that occurs when the Qobuz API rate limit
-    /// is exceeded, typically resulting in a 429 HTTP status code.
-    #[error("Rate limit exceeded: {message}")]
+    /// Rate limited by the API (retries exhausted).
+    #[error("Rate limited: {message}")]
     RateLimitError {
-        /// A description of the rate limit issue
+        /// Error description.
         message: String,
     },
 
-    /// Error when an invalid parameter is provided to an API call.
-    ///
-    /// This variant represents an error that occurs when invalid or unsupported
-    /// parameters are passed to an API endpoint.
+    /// Invalid parameter passed to an API method.
     #[error("Invalid parameter: {message}")]
     InvalidParameterError {
-        /// A description of the invalid parameter
+        /// Error description.
         message: String,
     },
 
-    /// Error when the API returns an unexpected response format.
-    ///
-    /// This variant represents an error that occurs when the API returns a response
-    /// that doesn't match the expected format, indicating a potential API change or bug.
-    #[error("Unexpected API response format: {message}")]
+    /// Unexpected API response structure or content.
+    #[error("Unexpected API response: {message}")]
     UnexpectedApiResponseError {
-        /// A description of the unexpected response
+        /// Error description.
         message: String,
     },
 }

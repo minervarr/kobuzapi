@@ -19,14 +19,14 @@
 
 **Purpose**: Project initialization, Cargo.toml configuration, and module scaffold
 
-- [ ] T001 Configure `Cargo.toml` with all dependencies per plan.md: `reqwest` (stream, json), `tokio` (full), `serde`/`serde_json`, `lofty`, `thiserror`, `anyhow`, `tracing`/`tracing-subscriber`, `md5`, `base64`, `regex`, `dotenvy`, `tokio-stream`, `rayon`, `parking-lot`, `criterion`, `tempfile` in `Cargo.toml`
-- [ ] T002 Set `edition = "2024"` and configure `lints` section with clippy pedantic warnings as deny in `Cargo.toml`
-- [ ] T003 [P] Create `src/lib.rs` with module declarations and placeholder re-exports per contracts/public-api.md
-- [ ] T004 [P] Create `src/main.rs` with minimal `tokio::main` entry point that initializes tracing subscriber
-- [ ] T005 [P] Create `src/errors.rs` with `QobuzApiError` enum per data-model.md (all 13 variants with `thiserror` derives, `Send + Sync + 'static`)
-- [ ] T006 [P] Create `src/signing.rs` with MD5-based request signature generation functions per research.md section 4 (general signed GET and track file URL signatures)
-- [ ] T007 [P] Create `src/credentials.rs` with `.env` file I/O (`dotenvy`), permission setting (`0o600`), and web player JS credential extraction (`regex` patterns) per research.md section 5
-- [ ] T008 [P] Create `src/sanitize.rs` with `sanitize_filename()` function for cross-platform filename sanitization per plan.md
+- [x] T001 Configure `Cargo.toml` with all dependencies per plan.md: `reqwest` (stream, json), `tokio` (full), `serde`/`serde_json`, `lofty`, `thiserror`, `anyhow`, `tracing`/`tracing-subscriber`, `md5`, `base64`, `regex`, `dotenvy`, `tokio-stream`, `rayon`, `parking-lot`, `criterion`, `tempfile` in `Cargo.toml`
+- [x] T002 Set `edition = "2024"` and configure `lints` section with clippy pedantic warnings as deny in `Cargo.toml`
+- [x] T003 [P] Create `src/lib.rs` with module declarations and placeholder re-exports per contracts/public-api.md
+- [x] T004 [P] Create `src/main.rs` with minimal `tokio::main` entry point that initializes tracing subscriber
+- [x] T005 [P] Create `src/errors.rs` with `QobuzApiError` enum per data-model.md (all 13 variants with `thiserror` derives, `Send + Sync + 'static`)
+- [x] T006 [P] Create `src/signing.rs` with MD5-based request signature generation functions per research.md section 4 (general signed GET and track file URL signatures)
+- [x] T007 [P] Create `src/credentials.rs` with `.env` file I/O (`dotenvy`), permission setting (`0o600`), and web player JS credential extraction (`regex` patterns) per research.md section 5
+- [x] T008 [P] Create `src/sanitize.rs` with `sanitize_filename()` function for cross-platform filename sanitization per plan.md
 
 ---
 
