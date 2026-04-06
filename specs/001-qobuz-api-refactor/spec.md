@@ -5,6 +5,23 @@
 **Status**: Draft  
 **Input**: User description: "Build an application that acts as a refactor of `/home/arch/Downloads/github/qobuz-api-rust`"
 
+## Clarifications
+
+### Session 2026-04-06
+
+- Q: What is the scope boundary for this refactor? → A: In scope: auth + search + download + metadata; out: streaming, social features
+- Q: Are Favorites and CLI in scope? → A: Both Favorites and CLI are in scope
+- Q: How should credentials be stored? → A: .env file only, with chmod 600 advisory / auto-set permissions
+- Q: What is the download concurrency model? → A: Configurable concurrent limit with a sensible default (e.g., 3-4)
+- Q: How should rate limiting be handled? → A: Automatic retry with exponential backoff (capped at ~3 retries)
+
+## Out of Scope
+
+- Real-time audio streaming / playback
+- Social features (sharing, public playlists, recommendations, following)
+
+**Confirmed in scope**: Authentication, search, download, metadata embedding, favorites management, and interactive CLI.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Authenticate with Qobuz (Priority: P1)
@@ -134,12 +151,12 @@ A developer or end-user wants an interactive command-line interface to search fo
 
 ### Edge Cases
 
-- What happens when the Qobuz API returns rate limit errors? The library should surface a clear rate limit error without crashing.
+- What happens when the Qobuz API returns rate limit errors? The library should automatically retry with exponential backoff, up to a maximum of 3 retries, before surfacing a clear rate limit error.
 - How does the system handle network timeouts or connection failures during downloads? Errors should be reported with context about the operation that failed.
 - What happens when the web player credential extraction fails (e.g., Qobuz changes their web player structure)? A clear error should indicate that automatic credential refresh is unavailable and manual configuration is needed.
 - How does the system handle tracks or albums that are not available in the user's region or subscription tier? An appropriate error should indicate unavailability.
 - What happens when metadata fields contain special characters or very long values? Filenames should be sanitized and metadata should be encoded correctly for each audio format.
-- How does the system handle concurrent download requests? Each download should complete independently without interfering with others.
+- How does the system handle concurrent download requests? Each download should complete independently without interfering with others, bounded by a configurable concurrency limit (default: 4 simultaneous downloads).
 
 ## Requirements *(mandatory)*
 
@@ -152,7 +169,7 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-005**: The library MUST search for albums, artists, tracks, playlists, and catalog items by text query
 - **FR-006**: The library MUST retrieve detailed information for albums, artists, tracks, and playlists by their unique identifiers
 - **FR-007**: The library MUST download individual tracks at user-selected quality levels (MP3 320kbps, FLAC, Hi-Res 24-bit/96kHz, Hi-Res 24-bit/192kHz)
-- **FR-008**: The library MUST download complete albums with all tracks organized into artist/album directory structure
+- **FR-008**: The library MUST download complete albums with all tracks organized into artist/album directory structure, using a configurable concurrency limit (default: 4 simultaneous downloads)
 - **FR-009**: The library MUST automatically retry downloads when credential-related signature errors occur, by refreshing app credentials and retrying
 - **FR-010**: The library MUST embed comprehensive metadata into downloaded audio files, including title, artist, album, album artist, genre, date, composer, conductor, performer, track number, disc number, and cover art
 - **FR-011**: The library MUST handle format-specific metadata tagging (Vorbis Comments for FLAC, ID3v2 for MP3)
@@ -162,10 +179,10 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-015**: The library MUST add and remove items from the user's Qobuz favorites list
 - **FR-016**: The library MUST retrieve the user's favorites list and favorite IDs
 - **FR-017**: The library MUST sign API requests with MD5-based request signatures when required
-- **FR-018**: The library MUST provide clear, structured error types for all failure scenarios (authentication, network, API, metadata, download, rate limiting, resource not found)
+- **FR-018**: The library MUST provide clear, structured error types for all failure scenarios (authentication, network, API, metadata, download, rate limiting, resource not found) and MUST automatically retry rate-limited requests with exponential backoff (max 3 retries)
 - **FR-019**: The library MUST sanitize filenames for cross-platform compatibility
 - **FR-020**: The library MUST provide an interactive CLI for searching, browsing, and downloading music
-- **FR-021**: The library MUST support reading and writing application credentials to `.env` files for persistence
+- **FR-021**: The library MUST support reading and writing application credentials to `.env` files for persistence, and MUST set file permissions to `0600` (owner read/write only) when creating or writing the file
 - **FR-022**: The library MUST handle classical music metadata with conductor and orchestra information, prioritizing conductor as album artist
 
 ### Key Entities
@@ -201,7 +218,7 @@ A developer or end-user wants an interactive command-line interface to search fo
 - Users have a valid Qobuz subscription that permits streaming and downloading at their requested quality levels
 - Users have stable internet connectivity for API calls and file downloads
 - The Qobuz web player structure remains compatible for automatic credential extraction; if it changes, manual credential configuration serves as fallback
-- The `.env` file format is acceptable for local credential persistence during development
+- The `.env` file format is acceptable for local credential persistence during development; the library auto-sets `0600` permissions on the file
 - The refactored application targets Linux as the primary platform
 - The existing API endpoint structure (`https://www.qobuz.com/api.json/0.2/`) remains stable
 - Environment variable names (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`) remain unchanged for backward compatibility
