@@ -164,13 +164,13 @@ A developer or end-user wants an interactive command-line interface to search fo
 
 - **FR-001**: The library MUST authenticate users with the Qobuz API using email/password credentials
 - **FR-002**: The library MUST authenticate users with the Qobuz API using user ID and auth token
-- **FR-003**: The library MUST support automatic authentication from environment variables (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`)
+- **FR-003**: The library MUST support automatic authentication from environment variables (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`, `QOBUZ_USERNAME`)
 - **FR-004**: The library MUST automatically extract and refresh application credentials (app ID and app secret) from the Qobuz web player JavaScript bundle
 - **FR-005**: The library MUST search for albums, artists, tracks, playlists, and catalog items by text query
 - **FR-006**: The library MUST retrieve detailed information for albums, artists, tracks, and playlists by their unique identifiers
 - **FR-007**: The library MUST download individual tracks at user-selected quality levels (MP3 320kbps, FLAC, Hi-Res 24-bit/96kHz, Hi-Res 24-bit/192kHz)
 - **FR-008**: The library MUST download complete albums with all tracks organized into artist/album directory structure, using a configurable concurrency limit (default: 4 simultaneous downloads)
-- **FR-009**: The library MUST automatically retry downloads when credential-related signature errors occur, by refreshing app credentials and retrying
+- **FR-009**: The library MUST automatically retry downloads when credential-related signature errors occur, by invoking the credential refresh mechanism defined in FR-004 and retrying
 - **FR-010**: The library MUST embed comprehensive metadata into downloaded audio files, including title, artist, album, album artist, genre, date, composer, conductor, performer, track number, disc number, and cover art
 - **FR-011**: The library MUST handle format-specific metadata tagging (Vorbis Comments for FLAC, ID3v2 for MP3)
 - **FR-012**: The library MUST deduplicate artist and composer names when multiple roles reference the same person
@@ -181,9 +181,10 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-017**: The library MUST sign API requests with MD5-based request signatures when required
 - **FR-018**: The library MUST provide clear, structured error types for all failure scenarios (authentication, network, API, metadata, download, rate limiting, resource not found) and MUST automatically retry rate-limited requests with exponential backoff (max 3 retries)
 - **FR-019**: The library MUST sanitize filenames for cross-platform compatibility
-- **FR-020**: The library MUST provide an interactive CLI for searching, browsing, and downloading music
+- **FR-020**: The project MUST provide an interactive CLI binary for searching, browsing, and downloading music
 - **FR-021**: The library MUST support reading and writing application credentials to `.env` files for persistence, and MUST set file permissions to `0600` (owner read/write only) when creating or writing the file
 - **FR-022**: The library MUST handle classical music metadata with conductor and orchestra information, prioritizing conductor as album artist
+- **FR-023**: The library MUST support resumable partial downloads, allowing interrupted downloads to continue from the last received byte using HTTP range requests
 
 ### Key Entities
 
@@ -203,7 +204,7 @@ A developer or end-user wants an interactive command-line interface to search fo
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can authenticate with Qobuz and perform API operations within seconds of providing credentials
+- **SC-001**: Users can authenticate with Qobuz and perform API operations within 5 seconds of providing credentials on standard broadband connections
 - **SC-002**: Search queries return structured results for all supported content types (albums, artists, tracks, playlists)
 - **SC-003**: Downloads complete successfully with files saved in the correct format and quality level as selected by the user
 - **SC-004**: Downloaded audio files display complete metadata (title, artist, album, cover art, genre, composer, etc.) correctly in standard music players
@@ -221,4 +222,4 @@ A developer or end-user wants an interactive command-line interface to search fo
 - The `.env` file format is acceptable for local credential persistence during development; the library auto-sets `0600` permissions on the file
 - The refactored application targets Linux as the primary platform
 - The existing API endpoint structure (`https://www.qobuz.com/api.json/0.2/`) remains stable
-- Environment variable names (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`) remain unchanged for backward compatibility
+- Environment variable names (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`, `QOBUZ_USERNAME`) remain unchanged for backward compatibility

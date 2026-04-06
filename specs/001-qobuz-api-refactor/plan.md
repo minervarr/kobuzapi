@@ -17,7 +17,7 @@ Refactor the `qobuz-api-rust` library into a clean, high-performance Rust crate 
 **Project Type**: Library crate + CLI binary
 **Performance Goals**: Single `reqwest::Client` with connection pooling; credential refresh at most once per session; configurable concurrent downloads (default 4); `tokio` for I/O-bound, `rayon` for CPU-bound metadata tagging
 **Constraints**: Max 400 lines per file; zero clippy pedantic warnings; no unsafe code; no `unwrap`/`expect`/`panic`; max 3 levels nesting; all public items documented
-**Scale/Scope**: ~15-20 source modules; 7 user stories; 22 functional requirements; single-user desktop client
+**Scale/Scope**: ~15-20 source modules; 7 user stories; 23 functional requirements; single-user desktop client
 
 ## Constitution Check
 
@@ -39,7 +39,7 @@ Refactor the `qobuz-api-rust` library into a clean, high-performance Rust crate 
 | I. Zero-Compromise Code Quality | PASS | Data model uses `Option<T>` fields for safe partial deserialization; error type is flat enum with `thiserror`; module structure groups by capability/domain; no file exceeds 400 lines in design; all public items documented in contracts |
 | II. Test-First Engineering | PASS | Contract specifies pre/post-conditions for all public methods; integration test files defined per domain (auth, search, download); deterministic mocking strategy documented in research |
 | III. Consistent User Experience | PASS | Quickstart demonstrates MusicBrainz Picard naming; error categories are user-actionable; quality levels present uniform interface; CLI provides REPL for all operations |
-| IV. Performance & Reliability | PASS | Single `reqwest::Client` enforced in contract; `credentials_refreshed` flag prevents >1 refresh per session; `tokio::sync::Semaphore` for bounded concurrency; retry with exponential backoff specified |
+| IV. Performance & Reliability | PASS | Single `reqwest::Client` enforced in contract; `credentials_refreshed` flag prevents >1 refresh per session; `tokio::sync::Semaphore` for bounded concurrency; retry with exponential backoff specified; HTTP range-request resume for partial downloads (FR-023) |
 
 **Post-Design Gate Result**: ALL PASS — design is constitution-compliant.
 

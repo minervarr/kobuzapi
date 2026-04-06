@@ -136,7 +136,7 @@ Downloads a single track. Embeds metadata if `config` is provided. Returns the p
 Downloads all tracks in an album concurrently. Returns paths to all saved files.
 
 **Directory format**: `{output_dir}/{artist}/{album_title}/`
-**Concurrency**: Default 4 simultaneous downloads. Uses `tokio::sync::Semaphore`.
+**Concurrency**: When `concurrency` is `None`, defaults to 4 simultaneous downloads. Uses `tokio::sync::Semaphore`.
 **Error recovery**: On signature errors, refreshes credentials once and retries all failed tracks.
 
 ### Favorites

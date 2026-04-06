@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-qobuz-api-refactor/`
 **Prerequisites**: plan.md, spec.md, data-model.md, contracts/public-api.md, research.md, quickstart.md
 
-**Tests**: Not explicitly requested — test tasks are omitted. Unit tests at bottom of files per AGENTS.md conventions.
+**Tests**: Unit tests at bottom of files per AGENTS.md conventions. Test tasks are included per constitution Principle II (Test-First Engineering: Red-Green-Refactor).
 
 **Organization**: Tasks grouped by user story to enable independent implementation and testing.
 
@@ -48,8 +48,11 @@
 - [ ] T018 Create `src/api/mod.rs` with module declarations for `service`, `requests`, `auth`, `content/`, `favorites` per plan.md
 - [ ] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()`, response parsing, and retry-with-backoff wrapper (max 3 retries, exponential backoff) per research.md sections 1 and 6
 - [ ] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md
+- [ ] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 (deterministic testing via trait abstraction)
+- [ ] T075 [P] Create declarative macros in `src/api/requests.rs` (`search_endpoint!`, `get_endpoint!`) to eliminate duplication across search (T027-T030) and get (T034-T038) method patterns per constitution Principle I
+- [ ] T076 [P] Create `tests/integration/` directory with `auth_tests.rs`, `search_tests.rs`, `download_tests.rs` scaffolding (empty test modules with `MockHttpClient` stub) per plan.md project structure
 
-**Checkpoint**: Foundation ready — all models and HTTP primitives in place. User story implementation can begin.
+**Checkpoint**: Foundation ready — all models, HTTP primitives, test infrastructure, and deduplication macros in place. User story implementation can begin.
 
 ---
 
@@ -67,6 +70,7 @@
 - [ ] T024 [US1] Implement `refresh_app_credentials()` in `src/api/auth.rs` — re-extracts from web player JS, writes to `.env`, enforces single-refresh-per-session constraint per contracts/public-api.md
 - [ ] T025 [US1] Wire auth methods into `QobuzApiService` in `src/api/service.rs` — expose `authenticate_with_env()`, `login()`, `login_with_token()`, `refresh_app_credentials()` as public methods delegating to `src/api/auth.rs`
 - [ ] T026 [US1] Add structured `tracing` instrumentation to all auth methods in `src/api/auth.rs` per AGENTS.md error handling rules
+- [ ] T077 [US1] Write unit tests in `src/api/auth.rs` (`#[cfg(test)] mod tests`) for: env auth with valid/invalid vars, login success/failure, token auth success/failure, refresh-per-session constraint, and credential refresh flow per constitution Principle II
 
 **Checkpoint**: Authentication fully functional and independently testable. Users can authenticate via any method.
 
@@ -87,6 +91,7 @@
 - [ ] T031 [US2] Implement `search_catalog()` in `src/api/content/catalog.rs` — searches all content types, returns grouped `SearchResult` per contracts/public-api.md
 - [ ] T032 [US2] Wire search methods into `QobuzApiService` in `src/api/service.rs` — expose all search methods as public API
 - [ ] T033 [US2] Create `src/api/content/mod.rs` with module declarations for albums, artists, tracks, playlists, catalog
+- [ ] T078 [US2] Write unit tests in each content module (`albums.rs`, `artists.rs`, `tracks.rs`, `playlists.rs`, `catalog.rs`) for: search result deserialization, empty result handling, pagination params, and error responses per constitution Principle II
 
 **Checkpoint**: Search fully functional. Users can search for any content type and receive structured results.
 
@@ -107,6 +112,7 @@
 - [ ] T038 [P] [US3] Implement `get_release_list()` in `src/api/content/artists.rs` — GET `/artist/getReleasesList`, returns `ItemSearchResult<Box<Album>>` per contracts/public-api.md
 - [ ] T039 [US3] Wire content browsing methods into `QobuzApiService` in `src/api/service.rs` — expose all get methods as public API
 - [ ] T040 [US3] Add `ResourceNotFoundError` handling for non-existent content IDs in `src/api/requests.rs` response parsing
+- [ ] T079 [US3] Write unit tests in each content module for: get-by-ID with valid/invalid IDs, `ResourceNotFoundError` on 404, optional `extra` param handling per constitution Principle II
 
 **Checkpoint**: Content browsing fully functional. Users can retrieve detailed metadata for any content by ID.
 
@@ -123,9 +129,11 @@
 - [ ] T041 [US4] Implement `get_track_file_url()` in `src/api/content/tracks.rs` — GET `/track/getFileUrl` with signed request (track file URL signature per research.md), returns `FileUrl` per contracts/public-api.md
 - [ ] T042 [US4] Implement streaming download function in `src/api/requests.rs` — `bytes_stream()` with `tokio::io::BufWriter` for efficient disk I/O per research.md section 1
 - [ ] T043 [US4] Implement `download_track()` in `src/api/content/tracks.rs` — gets file URL, streams to disk, formats filename as `{NN}. {title}.{ext}`, handles signature error recovery with credential refresh per contracts/public-api.md
+- [ ] T043a [US4] Implement HTTP range-request resume logic in `src/api/requests.rs` — detect partial file on disk, send `Range` header to resume from last byte, verify `Content-Range` response per FR-023 and constitution Principle IV (resumable downloads)
 - [ ] T044 [US4] Implement `download_album()` in `src/api/content/albums.rs` — fetches album details, creates `{artist}/{album_title}/` directory, downloads all tracks with `tokio::sync::Semaphore` for bounded concurrency (default 4) per contracts/public-api.md
 - [ ] T045 [US4] Add download progress tracing and error context (track ID, album ID, quality) in `src/api/content/tracks.rs` and `src/api/content/albums.rs`
 - [ ] T046 [US4] Wire download methods into `QobuzApiService` in `src/api/service.rs` — expose `get_track_file_url()`, `download_track()`, `download_album()` as public API
+- [ ] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context per constitution Principle II
 
 **Checkpoint**: Downloads fully functional. Users can download tracks and albums at any quality level with concurrent downloads.
 
@@ -141,12 +149,13 @@
 
 - [ ] T047 [P] [US5] Create `src/metadata/mod.rs` with module declarations and re-exports per plan.md
 - [ ] T048 [P] [US5] Create `src/metadata/config.rs` with `MetadataConfig` struct (all boolean fields, `Default` impl with `comment: false`, rest `true`) per data-model.md
-- [ ] T049 [US5] Create `src/metadata/extractor.rs` with `extract_comprehensive_metadata()` — extracts all metadata fields from API models (`Track`, `Album`, `Artist`) into a structured intermediate representation per contracts/public-api.md
+- [ ] T049 [US5] Create `src/metadata/extractor.rs` with `extract_comprehensive_metadata()` — extracts all metadata fields from API models (`Track`, `Album`, `Artist`) into a structured intermediate representation; uses `rayon::par_iter` for batch extraction when processing album tracks per contracts/public-api.md and constitution Principle IV
 - [ ] T050 [US5] Implement artist deduplication logic in `src/metadata/extractor.rs` — deduplicates when multiple roles reference the same person per FR-012
 - [ ] T051 [US5] Implement classical music metadata handling in `src/metadata/extractor.rs` — prioritizes conductor as album artist, handles orchestra information per FR-022
-- [ ] T052 [US5] Create `src/metadata/embedder.rs` with `embed_metadata_in_file()` — writes tags using `lofty`: Vorbis Comments for FLAC, ID3v2 for MP3, cover art via `Picture`, respects `MetadataConfig` field toggles per research.md section 3 and contracts/public-api.md
+- [ ] T052 [US5] Create `src/metadata/embedder.rs` with `embed_metadata_in_file()` — writes tags using `lofty`: Vorbis Comments for FLAC, ID3v2 for MP3, cover art via `Picture`, respects `MetadataConfig` field toggles; uses `rayon::par_iter` for batch embedding; formats multi-artist fields with comma separator for FLAC (Vorbis Comments) and slash separator for MP3 (ID3v2) per spec.md US5 acceptance scenario 3; per research.md section 3 and contracts/public-api.md
 - [ ] T053 [US5] Integrate metadata embedding into `download_track()` and `download_album()` in `src/api/content/tracks.rs` and `src/api/content/albums.rs` — call embedder when `config` is provided per contracts/public-api.md
 - [ ] T054 [US5] Wire metadata re-exports into `src/lib.rs` per contracts/public-api.md
+- [ ] T081 [US5] Write unit tests in `src/metadata/extractor.rs` and `src/metadata/embedder.rs` for: comprehensive field extraction, artist deduplication, classical music conductor priority, FLAC/MP3 tag writing, separator formatting, `MetadataConfig` field toggling per constitution Principle II
 
 **Checkpoint**: Metadata embedding fully functional. Downloaded files display complete metadata in music players.
 
@@ -166,6 +175,7 @@
 - [ ] T058 [US6] Implement `get_user_favorite_ids()` in `src/api/favorites.rs` — GET `/favorite/getUserFavorites` with IDs-only mode, returns `UserFavorites` with populated `*_ids` fields per contracts/public-api.md
 - [ ] T059 [US6] Wire favorites methods into `QobuzApiService` in `src/api/service.rs` — expose all favorites methods as public API
 - [ ] T060 [US6] Add structured tracing for favorites operations in `src/api/favorites.rs`
+- [ ] T082 [US6] Write unit tests in `src/api/favorites.rs` for: add favorite, remove favorite, get favorites list, get favorite IDs, signed request generation per constitution Principle II
 
 **Checkpoint**: Favorites management fully functional. Users can add, remove, and list favorites.
 
@@ -186,6 +196,7 @@
 - [ ] T065 [US7] Implement download command handler in `src/cli/interactive.rs` — initiates download with quality selection, progress indication, and completion confirmation per spec.md acceptance scenario 3
 - [ ] T066 [US7] Implement favorites command handler in `src/cli/interactive.rs` — add/remove/list favorites from REPL
 - [ ] T067 [US7] Wire CLI entry point in `src/main.rs` — initialize service, authenticate, launch REPL loop
+- [ ] T083 [US7] Write unit tests in `src/cli/interactive.rs` for: command parsing, search output formatting, download handler with quality selection, favorites commands per constitution Principle II
 
 **Checkpoint**: CLI fully functional. Users can interactively search, browse, download, and manage favorites.
 
@@ -201,6 +212,8 @@
 - [ ] T071 Verify all files are under 400-line limit per plan.md constraint
 - [ ] T072 Validate quickstart.md examples compile and run correctly against the implemented library
 - [ ] T073 Run `cargo test` and ensure all unit tests pass
+- [ ] T084 [P] Create `benches/` directory with `criterion` benchmarks for hot paths per research.md section 10: album download pipeline, metadata embedding (FLAC + MP3), search result deserialization, request signature generation (MD5). Add `[[bench]]` entries in `Cargo.toml` per constitution Principle IV
+- [ ] T085 [P] Audit all public items for `///` documentation (including `# Arguments` and `# Returns` where applicable) and all modules for `//!` module-level docs per constitution Principle I
 
 ---
 
@@ -213,7 +226,7 @@
 - **User Stories (Phase 3-9)**: All depend on Phase 2 completion
   - US1 (Phase 3): No dependencies on other stories — MVP
   - US2 (Phase 4): Depends on US1 (requires authenticated session for API calls)
-  - US3 (Phase 5): Depends on US1 + US2 (uses models from US2)
+  - US3 (Phase 5): Depends on US1 (requires authenticated session; models from Phase 2)
   - US4 (Phase 6): Depends on US1 + US3 (needs track details, file URLs)
   - US5 (Phase 7): Depends on US4 (metadata embedding integrated into download)
   - US6 (Phase 8): Depends on US1 (requires authenticated session, signed requests)
@@ -327,3 +340,6 @@ T038: get_release_list  ┘
 - All public items must have `///` documentation per AGENTS.md
 - All errors use structured `tracing` with fields per AGENTS.md
 - Max 400 lines per file, zero clippy pedantic warnings, no unsafe code
+- Test tasks (T077-T083) follow constitution Principle II (Test-First Engineering): write tests before or alongside implementation
+- Benchmark tasks (T084) cover hot paths identified in research.md section 10 per constitution Principle IV
+- `HttpClient` trait (T074) enables deterministic testing per research.md section 8 recommendation
