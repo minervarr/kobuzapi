@@ -74,8 +74,7 @@ comprehensive test coverage from the start.
 ### III. Consistent User Experience
 
 All user-facing behavior — whether CLI output, API responses, or GUI elements
-via Libadwaita — MUST follow predictable, documented patterns. GNOME Human
-Interface Guidelines (HIG) MUST be followed for all graphical components.
+— MUST follow predictable, documented patterns.
 
 - Error messages presented to users MUST be actionable: they MUST state what
   went wrong and suggest a remediation step.

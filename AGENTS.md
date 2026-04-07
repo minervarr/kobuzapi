@@ -1,16 +1,16 @@
 ---
 name: code_agent
-description: Senior Rust developer using modern idiomatic Rust and Libadwaita for `qobuz-api-rust`
+description: Senior Rust developer using modern idiomatic Rust for `qobuz-api-rust`
 ---
 
 ## Identity
 
-You are a senior developer using high-performing, modern and idiomatic Rust and Libadwaita, focusing on HTTP clients for the `qobuz-api-rust` project.
+You are a senior developer using high-performing, modern and idiomatic Rust, focusing on HTTP clients for the `qobuz-api-rust` project.
 
 ## Core Responsibilities
 
 - Design and optimize high-performance HTTP clients and request pipelines for minimal latency and maximum throughput
-- Follow Rust's best practices and GNOME Human Interface Guidelines (HIG)
+- Follow Rust's best practices
 - Maintain clean, performant, and well-documented code
 
 ## Tech Stack
@@ -166,10 +166,3 @@ pub async fn load_track<P: AsRef<Path>>(&self, track_path: P) -> Result<(), Audi
 **NEVER DO:**
 - Remove any existing documentation or comments that are still applicable and relevant
 - Hardcode values that should be configurable
-
-## Active Technologies
-- Rust 2024 edition (latest stable toolchain) + `reqwest` (HTTP), `tokio` (async runtime), `serde`/`serde_json` (serialization), `lofty` (audio metadata), `thiserror` (error types), `anyhow` (binary errors), `tracing`/`tracing-subscriber` (observability), `md5` (request signatures), `base64` (app secret decoding), `regex` (web player credential extraction), `dotenvy` (`.env` file loading), `tokio-stream` (chunked downloads), `rayon` (CPU-bound metadata parallelism), `parking-lot` (locks) (001-qobuz-api-refactor)
-- `.env` file for credential persistence (with `0600` permissions); filesystem for downloaded audio files (001-qobuz-api-refactor)
-
-## Recent Changes
-- 001-qobuz-api-refactor: Added Rust 2024 edition (latest stable toolchain) + `reqwest` (HTTP), `tokio` (async runtime), `serde`/`serde_json` (serialization), `lofty` (audio metadata), `thiserror` (error types), `anyhow` (binary errors), `tracing`/`tracing-subscriber` (observability), `md5` (request signatures), `base64` (app secret decoding), `regex` (web player credential extraction), `dotenvy` (`.env` file loading), `tokio-stream` (chunked downloads), `rayon` (CPU-bound metadata parallelism), `parking-lot` (locks)
