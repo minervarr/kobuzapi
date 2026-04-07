@@ -55,7 +55,7 @@ The central service holding authentication state and providing all API operation
 | `app_id` | `String` | Qobuz application ID (extracted from web player or env) |
 | `app_secret` | `String` | Qobuz application secret (extracted from web player or env) |
 | `user_auth_token` | `Option<String>` | User authentication token (set after login) |
-| `client` | `reqwest::Client` | HTTP client with connection pooling (single instance) |
+| `client` | `Box<dyn HttpClient>` | HTTP client abstraction (`ReqwestClient` in production, `MockHttpClient` in tests). Backed by a single `reqwest::Client` with connection pooling. See research.md section 8 for trait definition. |
 | `credentials_refreshed` | `bool` | Whether credentials have been refreshed this session |
 
 **State transitions**:
@@ -128,6 +128,15 @@ A music artist.
 | `albums` | `Option<ItemSearchResult<Box<Album>>>` | Associated albums |
 
 **Relationships**: Referenced by `Album`, `Track`. Contains `Image`, `Biography`.
+
+#### Biography
+| Field | Type | Description |
+|-------|------|-------------|
+| `text` | `Option<String>` | Full biography text (may contain HTML) |
+| `summary` | `Option<String>` | Short biography summary |
+| `lang` | `Option<String>` | Language code (e.g., "en") |
+
+**Note**: The Qobuz API returns biography as a nested object with variable field names. All fields should be `Option` for safe partial deserialization.
 
 ---
 

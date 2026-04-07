@@ -11,6 +11,7 @@
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2)
+- **Sub-task IDs**: Letter suffixes (e.g., `T002a`, `T043a`) indicate tasks inserted after initial numbering to avoid renumbering cascade. They are full tasks with the same standing as numeric IDs
 - Include exact file paths in descriptions
 
 ---
@@ -21,12 +22,13 @@
 
 - [x] T001 Configure `Cargo.toml` with all dependencies per plan.md: `reqwest` (stream, json), `tokio` (full), `serde`/`serde_json`, `lofty`, `thiserror`, `anyhow`, `tracing`/`tracing-subscriber`, `md5`, `base64`, `regex`, `dotenvy`, `tokio-stream`, `rayon`, `parking-lot`, `criterion`, `tempfile` in `Cargo.toml`
 - [x] T002 Set `edition = "2024"` and configure `lints` section with clippy pedantic warnings as deny in `Cargo.toml`
-- [x] T003 [P] Create `src/lib.rs` with module declarations and placeholder re-exports per contracts/public-api.md
+- [x] T002a Create `clippy.toml` at repository root with `excessive-nesting-threshold = 3` per constitution Performance & Reliability Standards table
+- [x] T003 [P] Create `src/lib.rs` with module declarations, placeholder re-exports per contracts/public-api.md, and `#![forbid(unsafe_code)]` attribute at crate root per constitution Principle I
 - [x] T004 [P] Create `src/main.rs` with minimal `tokio::main` entry point that initializes tracing subscriber
 - [x] T005 [P] Create `src/errors.rs` with `QobuzApiError` enum per data-model.md (all 13 variants with `thiserror` derives, `Send + Sync + 'static`)
 - [x] T006 [P] Create `src/signing.rs` with MD5-based request signature generation functions per research.md section 4 (general signed GET and track file URL signatures)
 - [x] T007 [P] Create `src/credentials.rs` with `.env` file I/O (`dotenvy`), permission setting (`0o600`), and web player JS credential extraction (`regex` patterns) per research.md section 5
-- [x] T008 [P] Create `src/sanitize.rs` with `sanitize_filename()` function for cross-platform filename sanitization per plan.md
+- [x] T008 [P] Create `src/sanitize.rs` with `sanitize_filename()` function for cross-platform filename sanitization per plan.md; unit tests MUST cover: path separators (`/`, `\`), control characters, Unicode, filenames exceeding 255 bytes (truncation), and names that become empty after sanitization
 
 ---
 
@@ -64,7 +66,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T077 [US1] Write unit tests in `src/api/auth.rs` (`#[cfg(test)] mod tests`) for: env auth with valid/invalid vars (including `QOBUZ_USERNAME` alias for `QOBUZ_EMAIL`), login success/failure, token auth success/failure, refresh-per-session constraint, and credential refresh flow per constitution Principle II
+- [ ] T077 [US1] Write unit tests in `src/api/auth.rs` (`#[cfg(test)] mod tests`) for: env auth with valid/invalid vars (including `QOBUZ_USERNAME` alias for `QOBUZ_EMAIL`), login success/failure, token auth success/failure, refresh-per-session constraint, credential refresh flow, and web player credential extraction failure (verifying that a clear `CredentialsError` is returned indicating manual configuration is needed) per constitution Principle II
 - [ ] T021 [US1] Implement `authenticate_with_env()` in `src/api/auth.rs` — reads `QOBUZ_USER_ID`/`QOBUZ_USER_AUTH_TOKEN` or `QOBUZ_EMAIL`/`QOBUZ_PASSWORD`/`QOBUZ_USERNAME` (alias for `QOBUZ_EMAIL`) env vars, delegates to `login()` or `login_with_token()` per contracts/public-api.md
 - [ ] T022 [US1] Implement `login(email, password)` in `src/api/auth.rs` — MD5-hashes password, POSTs to `/user/login`, stores `user_auth_token` per contracts/public-api.md
 - [ ] T023 [US1] Implement `login_with_token(user_id, auth_token)` in `src/api/auth.rs` — POSTs to `/user/login` with token credentials, stores `user_auth_token` per contracts/public-api.md
@@ -212,6 +214,7 @@
 - [ ] T071 Verify all files are under 400-line limit per plan.md constraint
 - [ ] T072 Validate quickstart.md examples compile and run correctly against the implemented library
 - [ ] T073 Run `cargo test` and ensure all unit tests pass
+- [ ] T073a Run `cargo bench` and verify no benchmark regression exceeds 10% in throughput or allocation count for hot paths per constitution Principle IV and Performance & Reliability Standards table
 - [ ] T084 [P] Create `benches/` directory with `criterion` benchmarks for hot paths per research.md section 10: album download pipeline, metadata embedding (FLAC + MP3), search result deserialization, request signature generation (MD5), authentication handshake timing (validate SC-001: auth within 5s on ≥10 Mbps/≤100ms latency). Add `[[bench]]` entries in `Cargo.toml` per constitution Principle IV
 - [ ] T085 [P] Audit all public items for `///` documentation (including `# Arguments` and `# Returns` where applicable) and all modules for `//!` module-level docs per constitution Principle I
 
