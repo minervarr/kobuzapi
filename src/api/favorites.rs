@@ -1,227 +1,200 @@
+//! Favorites management: add, remove, and retrieve favorites.
+
+use std::string::ToString;
+
+use {serde_json::Value, tracing::info};
+
 use crate::{
-    api::service::QobuzApiService,
-    errors::QobuzApiError::{self, QobuzApiInitializationError},
-    models::{QobuzApiStatusResponse, UserFavorites, UserFavoritesIds},
+    api::{
+        requests::{self, RequestAuth},
+        service::QobuzApiService,
+    },
+    errors::QobuzApiError,
+    models::search::UserFavorites,
 };
 
-impl QobuzApiService {
-    /// Add tracks, albums & artists to the authenticated user's favorites.
-    /// At least 1 type of favorite to add is required as parameter.
-    ///
-    /// # Arguments
-    /// * `track_ids` - IDs of the tracks to add, comma separated list (optional)
-    /// * `album_ids` - IDs of the albums to add, comma separated list (optional)
-    /// * `artist_ids` - IDs of the artists to add, comma separated list (optional)
-    ///
-    /// # Returns
-    /// * `Ok(QobuzApiStatusResponse)` - Response indicating if the request was successful
-    /// * `Err(QobuzApiError)` - If the API request fails
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// # use qobuz_api_rust::QobuzApiService;
-    /// # use tokio;
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// # let service = QobuzApiService::new().await?;
-    /// // Add a track to favorites
-    /// let response = service.add_user_favorites(
-    ///     Some("123456789"),
-    ///     None,
-    ///     None,
-    /// ).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub async fn add_user_favorites(
-        &self,
-        track_ids: Option<&str>,
-        album_ids: Option<&str>,
-        artist_ids: Option<&str>,
-    ) -> Result<QobuzApiStatusResponse, QobuzApiError> {
-        let mut params = Vec::new();
+/// Sends a signed POST to add or remove favorites and logs the result.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+/// * `item_ids` - IDs of items to modify
+/// * `item_type` - Type of items (`"album"`, `"artist"`, or `"track"`)
+/// * `endpoint` - API endpoint path (e.g., `"/favorite/create"`)
+/// * `log_action` - Description to log on success
+///
+/// # Returns
+///
+/// `Ok(())` on success.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` if not authenticated or the API request fails.
+async fn modify_favorites(
+    service: &QobuzApiService,
+    item_ids: &[i32],
+    item_type: &str,
+    endpoint: &str,
+    log_action: &str,
+) -> Result<(), QobuzApiError> {
+    let token = service.require_auth_token()?;
 
-        if let Some(ids) = track_ids {
-            params.push(("track_ids".to_string(), ids.to_string()));
-        }
+    let ids: String = item_ids
+        .iter()
+        .map(ToString::to_string)
+        .collect::<Vec<_>>()
+        .join(",");
 
-        if let Some(ids) = album_ids {
-            params.push(("album_ids".to_string(), ids.to_string()));
-        }
+    let mut params = vec![
+        ("item_ids".to_string(), ids),
+        ("item_type".to_string(), item_type.to_string()),
+    ];
 
-        if let Some(ids) = artist_ids {
-            params.push(("artist_ids".to_string(), ids.to_string()));
-        }
+    requests::signed_post::<Value>(
+        service.http_client(),
+        endpoint,
+        &mut params,
+        &RequestAuth {
+            app_id: &service.app_id,
+            app_secret: service.app_secret(),
+            user_auth_token: token,
+        },
+    )
+    .await?;
 
-        // At least one type of favorite must be provided
-        if params.is_empty() {
-            return Err(QobuzApiInitializationError {
-                message: "At least one type of favorite (track_ids, album_ids, or artist_ids) must be provided".to_string(),
-            });
-        }
+    info!(item_type, count = item_ids.len(), "{log_action}");
+    Ok(())
+}
 
-        self.signed_get("/favorite/create", &params).await
-    }
+/// Adds items to the user's favorites.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+/// * `item_ids` - IDs of items to favorite
+/// * `item_type` - Type of items (`"album"`, `"artist"`, or `"track"`)
+///
+/// # Returns
+///
+/// `Ok(())` on success.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` if not authenticated or the API request fails.
+pub async fn add_user_favorites(
+    service: &QobuzApiService,
+    item_ids: &[i32],
+    item_type: &str,
+) -> Result<(), QobuzApiError> {
+    modify_favorites(
+        service,
+        item_ids,
+        item_type,
+        "/favorite/create",
+        "Added favorites",
+    )
+    .await
+}
 
-    /// Removes tracks, albums & artists from the authenticated user's favorites.
-    /// At least 1 type of favorite to remove is required as parameter.
-    ///
-    /// # Arguments
-    /// * `track_ids` - IDs of the tracks to remove, comma separated list (optional)
-    /// * `album_ids` - IDs of the albums to remove, comma separated list (optional)
-    /// * `artist_ids` - IDs of the artists to remove, comma separated list (optional)
-    ///
-    /// # Returns
-    /// * `Ok(QobuzApiStatusResponse)` - Response indicating if the request was successful
-    /// * `Err(QobuzApiError)` - If the API request fails
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// # use qobuz_api_rust::QobuzApiService;
-    /// # use tokio;
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// # let service = QobuzApiService::new().await?;
-    /// // Remove a track from favorites
-    /// let response = service.delete_user_favorites(
-    ///     Some("123456789"),
-    ///     None,
-    ///     None,
-    /// ).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub async fn delete_user_favorites(
-        &self,
-        track_ids: Option<&str>,
-        album_ids: Option<&str>,
-        artist_ids: Option<&str>,
-    ) -> Result<QobuzApiStatusResponse, QobuzApiError> {
-        let mut params = Vec::new();
+/// Removes items from the user's favorites.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+/// * `item_ids` - IDs of items to remove
+/// * `item_type` - Type of items (`"album"`, `"artist"`, or `"track"`)
+///
+/// # Returns
+///
+/// `Ok(())` on success.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` if not authenticated or the API request fails.
+pub async fn delete_user_favorites(
+    service: &QobuzApiService,
+    item_ids: &[i32],
+    item_type: &str,
+) -> Result<(), QobuzApiError> {
+    modify_favorites(
+        service,
+        item_ids,
+        item_type,
+        "/favorite/delete",
+        "Deleted favorites",
+    )
+    .await
+}
 
-        if let Some(ids) = track_ids {
-            params.push(("track_ids".to_string(), ids.to_string()));
-        }
+/// Retrieves the user's favorites list.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+/// * `item_type` - Type of items to retrieve
+/// * `limit` - Maximum number of results
+/// * `offset` - Pagination offset
+///
+/// # Returns
+///
+/// The user's favorited items grouped by type.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` if not authenticated or the API request fails.
+pub async fn get_user_favorites(
+    service: &QobuzApiService,
+    item_type: &str,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) -> Result<UserFavorites, QobuzApiError> {
+    let token = service.require_auth_token()?;
 
-        if let Some(ids) = album_ids {
-            params.push(("album_ids".to_string(), ids.to_string()));
-        }
+    let mut params: Vec<(String, String)> = vec![("type".to_string(), item_type.to_string())];
+    requests::push_pagination_params(&mut params, limit, offset);
 
-        if let Some(ids) = artist_ids {
-            params.push(("artist_ids".to_string(), ids.to_string()));
-        }
+    requests::signed_get(
+        service.http_client(),
+        "/favorite/getUserFavorites",
+        &mut params,
+        &RequestAuth {
+            app_id: &service.app_id,
+            app_secret: service.app_secret(),
+            user_auth_token: token,
+        },
+    )
+    .await
+}
 
-        // At least one type of favorite must be provided
-        if params.is_empty() {
-            return Err(QobuzApiInitializationError {
-                message: "At least one type of favorite (track_ids, album_ids, or artist_ids) must be provided".to_string(),
-            });
-        }
+/// Retrieves only the favorite IDs grouped by type.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+///
+/// # Returns
+///
+/// The user's favorite IDs grouped by type.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` if not authenticated or the API request fails.
+pub async fn get_user_favorite_ids(
+    service: &QobuzApiService,
+) -> Result<UserFavorites, QobuzApiError> {
+    let token = service.require_auth_token()?;
 
-        self.signed_get("/favorite/delete", &params).await
-    }
+    let mut params: Vec<(String, String)> = vec![("type".to_string(), "ids".to_string())];
 
-    /// Gets the IDs of the user favorites for the authenticated user or user with the specified user ID.
-    ///
-    /// # Arguments
-    /// * `user_id` - The User ID to fetch the favorites from. If omitted, returns favorites of the logged in user using user_auth_token (optional)
-    /// * `limit` - The maximum number of extra results to return. Defaults to 5000, minimum 1, maximum 99999 (optional)
-    /// * `offset` - The offset of the first extra result to return. Defaults to 0 (optional)
-    ///
-    /// # Returns
-    /// * `Ok(UserFavoritesIds)` - The IDs of the user favorites
-    /// * `Err(QobuzApiError)` - If the API request fails
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// # use qobuz_api_rust::QobuzApiService;
-    /// # use tokio;
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// # let service = QobuzApiService::new().await?;
-    /// // Get favorite IDs with default parameters
-    /// let favorites = service.get_user_favorite_ids(None, None, None).await?;
-    ///
-    /// // Get favorite IDs with custom parameters
-    /// let favorites = service.get_user_favorite_ids(
-    ///     Some("123456789"),
-    ///     Some(100),
-    ///     Some(50),
-    /// ).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub async fn get_user_favorite_ids(
-        &self,
-        user_id: Option<&str>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> Result<UserFavoritesIds, QobuzApiError> {
-        let mut params = Vec::new();
-
-        if let Some(id) = user_id {
-            params.push(("user_id".to_string(), id.to_string()));
-        }
-
-        params.push(("limit".to_string(), limit.unwrap_or(5000).to_string()));
-        params.push(("offset".to_string(), offset.unwrap_or(0).to_string()));
-
-        self.signed_get("/favorite/getUserFavoriteIds", &params)
-            .await
-    }
-
-    /// Gets user favorites of the authenticated user or user with the specified user ID.
-    ///
-    /// # Arguments
-    /// * `user_id` - The User ID to fetch the favorites from. If omitted, returns favorites of the logged in user using user_auth_token (optional)
-    /// * `type_param` - Type of favorites to include in the response (optional). Possible values are 'tracks', 'albums', 'artists' & 'articles'. If no type defined, all types are returned
-    /// * `limit` - The maximum number of extra results to return. Defaults to 50, minimum 1, maximum 500 (optional)
-    /// * `offset` - The offset of the first extra result to return. Defaults to 0 (optional)
-    ///
-    /// # Returns
-    /// * `Ok(UserFavorites)` - The user favorites
-    /// * `Err(QobuzApiError)` - If the API request fails
-    ///
-    /// # Example
-    /// ```rust,no_run
-    /// # use qobuz_api_rust::QobuzApiService;
-    /// # use tokio;
-    /// # #[tokio::main]
-    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    /// # let service = QobuzApiService::new().await?;
-    /// // Get all favorite types with default parameters
-    /// let favorites = service.get_user_favorites(None, None, None, None).await?;
-    ///
-    /// // Get only favorite albums with custom parameters
-    /// let album_favorites = service.get_user_favorites(
-    ///     None,
-    ///     Some("albums"),
-    ///     Some(100),
-    ///     Some(20),
-    /// ).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    pub async fn get_user_favorites(
-        &self,
-        user_id: Option<&str>,
-        type_param: Option<&str>,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> Result<UserFavorites, QobuzApiError> {
-        let mut params = Vec::new();
-
-        if let Some(id) = user_id {
-            params.push(("user_id".to_string(), id.to_string()));
-        }
-
-        if let Some(t) = type_param {
-            params.push(("type".to_string(), t.to_string()));
-        }
-
-        params.push(("limit".to_string(), limit.unwrap_or(50).to_string()));
-        params.push(("offset".to_string(), offset.unwrap_or(0).to_string()));
-
-        self.signed_get("/favorite/getUserFavorites", &params).await
-    }
+    requests::signed_get(
+        service.http_client(),
+        "/favorite/getUserFavorites",
+        &mut params,
+        &RequestAuth {
+            app_id: &service.app_id,
+            app_secret: service.app_secret(),
+            user_auth_token: token,
+        },
+    )
+    .await
 }

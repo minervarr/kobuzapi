@@ -1,334 +1,412 @@
+//! HTTP request primitives: GET, POST, signed GET, response parsing, retry-with-backoff.
+
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 use {
+    reqwest::Response,
     serde::de::DeserializeOwned,
-    serde_json::{Value, from_value},
+    serde_json::{Value, from_str},
+    tokio::time::sleep,
 };
 
 use crate::{
-    api::service::constants,
-    errors::QobuzApiError::{self, ApiErrorResponse, ApiResponseParseError, HttpError},
-    models::QobuzApiStatusResponse,
-    utils::{deserialize_response, get_current_timestamp, get_md5_hash, to_query_string},
+    api::http_client::HttpClient,
+    errors::QobuzApiError::{
+        self, ApiErrorResponse, ApiResponseParseError, DownloadError, RateLimitError,
+        ResourceNotFoundError,
+    },
+    signing::sign_request,
 };
 
-impl crate::api::service::QobuzApiService {
-    /// Sends a GET request to the Qobuz API.
-    ///
-    /// This method handles the complete request lifecycle including parameter formatting,
-    /// authentication token injection, response parsing, and error handling. It automatically
-    /// includes common parameters and checks for API error responses.
-    ///
-    /// # Arguments
-    ///
-    /// * `endpoint` - The API endpoint to call (e.g., "/album/get")
-    /// * `params` - A slice of key-value parameter pairs to include in the query string
-    ///
-    /// # Type Parameters
-    ///
-    /// * `T` - The expected response type that must implement `DeserializeOwned`
-    ///
-    /// # Returns
-    ///
-    /// Returns `Ok(T)` with the deserialized response data if the request is successful,
-    /// or `Err(QobuzApiError)` if the request fails due to network issues, API errors,
-    /// or response parsing problems.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use qobuz_api_rust::api::service::QobuzApiService;
-    /// # use qobuz_api_rust::models::Album;
-    /// # async fn example(service: &QobuzApiService) -> Result<(), Box<dyn std::error::Error>> {
-    /// let album_id = "12345";
-    /// let params = vec![("album_id".to_string(), album_id.to_string())];
-    /// let album: Album = service.get("/album/get", &params).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    ///
-    /// # Errors
-    ///
-    /// This function will return an error if:
-    /// - The HTTP request fails (network issues)
-    /// - The API returns an error response (status: "error")
-    /// - The response cannot be parsed as the expected type `T`
-    /// - The response cannot be deserialized from JSON
-    pub async fn get<T>(
-        &self,
-        endpoint: &str,
-        params: &[(String, String)],
-    ) -> Result<T, QobuzApiError>
-    where
-        T: DeserializeOwned,
-    {
-        // Add common parameters
-        let all_params = params.to_vec();
+/// Base URL for all Qobuz API v0.2 endpoints.
+const BASE_URL: &str = "https://www.qobuz.com/api.json/0.2";
+/// Maximum number of retry attempts on rate limiting.
+const MAX_RETRIES: u32 = 3;
+/// Base delay in milliseconds for exponential backoff.
+const BASE_BACKOFF_MS: u64 = 500;
 
-        let query_string = to_query_string(&all_params);
-        let url = format!("{}{}?{}", constants::API_BASE_URL, endpoint, query_string);
+/// Bundles application credentials and user token for signed API requests.
+pub struct RequestAuth<'a> {
+    /// Application ID.
+    pub app_id: &'a str,
+    /// Application secret for request signing.
+    pub app_secret: &'a str,
+    /// User authentication token.
+    pub user_auth_token: &'a str,
+}
 
-        let mut request = self.client.get(&url);
+/// Appends optional `limit` and `offset` pagination parameters to a params vector.
+///
+/// # Arguments
+///
+/// * `params` - Parameter vector to modify
+/// * `limit` - Maximum number of results (if provided)
+/// * `offset` - Pagination offset (if provided)
+pub fn push_pagination_params(
+    params: &mut Vec<(String, String)>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) {
+    if let Some(l) = limit {
+        params.push(("limit".to_string(), l.to_string()));
+    }
+    if let Some(o) = offset {
+        params.push(("offset".to_string(), o.to_string()));
+    }
+}
 
-        if let Some(ref token) = self.user_auth_token {
-            request = request.header("X-User-Auth-Token", token);
+/// Appends `app_id`, `request_ts`, and `request_sig` to params for request signing.
+///
+/// # Arguments
+///
+/// * `params` - Parameter vector to modify
+/// * `method` - HTTP method (e.g., `"GET"`, `"POST"`)
+/// * `endpoint` - API endpoint path
+/// * `auth` - Application credentials for signing
+fn append_signature(
+    params: &mut Vec<(String, String)>,
+    method: &str,
+    endpoint: &str,
+    auth: &RequestAuth<'_>,
+) {
+    params.push(("app_id".to_string(), auth.app_id.to_string()));
+    params.push(("request_ts".to_string(), timestamp()));
+    let sig = sign_request(method, endpoint, params, auth.app_secret);
+    params.push(("request_sig".to_string(), sig));
+}
+
+/// Executes a POST request with form parameters and parses the response.
+///
+/// # Arguments
+///
+/// * `client` - HTTP client implementation
+/// * `endpoint` - API endpoint path
+/// * `params` - Key-value form parameters
+///
+/// # Returns
+///
+/// Parsed JSON response of type `T`.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` on HTTP failures or JSON parse errors.
+async fn execute_post<T: DeserializeOwned>(
+    client: &dyn HttpClient,
+    endpoint: &str,
+    params: &[(String, String)],
+) -> Result<T, QobuzApiError> {
+    let url = format!("{BASE_URL}{endpoint}");
+    let param_refs: Vec<(&str, &str)> = params
+        .iter()
+        .map(|(k, v)| (k.as_str(), v.as_str()))
+        .collect();
+
+    let response = client.post_form(&url, &param_refs).await?;
+
+    parse_response::<T>(response, endpoint).await
+}
+
+/// Sends a signed GET request and parses the JSON response.
+///
+/// # Arguments
+///
+/// * `client` - HTTP client implementation
+/// * `endpoint` - API endpoint path (e.g., `"/album/search"`)
+/// * `params` - Key-value parameter pairs (will be sorted for signing)
+/// * `auth` - Application credentials and user authentication token
+///
+/// # Returns
+///
+/// Parsed JSON response of type `T`.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` on HTTP failures, rate limiting, or JSON parse errors.
+pub async fn signed_get<T: DeserializeOwned>(
+    client: &dyn HttpClient,
+    endpoint: &str,
+    params: &mut Vec<(String, String)>,
+    auth: &RequestAuth<'_>,
+) -> Result<T, QobuzApiError> {
+    append_signature(params, "GET", endpoint, auth);
+
+    let url = build_url_with_params(endpoint, params);
+    let response = retry_with_backoff(client, &url, auth.user_auth_token).await?;
+
+    parse_response::<T>(response, endpoint).await
+}
+
+/// Sends a POST request with form parameters and parses the JSON response.
+///
+/// # Arguments
+///
+/// * `client` - HTTP client implementation
+/// * `endpoint` - API endpoint path
+/// * `params` - Key-value form parameters
+/// * `app_id` - Application ID
+/// * `user_auth_token` - User authentication token (may be empty for login)
+///
+/// # Returns
+///
+/// Parsed JSON response of type `T`.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` on HTTP failures or JSON parse errors.
+pub async fn post<T: DeserializeOwned>(
+    client: &dyn HttpClient,
+    endpoint: &str,
+    params: &mut Vec<(String, String)>,
+    app_id: &str,
+    user_auth_token: &str,
+) -> Result<T, QobuzApiError> {
+    params.push(("app_id".to_string(), app_id.to_string()));
+    if !user_auth_token.is_empty() {
+        params.push(("user_auth_token".to_string(), user_auth_token.to_string()));
+    }
+
+    execute_post::<T>(client, endpoint, params).await
+}
+
+/// Sends a signed POST request with form parameters and parses the JSON response.
+///
+/// # Arguments
+///
+/// * `client` - HTTP client implementation
+/// * `endpoint` - API endpoint path
+/// * `params` - Key-value form parameters (will be sorted for signing)
+/// * `auth` - Application credentials and user authentication token
+///
+/// # Returns
+///
+/// Parsed JSON response of type `T`.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` on HTTP failures, rate limiting, or JSON parse errors.
+pub async fn signed_post<T: DeserializeOwned>(
+    client: &dyn HttpClient,
+    endpoint: &str,
+    params: &mut Vec<(String, String)>,
+    auth: &RequestAuth<'_>,
+) -> Result<T, QobuzApiError> {
+    params.push((
+        "user_auth_token".to_string(),
+        auth.user_auth_token.to_string(),
+    ));
+    append_signature(params, "POST", endpoint, auth);
+
+    execute_post::<T>(client, endpoint, params).await
+}
+
+/// Sends a GET request to an authenticated endpoint for binary download.
+///
+/// # Arguments
+///
+/// * `client` - HTTP client implementation
+/// * `url` - Full download URL
+/// * `token` - User auth token
+/// * `range` - Optional Range header value (e.g., `"bytes=1024-"`)
+///
+/// # Returns
+///
+/// The raw `reqwest::Response` for streaming.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` on HTTP failures, 404, or non-success status codes.
+pub async fn download_stream(
+    client: &dyn HttpClient,
+    url: &str,
+    token: &str,
+    range: Option<&str>,
+) -> Result<Response, QobuzApiError> {
+    let response = client.get_with_auth(url, token, range).await?;
+
+    let status = response.status();
+    if status.is_success() || status.as_u16() == 206 {
+        Ok(response)
+    } else if status.as_u16() == 404 {
+        Err(ResourceNotFoundError {
+            resource_type: "file".to_string(),
+            resource_id: url.to_string(),
+        })
+    } else {
+        Err(DownloadError {
+            message: format!("HTTP {status}"),
+        })
+    }
+}
+
+/// Retries a GET request with exponential backoff on rate limiting (HTTP 429).
+///
+/// # Arguments
+///
+/// * `client` - HTTP client implementation
+/// * `url` - Full URL with query parameters
+/// * `user_auth_token` - User authentication token
+///
+/// # Returns
+///
+/// The successful HTTP response.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError::RateLimitError` if all retries are exhausted.
+async fn retry_with_backoff(
+    client: &dyn HttpClient,
+    url: &str,
+    user_auth_token: &str,
+) -> Result<Response, QobuzApiError> {
+    let mut last_error: Option<QobuzApiError> = None;
+
+    for attempt in 0..=MAX_RETRIES {
+        let response = client.get_with_auth(url, user_auth_token, None).await?;
+
+        let status = response.status();
+        if status.as_u16() == 429 {
+            let delay = BASE_BACKOFF_MS * 2u64.pow(attempt);
+            sleep(Duration::from_millis(delay)).await;
+            last_error = Some(RateLimitError {
+                message: format!("Rate limited, retry {attempt}/{MAX_RETRIES}"),
+            });
+            continue;
         }
 
-        let response = request.send().await.map_err(HttpError)?;
-        let value: Value = deserialize_response(response).await?;
+        return Ok(response);
+    }
 
-        if let Some(status) = value.get("status")
-            && status == "error"
-        {
-            let error_response: QobuzApiStatusResponse =
-                from_value(value.clone()).map_err(|e| ApiResponseParseError {
-                    content: e.to_string(),
-                    source: e,
-                })?;
+    Err(last_error.unwrap_or_else(|| RateLimitError {
+        message: "Rate limited: retries exhausted".to_string(),
+    }))
+}
 
-            return Err(ApiErrorResponse {
-                code: error_response.code.unwrap_or_default(),
-                message: error_response.message.unwrap_or_default(),
-                status: error_response.status.unwrap_or_default(),
+/// Builds a full URL with query parameters from an endpoint path.
+///
+/// # Arguments
+///
+/// * `endpoint` - API endpoint path (e.g., `"/album/search"`)
+/// * `params` - Key-value parameter pairs
+///
+/// # Returns
+///
+/// A fully formed URL string with encoded query parameters.
+fn build_url_with_params(endpoint: &str, params: &[(String, String)]) -> String {
+    let mut url = format!("{BASE_URL}{endpoint}");
+    if !params.is_empty() {
+        let query: String = params
+            .iter()
+            .map(|(k, v)| format!("{}={}", urlencoding(k), urlencoding(v)))
+            .collect::<Vec<_>>()
+            .join("&");
+        url.push('?');
+        url.push_str(&query);
+    }
+    url
+}
+
+/// URL-encodes special characters in a string.
+///
+/// # Arguments
+///
+/// * `s` - The string to encode
+///
+/// # Returns
+///
+/// A URL-encoded string with spaces as `+` and special chars as `%XX`.
+fn urlencoding(s: &str) -> String {
+    s.chars()
+        .map(|c| match c {
+            ' ' => "+".to_string(),
+            'a'..='z' | 'A'..='Z' | '0'..='9' | '-' | '_' | '.' | '~' => c.to_string(),
+            _ => format!("%{:02X}", c as u32),
+        })
+        .collect()
+}
+
+/// Parses an API response, handling error status codes and JSON deserialization.
+///
+/// # Arguments
+///
+/// * `response` - The HTTP response to parse
+/// * `endpoint` - API endpoint path for error context
+///
+/// # Returns
+///
+/// The deserialized response body of type `T`.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` on non-success status codes or JSON deserialization failure.
+async fn parse_response<T: DeserializeOwned>(
+    response: Response,
+    endpoint: &str,
+) -> Result<T, QobuzApiError> {
+    let status = response.status();
+    let body = response.text().await?;
+
+    if status.is_success() {
+        return from_str::<T>(&body).map_err(|e| ApiResponseParseError {
+            content: truncate(&body, 500),
+            source_info: Some(format!("{e}")),
+        });
+    }
+
+    if let Ok(err) = from_str::<Value>(&body) {
+        let code = i32::try_from(err.get("code").and_then(Value::as_i64).unwrap_or_default())
+            .unwrap_or_default();
+        let message = err
+            .get("message")
+            .and_then(|v| v.as_str())
+            .unwrap_or("Unknown error");
+
+        if status.as_u16() == 404 {
+            return Err(ResourceNotFoundError {
+                resource_type: endpoint.trim_start_matches('/').to_string(),
+                resource_id: message.to_string(),
             });
         }
 
-        from_value(value).map_err(|e| ApiResponseParseError {
-            content: e.to_string(),
-            source: e,
-        })
+        return Err(ApiErrorResponse {
+            code,
+            message: message.to_string(),
+            status: status.to_string(),
+        });
     }
 
-    /// Sends a POST request to the Qobuz API.
-    ///
-    /// This method handles POST requests to the Qobuz API, automatically including
-    /// required parameters like the application ID and user authentication token if available.
-    /// It manages the complete request lifecycle including parameter formatting,
-    /// response parsing, and error handling.
-    ///
-    /// # Arguments
-    ///
-    /// * `endpoint` - The API endpoint to call (e.g., "/user/login")
-    /// * `params` - A slice of key-value parameter pairs to include in the form body
-    ///
-    /// # Type Parameters
-    ///
-    /// * `T` - The expected response type that must implement `DeserializeOwned`
-    ///
-    /// # Returns
-    ///
-    /// Returns `Ok(T)` with the deserialized response data if the request is successful,
-    /// or `Err(QobuzApiError)` if the request fails due to network issues, API errors,
-    /// or response parsing problems.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use qobuz_api_rust::api::service::QobuzApiService;
-    /// # use qobuz_api_rust::models::Login;
-    /// # async fn example(service: &QobuzApiService) -> Result<(), Box<dyn std::error::Error>> {
-    /// let params = vec![
-    ///     ("email".to_string(), "user@example.com".to_string()),
-    ///     ("password".to_string(), "hashed_password".to_string()),
-    /// ];
-    /// let login_response: Login = service.post("/user/login", &params).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    ///
-    /// # Errors
-    ///
-    /// This function will return an error if:
-    /// - The HTTP request fails (network issues)
-    /// - The API returns an error response (status: "error")
-    /// - The response cannot be parsed as the expected type `T`
-    /// - The response cannot be deserialized from JSON
-    pub async fn post<T>(
-        &self,
-        endpoint: &str,
-        params: &[(String, String)],
-    ) -> Result<T, QobuzApiError>
-    where
-        T: DeserializeOwned,
-    {
-        // Add common parameters
-        let mut all_params = params.to_vec();
-        all_params.push(("app_id".to_string(), self.app_id.clone()));
+    Err(ApiErrorResponse {
+        code: i32::from(status.as_u16()),
+        message: truncate(&body, 200),
+        status: status.to_string(),
+    })
+}
 
-        if let Some(ref token) = self.user_auth_token {
-            all_params.push(("user_auth_token".to_string(), token.clone()));
-        }
+/// Generates a Unix timestamp string for request signing.
+///
+/// # Returns
+///
+/// The current Unix timestamp as a string.
+fn timestamp() -> String {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default();
+    now.as_secs().to_string()
+}
 
-        let url = format!("{}{}", constants::API_BASE_URL, endpoint);
-
-        let response = self
-            .client
-            .post(&url)
-            .form(&all_params)
-            .send()
-            .await
-            .map_err(HttpError)?;
-        let value: Value = deserialize_response(response).await?;
-
-        if let Some(status) = value.get("status")
-            && status == "error"
-        {
-            let error_response: QobuzApiStatusResponse =
-                from_value(value).map_err(|e| ApiResponseParseError {
-                    content: e.to_string(),
-                    source: e,
-                })?;
-            return Err(ApiErrorResponse {
-                code: error_response.code.unwrap_or_default(),
-                message: error_response.message.unwrap_or_default(),
-                status: error_response.status.unwrap_or_default(),
-            });
-        }
-
-        from_value(value).map_err(|e| ApiResponseParseError {
-            content: e.to_string(),
-            source: e,
-        })
-    }
-
-    /// Generates a signature for protected Qobuz API endpoints.
-    ///
-    /// This method creates a signature string using the Qobuz API's authentication scheme.
-    /// The signature is computed by concatenating the HTTP method, endpoint, sorted parameters,
-    /// and application secret, then applying an MD5 hash. This ensures the request is
-    /// authenticated and authorized.
-    ///
-    /// # Arguments
-    ///
-    /// * `method` - The HTTP method (e.g., "GET", "POST")
-    /// * `endpoint` - The API endpoint to call (e.g., "/album/get")
-    /// * `params` - A slice of key-value parameter pairs to include in the signature calculation
-    ///
-    /// # Returns
-    ///
-    /// Returns a string containing the MD5 hash of the signature string.
-    ///
-    /// # Algorithm
-    ///
-    /// The signature is generated by:
-    /// 1. Adding common parameters (app_id, method, timestamp, user_auth_token if present)
-    /// 2. Sorting parameters alphabetically by key
-    /// 3. Creating a signature string by concatenating method, endpoint, sorted parameters, and app secret
-    /// 4. Computing the MD5 hash of the signature string
-    fn generate_signature(
-        &self,
-        method: &str,
-        endpoint: &str,
-        params: &[(String, String)],
-    ) -> String {
-        let timestamp = get_current_timestamp();
-        let mut all_params = params.to_vec();
-        all_params.push(("app_id".to_string(), self.app_id.clone()));
-        all_params.push(("method".to_string(), method.to_string()));
-        all_params.push(("timestamp".to_string(), timestamp.clone()));
-
-        if let Some(ref token) = self.user_auth_token {
-            all_params.push(("user_auth_token".to_string(), token.clone()));
-        }
-
-        // Sort parameters alphabetically by key
-        all_params.sort_by(|a, b| a.0.cmp(&b.0));
-
-        // Create the signature string
-        let mut signature_string = format!("{}{}", method, endpoint);
-        for (key, value) in &all_params {
-            signature_string.push_str(&format!("{}{}", key, value));
-        }
-        signature_string.push_str(&self.app_secret);
-
-        get_md5_hash(&signature_string)
-    }
-
-    /// Sends a GET request to the Qobuz API with signature authentication.
-    ///
-    /// This method is used for protected endpoints that require signature-based authentication.
-    /// It automatically generates the required signature using the Qobuz API's authentication
-    /// scheme, includes the necessary parameters (app_id, user_auth_token if available),
-    /// and handles the complete request lifecycle including response parsing and error handling.
-    ///
-    /// # Arguments
-    ///
-    /// * `endpoint` - The API endpoint to call (e.g., "/album/get")
-    /// * `params` - A slice of key-value parameter pairs to include in the query string
-    ///
-    /// # Type Parameters
-    ///
-    /// * `T` - The expected response type that must implement `DeserializeOwned`
-    ///
-    /// # Returns
-    ///
-    /// Returns `Ok(T)` with the deserialized response data if the request is successful,
-    /// or `Err(QobuzApiError)` if the request fails due to network issues, API errors,
-    /// or response parsing problems.
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use qobuz_api_rust::api::service::QobuzApiService;
-    /// # use qobuz_api_rust::models::Album;
-    /// # async fn example(service: &QobuzApiService) -> Result<(), Box<dyn std::error::Error>> {
-    /// let album_id = "12345";
-    /// let params = vec![("album_id".to_string(), album_id.to_string())];
-    /// let album: Album = service.signed_get("/album/get", &params).await?;
-    /// # Ok(())
-    /// # }
-    /// ```
-    ///
-    /// # Errors
-    ///
-    /// This function will return an error if:
-    /// - The HTTP request fails (network issues)
-    /// - The API returns an error response (status: "error")
-    /// - The response cannot be parsed as the expected type `T`
-    /// - The response cannot be deserialized from JSON
-    pub async fn signed_get<T>(
-        &self,
-        endpoint: &str,
-        params: &[(String, String)],
-    ) -> Result<T, QobuzApiError>
-    where
-        T: DeserializeOwned,
-    {
-        // Add common parameters
-        let mut all_params = params.to_vec();
-        all_params.push(("app_id".to_string(), self.app_id.clone()));
-
-        if let Some(ref token) = self.user_auth_token {
-            all_params.push(("user_auth_token".to_string(), token.clone()));
-        }
-
-        // Generate signature
-        let signature = self.generate_signature("GET", endpoint, params);
-        all_params.push(("request_ts".to_string(), get_current_timestamp()));
-        all_params.push(("request_sig".to_string(), signature));
-
-        let query_string = to_query_string(&all_params);
-        let url = format!("{}{}?{}", constants::API_BASE_URL, endpoint, query_string);
-
-        let response = self.client.get(&url).send().await.map_err(HttpError)?;
-        let value: Value = deserialize_response(response).await?;
-
-        if let Some(status) = value.get("status")
-            && status == "error"
-        {
-            let error_response: QobuzApiStatusResponse =
-                from_value(value).map_err(|e| ApiResponseParseError {
-                    content: e.to_string(),
-                    source: e,
-                })?;
-            return Err(ApiErrorResponse {
-                code: error_response.code.unwrap_or_default(),
-                message: error_response.message.unwrap_or_default(),
-                status: error_response.status.unwrap_or_default(),
-            });
-        }
-
-        from_value(value).map_err(|e| ApiResponseParseError {
-            content: e.to_string(),
-            source: e,
-        })
+/// Truncates a string to `max_len` characters with ellipsis.
+///
+/// # Arguments
+///
+/// * `s` - The string to truncate
+/// * `max_len` - Maximum character length before truncation
+///
+/// # Returns
+///
+/// The original string if short enough, or a truncated version with `...`.
+fn truncate(s: &str, max_len: usize) -> String {
+    if s.len() <= max_len {
+        s.to_string()
+    } else {
+        format!("{}...", &s[..max_len])
     }
 }

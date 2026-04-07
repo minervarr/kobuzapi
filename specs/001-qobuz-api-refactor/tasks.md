@@ -36,21 +36,21 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Create `src/models/mod.rs` with module declarations and re-exports for all model submodules per plan.md
-- [ ] T010 [P] Create `src/models/credential.rs` with `Credential` struct (all `Option` fields) per data-model.md
-- [ ] T011 [P] Create `src/models/file_url.rs` with `FileUrl` struct and quality format ID constants per data-model.md
-- [ ] T012 [P] Create `src/models/album.rs` with `Album`, `Image`, `Genre`, `Label` structs per data-model.md
-- [ ] T013 [P] Create `src/models/artist.rs` with `Artist`, `Biography` structs per data-model.md
-- [ ] T014 [P] Create `src/models/track.rs` with `Track`, `AudioInfo` structs per data-model.md
-- [ ] T015 [P] Create `src/models/playlist.rs` with `Playlist` struct per data-model.md
-- [ ] T016 [P] Create `src/models/search.rs` with `SearchResult<T>`, `ItemSearchResult<T>`, `UserFavorites` structs per data-model.md
-- [ ] T017 [P] Create `src/models/subscription.rs` with `Subscription`, `User` structs per data-model.md
-- [ ] T018 Create `src/api/mod.rs` with module declarations for `service`, `requests`, `auth`, `content/`, `favorites` per plan.md
-- [ ] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()` (consumes signature functions from `src/signing.rs`), response parsing, and retry-with-backoff wrapper (max 3 retries, exponential backoff) per research.md sections 1 and 6
-- [ ] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md
-- [ ] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 (deterministic testing via trait abstraction)
-- [ ] T075 [P] Create declarative macros in `src/api/requests.rs` (`search_endpoint!`, `get_endpoint!`) to eliminate duplication across search (T027-T030) and get (T034-T038) method patterns per constitution Principle I
-- [ ] T076 [P] Create `tests/integration/` directory with `auth_tests.rs`, `search_tests.rs`, `download_tests.rs` scaffolding (empty test modules with `MockHttpClient` stub) per plan.md project structure
+- [x] T009 Create `src/models/mod.rs` with module declarations and re-exports for all model submodules per plan.md
+- [x] T010 [P] Create `src/models/credential.rs` with `Credential` struct (all `Option` fields) per data-model.md
+- [x] T011 [P] Create `src/models/file_url.rs` with `FileUrl` struct and quality format ID constants per data-model.md
+- [x] T012 [P] Create `src/models/album.rs` with `Album`, `Image`, `Genre`, `Label` structs per data-model.md
+- [x] T013 [P] Create `src/models/artist.rs` with `Artist`, `Biography` structs per data-model.md
+- [x] T014 [P] Create `src/models/track.rs` with `Track`, `AudioInfo` structs per data-model.md
+- [x] T015 [P] Create `src/models/playlist.rs` with `Playlist` struct per data-model.md
+- [x] T016 [P] Create `src/models/search.rs` with `SearchResult<T>`, `ItemSearchResult<T>`, `UserFavorites` structs per data-model.md
+- [x] T017 [P] Create `src/models/subscription.rs` with `Subscription`, `User` structs per data-model.md
+- [x] T018 Create `src/api/mod.rs` with module declarations for `service`, `requests`, `auth`, `content/`, `favorites` per plan.md
+- [x] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()` (consumes signature functions from `src/signing.rs`), response parsing, and retry-with-backoff wrapper (max 3 retries, exponential backoff) per research.md sections 1 and 6
+- [x] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md
+- [x] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 (deterministic testing via trait abstraction)
+- [x] T075 [P] Create declarative macros in `src/api/requests.rs` (`search_endpoint!`, `get_endpoint!`) to eliminate duplication across search (T027-T030) and get (T034-T038) method patterns per constitution Principle I
+- [x] T076 [P] Create `tests/integration/` directory with `auth_tests.rs`, `search_tests.rs`, `download_tests.rs` scaffolding (empty test modules with `MockHttpClient` stub) per plan.md project structure
 
 **Checkpoint**: Foundation ready — all models, HTTP primitives, test infrastructure, and deduplication macros in place. User story implementation can begin.
 

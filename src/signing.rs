@@ -10,8 +10,9 @@ use md5::{Digest, Md5};
 ///
 /// # Returns
 ///
-/// A lowercase hexadecimal string representation of the input bytes.
-fn to_hex(bytes: &[u8]) -> String {
+/// A lowercase hexadecimal string representation.
+#[must_use]
+pub fn to_hex(bytes: &[u8]) -> String {
     const HEX_CHARS: &[u8; 16] = b"0123456789abcdef";
     let mut s = String::with_capacity(bytes.len() * 2);
     for &b in bytes {
