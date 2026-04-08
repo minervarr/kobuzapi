@@ -52,6 +52,7 @@ async fn modify_favorites(
 
     requests::signed_post::<Value>(
         service.http_client(),
+        service.base_url(),
         endpoint,
         &mut params,
         &RequestAuth {
@@ -126,6 +127,40 @@ pub async fn delete_user_favorites(
     .await
 }
 
+/// Fetches user favorites with the given parameters.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+/// * `params` - Query parameters for the favorites request
+///
+/// # Returns
+///
+/// The user's favorited items.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` if not authenticated or the API request fails.
+async fn fetch_user_favorites(
+    service: &QobuzApiService,
+    params: &mut Vec<(String, String)>,
+) -> Result<UserFavorites, QobuzApiError> {
+    let token = service.require_auth_token()?;
+
+    requests::signed_get(
+        service.http_client(),
+        service.base_url(),
+        "/favorite/getUserFavorites",
+        params,
+        &RequestAuth {
+            app_id: &service.app_id,
+            app_secret: service.app_secret(),
+            user_auth_token: token,
+        },
+    )
+    .await
+}
+
 /// Retrieves the user's favorites list.
 ///
 /// # Arguments
@@ -148,22 +183,9 @@ pub async fn get_user_favorites(
     limit: Option<i32>,
     offset: Option<i32>,
 ) -> Result<UserFavorites, QobuzApiError> {
-    let token = service.require_auth_token()?;
-
     let mut params: Vec<(String, String)> = vec![("type".to_string(), item_type.to_string())];
     requests::push_pagination_params(&mut params, limit, offset);
-
-    requests::signed_get(
-        service.http_client(),
-        "/favorite/getUserFavorites",
-        &mut params,
-        &RequestAuth {
-            app_id: &service.app_id,
-            app_secret: service.app_secret(),
-            user_auth_token: token,
-        },
-    )
-    .await
+    fetch_user_favorites(service, &mut params).await
 }
 
 /// Retrieves only the favorite IDs grouped by type.
@@ -182,19 +204,6 @@ pub async fn get_user_favorites(
 pub async fn get_user_favorite_ids(
     service: &QobuzApiService,
 ) -> Result<UserFavorites, QobuzApiError> {
-    let token = service.require_auth_token()?;
-
     let mut params: Vec<(String, String)> = vec![("type".to_string(), "ids".to_string())];
-
-    requests::signed_get(
-        service.http_client(),
-        "/favorite/getUserFavorites",
-        &mut params,
-        &RequestAuth {
-            app_id: &service.app_id,
-            app_secret: service.app_secret(),
-            user_auth_token: token,
-        },
-    )
-    .await
+    fetch_user_favorites(service, &mut params).await
 }

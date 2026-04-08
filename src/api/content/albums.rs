@@ -146,6 +146,7 @@ pub async fn download_album(
         let app_id = service.app_id.clone();
         let app_secret = service.app_secret.clone();
         let token = service.require_auth_token()?.to_string();
+        let base_url = service.base_url().to_string();
 
         let handle = spawn(async move {
             let permit = permit;
@@ -157,7 +158,8 @@ pub async fn download_album(
             };
 
             let file_url =
-                get_track_file_url_raw(&*service_client, &auth, track_id, format_id).await?;
+                get_track_file_url_raw(&*service_client, &base_url, &auth, track_id, format_id)
+                    .await?;
 
             let url = file_url.url.ok_or_else(|| DownloadError {
                 message: format!("No download URL for track {track_id}"),

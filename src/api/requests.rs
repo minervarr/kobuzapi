@@ -18,8 +18,23 @@ use crate::{
     signing::sign_request,
 };
 
-/// Base URL for all Qobuz API v0.2 endpoints.
-const BASE_URL: &str = "https://www.qobuz.com/api.json/0.2";
+/// Generates a signed request function with the standard parameter list.
+macro_rules! signed_request {
+    (
+        $(#[$meta:meta])*
+        $vis:vis fn $name:ident($client:ident, $base_url:ident, $endpoint:ident, $params:ident, $auth:ident) -> $body:tt
+    ) => {
+        $(#[$meta])*
+        $vis async fn $name<T: DeserializeOwned>(
+            $client: &dyn HttpClient,
+            $base_url: &str,
+            $endpoint: &str,
+            $params: &mut Vec<(String, String)>,
+            $auth: &RequestAuth<'_>,
+        ) -> Result<T, QobuzApiError> $body
+    };
+}
+
 /// Maximum number of retry attempts on rate limiting.
 const MAX_RETRIES: u32 = 3;
 /// Base delay in milliseconds for exponential backoff.
@@ -92,10 +107,11 @@ fn append_signature(
 /// Returns a `QobuzApiError` on HTTP failures or JSON parse errors.
 async fn execute_post<T: DeserializeOwned>(
     client: &dyn HttpClient,
+    base_url: &str,
     endpoint: &str,
     params: &[(String, String)],
 ) -> Result<T, QobuzApiError> {
-    let url = format!("{BASE_URL}{endpoint}");
+    let url = format!("{base_url}{endpoint}");
     let param_refs: Vec<(&str, &str)> = params
         .iter()
         .map(|(k, v)| (k.as_str(), v.as_str()))
@@ -106,41 +122,40 @@ async fn execute_post<T: DeserializeOwned>(
     parse_response::<T>(response, endpoint).await
 }
 
-/// Sends a signed GET request and parses the JSON response.
-///
-/// # Arguments
-///
-/// * `client` - HTTP client implementation
-/// * `endpoint` - API endpoint path (e.g., `"/album/search"`)
-/// * `params` - Key-value parameter pairs (will be sorted for signing)
-/// * `auth` - Application credentials and user authentication token
-///
-/// # Returns
-///
-/// Parsed JSON response of type `T`.
-///
-/// # Errors
-///
-/// Returns a `QobuzApiError` on HTTP failures, rate limiting, or JSON parse errors.
-pub async fn signed_get<T: DeserializeOwned>(
-    client: &dyn HttpClient,
-    endpoint: &str,
-    params: &mut Vec<(String, String)>,
-    auth: &RequestAuth<'_>,
-) -> Result<T, QobuzApiError> {
-    append_signature(params, "GET", endpoint, auth);
+signed_request!(
+    /// Sends a signed GET request and parses the JSON response.
+    ///
+    /// # Arguments
+    ///
+    /// * `client` - HTTP client implementation
+    /// * `base_url` - API base URL
+    /// * `endpoint` - API endpoint path (e.g., `"/album/search"`)
+    /// * `params` - Key-value parameter pairs (will be sorted for signing)
+    /// * `auth` - Application credentials and user authentication token
+    ///
+    /// # Returns
+    ///
+    /// Parsed JSON response of type `T`.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` on HTTP failures, rate limiting, or JSON parse errors.
+    pub fn signed_get(client, base_url, endpoint, params, auth) -> {
+        append_signature(params, "GET", endpoint, auth);
 
-    let url = build_url_with_params(endpoint, params);
-    let response = retry_with_backoff(client, &url, auth.user_auth_token).await?;
+        let url = build_url_with_params(base_url, endpoint, params);
+        let response = retry_with_backoff(client, &url, auth.user_auth_token).await?;
 
-    parse_response::<T>(response, endpoint).await
-}
+        parse_response::<T>(response, endpoint).await
+    }
+);
 
 /// Sends a POST request with form parameters and parses the JSON response.
 ///
 /// # Arguments
 ///
 /// * `client` - HTTP client implementation
+/// * `base_url` - API base URL (e.g., `"https://www.qobuz.com/api.json/0.2"`)
 /// * `endpoint` - API endpoint path
 /// * `params` - Key-value form parameters
 /// * `app_id` - Application ID
@@ -155,6 +170,7 @@ pub async fn signed_get<T: DeserializeOwned>(
 /// Returns a `QobuzApiError` on HTTP failures or JSON parse errors.
 pub async fn post<T: DeserializeOwned>(
     client: &dyn HttpClient,
+    base_url: &str,
     endpoint: &str,
     params: &mut Vec<(String, String)>,
     app_id: &str,
@@ -165,39 +181,37 @@ pub async fn post<T: DeserializeOwned>(
         params.push(("user_auth_token".to_string(), user_auth_token.to_string()));
     }
 
-    execute_post::<T>(client, endpoint, params).await
+    execute_post::<T>(client, base_url, endpoint, params).await
 }
 
-/// Sends a signed POST request with form parameters and parses the JSON response.
-///
-/// # Arguments
-///
-/// * `client` - HTTP client implementation
-/// * `endpoint` - API endpoint path
-/// * `params` - Key-value form parameters (will be sorted for signing)
-/// * `auth` - Application credentials and user authentication token
-///
-/// # Returns
-///
-/// Parsed JSON response of type `T`.
-///
-/// # Errors
-///
-/// Returns a `QobuzApiError` on HTTP failures, rate limiting, or JSON parse errors.
-pub async fn signed_post<T: DeserializeOwned>(
-    client: &dyn HttpClient,
-    endpoint: &str,
-    params: &mut Vec<(String, String)>,
-    auth: &RequestAuth<'_>,
-) -> Result<T, QobuzApiError> {
-    params.push((
-        "user_auth_token".to_string(),
-        auth.user_auth_token.to_string(),
-    ));
-    append_signature(params, "POST", endpoint, auth);
+signed_request!(
+    /// Sends a signed POST request with form parameters and parses the JSON response.
+    ///
+    /// # Arguments
+    ///
+    /// * `client` - HTTP client implementation
+    /// * `base_url` - API base URL
+    /// * `endpoint` - API endpoint path
+    /// * `params` - Key-value form parameters (will be sorted for signing)
+    /// * `auth` - Application credentials and user authentication token
+    ///
+    /// # Returns
+    ///
+    /// Parsed JSON response of type `T`.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` on HTTP failures, rate limiting, or JSON parse errors.
+    pub fn signed_post(client, base_url, endpoint, params, auth) -> {
+        params.push((
+            "user_auth_token".to_string(),
+            auth.user_auth_token.to_string(),
+        ));
+        append_signature(params, "POST", endpoint, auth);
 
-    execute_post::<T>(client, endpoint, params).await
-}
+        execute_post::<T>(client, base_url, endpoint, params).await
+    }
+);
 
 /// Sends a GET request to an authenticated endpoint for binary download.
 ///
@@ -291,8 +305,8 @@ async fn retry_with_backoff(
 /// # Returns
 ///
 /// A fully formed URL string with encoded query parameters.
-fn build_url_with_params(endpoint: &str, params: &[(String, String)]) -> String {
-    let mut url = format!("{BASE_URL}{endpoint}");
+fn build_url_with_params(base_url: &str, endpoint: &str, params: &[(String, String)]) -> String {
+    let mut url = format!("{base_url}{endpoint}");
     if !params.is_empty() {
         let query: String = params
             .iter()

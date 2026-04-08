@@ -40,6 +40,7 @@ async fn do_signed_get<T: DeserializeOwned>(
 
     requests::signed_get(
         service.http_client(),
+        service.base_url(),
         endpoint,
         params,
         &RequestAuth {

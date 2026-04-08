@@ -66,13 +66,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T077 [US1] Write unit tests in `src/api/auth.rs` (`#[cfg(test)] mod tests`) for: env auth with valid/invalid vars (including `QOBUZ_USERNAME` alias for `QOBUZ_EMAIL`), login success/failure, token auth success/failure, refresh-per-session constraint, credential refresh flow, and web player credential extraction failure (verifying that a clear `CredentialsError` is returned indicating manual configuration is needed) per constitution Principle II
-- [ ] T021 [US1] Implement `authenticate_with_env()` in `src/api/auth.rs` — reads `QOBUZ_USER_ID`/`QOBUZ_USER_AUTH_TOKEN` or `QOBUZ_EMAIL`/`QOBUZ_PASSWORD`/`QOBUZ_USERNAME` (alias for `QOBUZ_EMAIL`) env vars, delegates to `login()` or `login_with_token()` per contracts/public-api.md
-- [ ] T022 [US1] Implement `login(email, password)` in `src/api/auth.rs` — MD5-hashes password, POSTs to `/user/login`, stores `user_auth_token` per contracts/public-api.md
-- [ ] T023 [US1] Implement `login_with_token(user_id, auth_token)` in `src/api/auth.rs` — POSTs to `/user/login` with token credentials, stores `user_auth_token` per contracts/public-api.md
-- [ ] T024 [US1] Implement `refresh_app_credentials()` in `src/api/auth.rs` — re-extracts from web player JS, writes to `.env`, enforces single-refresh-per-session constraint per contracts/public-api.md
-- [ ] T025 [US1] Wire auth methods into `QobuzApiService` in `src/api/service.rs` — expose `authenticate_with_env()`, `login()`, `login_with_token()`, `refresh_app_credentials()` as public methods delegating to `src/api/auth.rs`
-- [ ] T026 [US1] Add structured `tracing` instrumentation to all auth methods in `src/api/auth.rs` per AGENTS.md error handling rules
+- [x] T077 [US1] Write unit tests in `src/api/auth.rs` (`#[cfg(test)] mod tests`) for: env auth with valid/invalid vars (including `QOBUZ_USERNAME` alias for `QOBUZ_EMAIL`), login success/failure, token auth success/failure, refresh-per-session constraint, credential refresh flow, and web player credential extraction failure (verifying that a clear `CredentialsError` is returned indicating manual configuration is needed) per constitution Principle II
+- [x] T021 [US1] Implement `authenticate_with_env()` in `src/api/auth.rs` — reads `QOBUZ_USER_ID`/`QOBUZ_USER_AUTH_TOKEN` or `QOBUZ_EMAIL`/`QOBUZ_PASSWORD`/`QOBUZ_USERNAME` (alias for `QOBUZ_EMAIL`) env vars, delegates to `login()` or `login_with_token()` per contracts/public-api.md
+- [x] T022 [US1] Implement `login(email, password)` in `src/api/auth.rs` — MD5-hashes password, POSTs to `/user/login`, stores `user_auth_token` per contracts/public-api.md
+- [x] T023 [US1] Implement `login_with_token(user_id, auth_token)` in `src/api/auth.rs` — POSTs to `/user/login` with token credentials, stores `user_auth_token` per contracts/public-api.md
+- [x] T024 [US1] Implement `refresh_app_credentials()` in `src/api/auth.rs` — re-extracts from web player JS, writes to `.env`, enforces single-refresh-per-session constraint per contracts/public-api.md
+- [x] T025 [US1] Wire auth methods into `QobuzApiService` in `src/api/service.rs` — expose `authenticate_with_env()`, `login()`, `login_with_token()`, `refresh_app_credentials()` as public methods delegating to `src/api/auth.rs`
+- [x] T026 [US1] Add structured `tracing` instrumentation to all auth methods in `src/api/auth.rs` per AGENTS.md error handling rules
 
 **Checkpoint**: Authentication fully functional and independently testable. Users can authenticate via any method.
 

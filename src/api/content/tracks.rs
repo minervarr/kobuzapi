@@ -94,6 +94,7 @@ pub async fn get_track_file_url(
 
     get_track_file_url_raw(
         service.http_client(),
+        service.base_url(),
         &RequestAuth {
             app_id: &service.app_id,
             app_secret: service.app_secret(),
@@ -123,6 +124,7 @@ pub async fn get_track_file_url(
 /// Returns a `QobuzApiError` if the signed API request fails.
 pub async fn get_track_file_url_raw(
     client: &dyn HttpClient,
+    base_url: &str,
     auth: &RequestAuth<'_>,
     track_id: i32,
     format_id: i32,
@@ -148,7 +150,7 @@ pub async fn get_track_file_url_raw(
         ),
     ];
 
-    requests::signed_get(client, "/track/getFileUrl", &mut params, auth).await
+    requests::signed_get(client, base_url, "/track/getFileUrl", &mut params, auth).await
 }
 
 /// Downloads a single track to the specified directory.
