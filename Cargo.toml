@@ -5,7 +5,6 @@ version = "0.1.0"
 
 [dependencies]
 anyhow = "1.0.102"
-base64 = "0.22.1"
 dotenvy = "0.15.7"
 lofty = "0.23.3"
 md-5 = "0.11.0"
@@ -28,6 +27,10 @@ tempfile = "3.27.0"
 [[test]]
 name = "integration"
 path = "tests/integration/mock_http_client.rs"
+
+[[test]]
+name = "auth-integration"
+path = "tests/integration/auth_tests.rs"
 
 [lints.clippy]
 # missing_asserts_for_indexing = "deny"

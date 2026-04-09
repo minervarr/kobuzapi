@@ -24,6 +24,15 @@ use crate::{
 struct LoginResponse {
     /// User authentication token returned on successful login.
     user_auth_token: Option<String>,
+    /// User object returned on successful login.
+    user: Option<LoginUser>,
+}
+
+/// User data within the login response.
+#[derive(Deserialize)]
+struct LoginUser {
+    /// Numeric user ID.
+    id: i64,
 }
 
 /// Authenticates using environment variables.
@@ -259,15 +268,8 @@ async fn login_with_token_inner(
         ("user_auth_token".to_string(), auth_token.to_string()),
     ];
 
-    let response: LoginResponse = requests::post(
-        client,
-        base_url,
-        "/user/login",
-        &mut params,
-        app_id,
-        auth_token,
-    )
-    .await?;
+    let response: LoginResponse =
+        requests::post(client, base_url, "/user/login", &mut params, app_id, "").await?;
 
     if response.user_auth_token.is_none() {
         let err = AuthenticationError {
@@ -275,6 +277,19 @@ async fn login_with_token_inner(
         };
         error!(error = %err, "Token login response missing user_auth_token");
         return Err(err);
+    }
+
+    if let Some(user) = &response.user {
+        let returned_id = user.id.to_string();
+        if returned_id != user_id {
+            let err = AuthenticationError {
+                message: format!(
+                    "User ID mismatch: requested {user_id} but API returned {returned_id}"
+                ),
+            };
+            error!(error = %err, "Token login user ID mismatch");
+            return Err(err);
+        }
     }
 
     Ok(())

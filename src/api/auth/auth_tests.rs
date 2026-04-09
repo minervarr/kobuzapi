@@ -90,7 +90,7 @@ fn env_auth_prefers_token_over_email() -> Result<()> {
         ("QOBUZ_EMAIL", "e@x.com"),
         ("QOBUZ_PASSWORD", "p"),
     ]);
-    let server = MockServer::start(200, r#"{"user_auth_token":"tok","user":{"id":"42"}}"#)?;
+    let server = MockServer::start(200, r#"{"user_auth_token":"tok","user":{"id":42}}"#)?;
     let mut service = make_test_service(&server.base_url())?;
     authenticate_with_env_from(&mut service, env_reader(&env))?;
     ensure!(service.require_auth_token()? == "tok");
@@ -100,7 +100,7 @@ fn env_auth_prefers_token_over_email() -> Result<()> {
 #[test]
 fn env_auth_uses_email_with_password() -> Result<()> {
     let env = mock_env(&[("QOBUZ_EMAIL", "e@x.com"), ("QOBUZ_PASSWORD", "secret")]);
-    let server = MockServer::start(200, r#"{"user_auth_token":"email-tok","user":{"id":"1"}}"#)?;
+    let server = MockServer::start(200, r#"{"user_auth_token":"email-tok","user":{"id":1}}"#)?;
     let mut service = make_test_service(&server.base_url())?;
     authenticate_with_env_from(&mut service, env_reader(&env))?;
     ensure!(service.require_auth_token()? == "email-tok");
@@ -110,7 +110,7 @@ fn env_auth_uses_email_with_password() -> Result<()> {
 #[test]
 fn env_auth_uses_username_alias() -> Result<()> {
     let env = mock_env(&[("QOBUZ_USERNAME", "e@x.com"), ("QOBUZ_PASSWORD", "secret")]);
-    let server = MockServer::start(200, r#"{"user_auth_token":"uname-tok","user":{"id":"1"}}"#)?;
+    let server = MockServer::start(200, r#"{"user_auth_token":"uname-tok","user":{"id":1}}"#)?;
     let mut service = make_test_service(&server.base_url())?;
     authenticate_with_env_from(&mut service, env_reader(&env))?;
     ensure!(service.require_auth_token()? == "uname-tok");
@@ -138,7 +138,7 @@ fn env_auth_fails_email_no_password() -> Result<()> {
 
 #[test]
 fn login_success_stores_token() -> Result<()> {
-    let server = MockServer::start(200, r#"{"user_auth_token":"login-tok","user":{"id":"1"}}"#)?;
+    let server = MockServer::start(200, r#"{"user_auth_token":"login-tok","user":{"id":1}}"#)?;
     let mut service = make_test_service(&server.base_url())?;
     login(&mut service, "user@example.com", "password")?;
     ensure!(service.require_auth_token()? == "login-tok");
@@ -158,7 +158,7 @@ fn login_failure_returns_error() -> Result<()> {
 
 #[test]
 fn token_auth_success_stores_token() -> Result<()> {
-    let server = MockServer::start(200, r#"{"user_auth_token":"tok","user":{"id":"42"}}"#)?;
+    let server = MockServer::start(200, r#"{"user_auth_token":"tok","user":{"id":42}}"#)?;
     let mut service = make_test_service(&server.base_url())?;
     login_with_token(&mut service, "42", "tok")?;
     ensure!(service.require_auth_token()? == "tok");

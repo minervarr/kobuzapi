@@ -1,16 +1,7 @@
 /target
+.env
 .specify/init-options.json
 .specify/integration.json
 .specify/integrations
 .specify/scripts
 .specify/templates
-*.rs.bk
-.env
-.env.*
-*.log
-.DS_Store
-Thumbs.db
-*.tmp
-*.swp
-.vscode/
-.idea/
