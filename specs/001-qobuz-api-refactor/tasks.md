@@ -88,13 +88,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T078 [US2] Write unit tests in each content module (`albums.rs`, `artists.rs`, `tracks.rs`, `playlists.rs`, `catalog.rs`) for: search result deserialization, empty result handling, pagination params, and error responses per constitution Principle II
-- [ ] T027 [P] [US2] Implement `search_albums()` in `src/api/content/albums.rs` — GET `/album/search` with query params, deserialize into `ItemSearchResult<Box<Album>>` per contracts/public-api.md
-- [ ] T028 [P] [US2] Implement `search_artists()` in `src/api/content/artists.rs` — GET `/artist/search` with query params, deserialize into `ItemSearchResult<Box<Artist>>` per contracts/public-api.md
-- [ ] T029 [P] [US2] Implement `search_tracks()` in `src/api/content/tracks.rs` — GET `/track/search` with query params, deserialize into `ItemSearchResult<Box<Track>>` per contracts/public-api.md
-- [ ] T030 [P] [US2] Implement `search_playlists()` in `src/api/content/playlists.rs` — GET `/playlist/search` with query params, deserialize into `ItemSearchResult<Box<Playlist>>` per contracts/public-api.md
-- [ ] T031 [US2] Implement `search_catalog()` in `src/api/content/catalog.rs` — searches all content types, returns grouped `SearchResult` per contracts/public-api.md
-- [ ] T032 [US2] Wire search methods into `QobuzApiService` in `src/api/service.rs` — expose all search methods as public API
+- [x] T078 [US2] Write unit tests in each content module (`albums.rs`, `artists.rs`, `tracks.rs`, `playlists.rs`, `catalog.rs`) for: search result deserialization, empty result handling, pagination params, and error responses per constitution Principle II
+- [x] T027 [P] [US2] Implement `search_albums()` in `src/api/content/albums.rs` — GET `/album/search` with query params, deserialize into `ItemSearchResult<Box<Album>>` per contracts/public-api.md
+- [x] T028 [P] [US2] Implement `search_artists()` in `src/api/content/artists.rs` — GET `/artist/search` with query params, deserialize into `ItemSearchResult<Box<Artist>>` per contracts/public-api.md
+- [x] T029 [P] [US2] Implement `search_tracks()` in `src/api/content/tracks.rs` — GET `/track/search` with query params, deserialize into `ItemSearchResult<Box<Track>>` per contracts/public-api.md
+- [x] T030 [P] [US2] Implement `search_playlists()` in `src/api/content/playlists.rs` — GET `/playlist/search` with query params, deserialize into `ItemSearchResult<Box<Playlist>>` per contracts/public-api.md
+- [x] T031 [US2] Implement `search_catalog()` in `src/api/content/catalog.rs` — searches all content types, returns grouped `SearchResult` per contracts/public-api.md
+- [x] T032 [US2] Wire search methods into `QobuzApiService` in `src/api/service.rs` — expose all search methods as public API
 
 **Checkpoint**: Search fully functional. Users can search for any content type and receive structured results.
 

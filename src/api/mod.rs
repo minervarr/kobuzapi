@@ -6,3 +6,6 @@ pub mod favorites;
 pub mod http_client;
 pub mod requests;
 pub mod service;
+
+#[cfg(test)]
+mod test_support;

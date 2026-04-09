@@ -195,3 +195,49 @@ pub async fn download_album(
     info!(album_id, count = results.len(), "Album download complete");
     Ok(results)
 }
+
+#[cfg(test)]
+mod tests {
+    use {
+        anyhow::{Result, anyhow, ensure},
+        tokio::runtime::Runtime,
+    };
+
+    use crate::{
+        api::{
+            content::albums::search_albums,
+            test_support::{MockServer, make_service},
+        },
+        assert_empty_search_test,
+    };
+
+    #[test]
+    fn search_albums_deserializes_results() -> Result<()> {
+        let body = r#"{"items":[{"id":"123","title":"Test Album"}],"total":1}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(search_albums(&service, "Test", Some(5), None))?;
+        let items = result.items.ok_or_else(|| anyhow!("no items"))?;
+        ensure!(items.len() == 1);
+        ensure!(items[0].title.as_deref() == Some("Test Album"));
+        Ok(())
+    }
+
+    #[test]
+    fn search_albums_empty_results() -> Result<()> {
+        assert_empty_search_test!(search_albums, "Nonexistent");
+        Ok(())
+    }
+
+    #[test]
+    fn search_albums_error_response() -> Result<()> {
+        let body = r#"{"status":"error","code":400,"message":"Bad request"}"#;
+        let server = MockServer::start(400, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(search_albums(&service, "Test", None, None));
+        ensure!(result.is_err());
+        Ok(())
+    }
+}

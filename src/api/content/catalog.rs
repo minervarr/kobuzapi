@@ -50,3 +50,41 @@ pub async fn search_catalog(
         playlists: Some(playlists),
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use {
+        anyhow::{Result, ensure},
+        tokio::runtime::Runtime,
+    };
+
+    use crate::api::{
+        content::catalog::search_catalog,
+        test_support::{MockServer, make_service},
+    };
+
+    #[test]
+    fn search_catalog_groups_all_types() -> Result<()> {
+        let body = r#"{"items":[],"total":0}"#;
+        let server = MockServer::start_with_max_requests(200, body, 16)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(search_catalog(&service, "Test", Some(5), None))?;
+        ensure!(result.albums.is_some());
+        ensure!(result.artists.is_some());
+        ensure!(result.tracks.is_some());
+        ensure!(result.playlists.is_some());
+        Ok(())
+    }
+
+    #[test]
+    fn search_catalog_error_stops_all() -> Result<()> {
+        let body = r#"{"status":"error","code":500,"message":"Fail"}"#;
+        let server = MockServer::start_with_max_requests(500, body, 16)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(search_catalog(&service, "fail", None, None));
+        ensure!(result.is_err());
+        Ok(())
+    }
+}

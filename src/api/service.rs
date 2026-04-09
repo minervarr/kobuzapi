@@ -7,10 +7,21 @@ use {tokio::runtime::Runtime, tracing::info};
 use crate::{
     api::{
         auth::{authenticate_with_env, login, login_with_token, refresh_app_credentials},
+        content::{
+            albums::search_albums, artists::search_artists, catalog::search_catalog,
+            playlists::search_playlists, tracks::search_tracks,
+        },
         http_client::{HttpClient, ReqwestClient},
     },
     credentials::{extract_from_web_player, load_app_credentials, save_app_credentials},
     errors::QobuzApiError::{self, AuthenticationError, InitializationError},
+    models::{
+        album::Album,
+        artist::Artist,
+        playlist::Playlist,
+        search::{ItemSearchResult, SearchResult},
+        track::Track,
+    },
 };
 
 /// Base URL for all Qobuz API v0.2 endpoints.
@@ -278,6 +289,131 @@ impl QobuzApiService {
     /// Returns a `QobuzApiError` if credentials have already been refreshed or extraction fails.
     pub fn refresh_app_credentials(&mut self) -> Result<(), QobuzApiError> {
         refresh_app_credentials(self)
+    }
+
+    /// Searches all content types (albums, artists, tracks, playlists).
+    ///
+    /// # Arguments
+    ///
+    /// * `query` - Search query string
+    /// * `limit` - Maximum number of results per content type
+    /// * `offset` - Pagination offset
+    ///
+    /// # Returns
+    ///
+    /// A `SearchResult` with grouped results for each content type.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if not authenticated or any search request fails.
+    pub fn search_catalog(
+        &self,
+        query: &str,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<SearchResult, QobuzApiError> {
+        let rt = Runtime::new()?;
+        rt.block_on(search_catalog(self, query, limit, offset))
+    }
+
+    /// Searches for albums matching the query.
+    ///
+    /// # Arguments
+    ///
+    /// * `query` - Search query string
+    /// * `limit` - Maximum number of results
+    /// * `offset` - Pagination offset
+    ///
+    /// # Returns
+    ///
+    /// A paginated `ItemSearchResult` containing matching albums.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if not authenticated or the API request fails.
+    pub fn search_albums(
+        &self,
+        query: &str,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<ItemSearchResult<Box<Album>>, QobuzApiError> {
+        let rt = Runtime::new()?;
+        rt.block_on(search_albums(self, query, limit, offset))
+    }
+
+    /// Searches for artists matching the query.
+    ///
+    /// # Arguments
+    ///
+    /// * `query` - Search query string
+    /// * `limit` - Maximum number of results
+    /// * `offset` - Pagination offset
+    ///
+    /// # Returns
+    ///
+    /// A paginated `ItemSearchResult` containing matching artists.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if not authenticated or the API request fails.
+    pub fn search_artists(
+        &self,
+        query: &str,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<ItemSearchResult<Box<Artist>>, QobuzApiError> {
+        let rt = Runtime::new()?;
+        rt.block_on(search_artists(self, query, limit, offset))
+    }
+
+    /// Searches for tracks matching the query.
+    ///
+    /// # Arguments
+    ///
+    /// * `query` - Search query string
+    /// * `limit` - Maximum number of results
+    /// * `offset` - Pagination offset
+    ///
+    /// # Returns
+    ///
+    /// A paginated `ItemSearchResult` containing matching tracks.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if not authenticated or the API request fails.
+    pub fn search_tracks(
+        &self,
+        query: &str,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<ItemSearchResult<Box<Track>>, QobuzApiError> {
+        let rt = Runtime::new()?;
+        rt.block_on(search_tracks(self, query, limit, offset))
+    }
+
+    /// Searches for playlists matching the query.
+    ///
+    /// # Arguments
+    ///
+    /// * `query` - Search query string
+    /// * `limit` - Maximum number of results
+    /// * `offset` - Pagination offset
+    ///
+    /// # Returns
+    ///
+    /// A paginated `ItemSearchResult` containing matching playlists.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if not authenticated or the API request fails.
+    pub fn search_playlists(
+        &self,
+        query: &str,
+        limit: Option<i32>,
+        offset: Option<i32>,
+    ) -> Result<ItemSearchResult<Box<Playlist>>, QobuzApiError> {
+        let rt = Runtime::new()?;
+        rt.block_on(search_playlists(self, query, limit, offset))
     }
 }
 

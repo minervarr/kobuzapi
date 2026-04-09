@@ -88,3 +88,60 @@ pub async fn get_release_list(
     )
     .await
 }
+
+#[cfg(test)]
+mod tests {
+    use {
+        anyhow::{Result, anyhow, ensure},
+        tokio::runtime::Runtime,
+    };
+
+    use crate::{
+        api::{
+            content::artists::{get_artist, search_artists},
+            test_support::{MockServer, make_service},
+        },
+        assert_empty_search_test,
+    };
+
+    #[test]
+    fn search_artists_deserializes_results() -> Result<()> {
+        let body = r#"{"items":[{"id":1,"name":"Miles Davis"}],"total":1}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(search_artists(&service, "Miles", Some(5), None))?;
+        let items = result.items.ok_or_else(|| anyhow!("no items"))?;
+        ensure!(items.len() == 1);
+        ensure!(items[0].name.as_deref() == Some("Miles Davis"));
+        Ok(())
+    }
+
+    #[test]
+    fn search_artists_empty_results() -> Result<()> {
+        assert_empty_search_test!(search_artists, "Nobody");
+        Ok(())
+    }
+
+    #[test]
+    fn get_artist_by_id() -> Result<()> {
+        let body = r#"{"id":42,"name":"Coltrane"}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let artist = rt.block_on(get_artist(&service, 42, None))?;
+        ensure!(artist.name.as_deref() == Some("Coltrane"));
+        Ok(())
+    }
+
+    #[test]
+    fn get_artist_error_response() -> Result<()> {
+        let body = r#"{"status":"error","code":404,"message":"Not found"}"#;
+        let server = MockServer::start(404, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_artist(&service, 99999, None));
+        ensure!(result.is_err());
+        Ok(())
+    }
+}

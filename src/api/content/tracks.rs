@@ -239,3 +239,60 @@ pub async fn save_track_to_disk(
     file.flush().await?;
     Ok(path)
 }
+
+#[cfg(test)]
+mod tests {
+    use {
+        anyhow::{Result, anyhow, ensure},
+        tokio::runtime::Runtime,
+    };
+
+    use crate::{
+        api::{
+            content::tracks::{get_track, search_tracks},
+            test_support::{MockServer, make_service},
+        },
+        assert_empty_search_test,
+    };
+
+    #[test]
+    fn search_tracks_deserializes_results() -> Result<()> {
+        let body = r#"{"items":[{"id":1,"title":"So What"}],"total":1}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(search_tracks(&service, "So What", Some(5), None))?;
+        let items = result.items.ok_or_else(|| anyhow!("no items"))?;
+        ensure!(items.len() == 1);
+        ensure!(items[0].title.as_deref() == Some("So What"));
+        Ok(())
+    }
+
+    #[test]
+    fn search_tracks_empty_results() -> Result<()> {
+        assert_empty_search_test!(search_tracks, "Nothing");
+        Ok(())
+    }
+
+    #[test]
+    fn get_track_by_id() -> Result<()> {
+        let body = r#"{"id":42,"title":"Blue in Green"}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let track = rt.block_on(get_track(&service, 42))?;
+        ensure!(track.title.as_deref() == Some("Blue in Green"));
+        Ok(())
+    }
+
+    #[test]
+    fn search_tracks_error_response() -> Result<()> {
+        let body = r#"{"status":"error","code":500,"message":"Server error"}"#;
+        let server = MockServer::start(500, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(search_tracks(&service, "fail", None, None));
+        ensure!(result.is_err());
+        Ok(())
+    }
+}
