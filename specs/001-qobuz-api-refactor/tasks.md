@@ -45,14 +45,16 @@
 - [x] T013 [P] Create `src/models/artist.rs` with `Artist`, `Biography` structs per data-model.md
 - [x] T014 [P] Create `src/models/track.rs` with `Track`, `AudioInfo` structs per data-model.md
 - [x] T015 [P] Create `src/models/playlist.rs` with `Playlist` struct per data-model.md
-- [x] T016 [P] Create `src/models/search.rs` with `SearchResult<T>`, `ItemSearchResult<T>`, `UserFavorites` structs per data-model.md
+- [x] T016 [P] Create `src/models/search.rs` with `SearchResult<T>`, `ItemSearchResult<T>` structs per data-model.md
+- [x] T016a [P] Create `src/models/favorites.rs` with `UserFavorites` struct per data-model.md
 - [x] T017 [P] Create `src/models/subscription.rs` with `Subscription`, `User` structs per data-model.md
 - [x] T018 Create `src/api/mod.rs` with module declarations for `service`, `requests`, `auth`, `content/`, `favorites` per plan.md
-- [x] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()` (consumes signature functions from `src/signing.rs`), response parsing, and retry-with-backoff wrapper (max 3 retries, exponential backoff) per research.md sections 1 and 6
+- [x] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()` (consumes signature functions from `src/signing.rs`), response parsing, and retry-with-backoff wrapper (configurable retry limit, default 3 retries, exponential backoff) per research.md sections 1 and 6
 - [x] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md
 - [x] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 (deterministic testing via trait abstraction)
 - [x] T075 [P] Create declarative macros in `src/api/requests.rs` (`search_endpoint!`, `get_endpoint!`) to eliminate duplication across search (T027-T030) and get (T034-T038) method patterns per constitution Principle I
-- [x] T076 [P] Create `tests/integration/` directory with `auth_tests.rs`, `search_tests.rs`, `download_tests.rs` scaffolding (empty test modules with `MockHttpClient` stub) per plan.md project structure
+- [x] T076 [P] Create `tests/integration/` directory with `auth_tests.rs`, `search_tests.rs`, `download_tests.rs`, `favorites_tests.rs`, `metadata_tests.rs` scaffolding (empty test modules with `MockHttpClient` stub) per plan.md project structure
+- [x] T033 Create `src/api/content/mod.rs` with module declarations for albums, artists, tracks, playlists, catalog per plan.md
 
 **Checkpoint**: Foundation ready — all models, HTTP primitives, test infrastructure, and deduplication macros in place. User story implementation can begin.
 
@@ -93,7 +95,6 @@
 - [ ] T030 [P] [US2] Implement `search_playlists()` in `src/api/content/playlists.rs` — GET `/playlist/search` with query params, deserialize into `ItemSearchResult<Box<Playlist>>` per contracts/public-api.md
 - [ ] T031 [US2] Implement `search_catalog()` in `src/api/content/catalog.rs` — searches all content types, returns grouped `SearchResult` per contracts/public-api.md
 - [ ] T032 [US2] Wire search methods into `QobuzApiService` in `src/api/service.rs` — expose all search methods as public API
-- [ ] T033 [US2] Create `src/api/content/mod.rs` with module declarations for albums, artists, tracks, playlists, catalog
 
 **Checkpoint**: Search fully functional. Users can search for any content type and receive structured results.
 
@@ -233,7 +234,7 @@
   - US4 (Phase 6): Depends on US1 + US3 (needs track details, file URLs)
   - US5 (Phase 7): Depends on US4 (metadata embedding integrated into download)
   - US6 (Phase 8): Depends on US1 (requires authenticated session, signed requests)
-  - US7 (Phase 9): Depends on all prior stories (CLI wraps library)
+  - US7 (Phase 9): Depends on all prior stories (US2, US3, US4, US5, US6) — CLI wraps library
 - **Polish (Phase 10)**: Depends on all user stories complete
 
 ### User Story Dependencies
@@ -242,7 +243,7 @@
 US1 (Auth)
 ├── US2 (Search) → US3 (Browse) → US4 (Download) → US5 (Metadata)
 ├── US6 (Favorites)
-└── US7 (CLI) — depends on US2, US3, US4, US6
+└── US7 (CLI) — depends on US2, US3, US4, US5, US6
 ```
 
 ### Within Each User Story
@@ -259,7 +260,7 @@ US1 (Auth)
 - All model files in Phase 2 (T010-T017) can run in parallel
 - Within US2: search methods for each content type (T027-T030) can run in parallel
 - Within US3: all get methods (T034-T038) can run in parallel
-- US6 (Favorites) can run in parallel with US3/US4/US5 (independent of search/browse/download)
+- US6 (Favorites) can run in parallel with US3/US4/US5 (independent of search/browse/download); however, the sequential phase numbering reflects a deliberate implementation order — developers may reorder phases 5–8 as needed provided US1 completes first
 
 ---
 

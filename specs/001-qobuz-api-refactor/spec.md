@@ -13,7 +13,7 @@
 - Q: Are Favorites and CLI in scope? → A: Both Favorites and CLI are in scope
 - Q: How should credentials be stored? → A: .env file only, with chmod 600 advisory / auto-set permissions
 - Q: What is the download concurrency model? → A: Configurable concurrent limit with a sensible default of 4
-- Q: How should rate limiting be handled? → A: Automatic retry with exponential backoff (capped at ~3 retries)
+- Q: How should rate limiting be handled? → A: Automatic retry with exponential backoff (configurable, default ~3 retries)
 
 ## Out of Scope
 
@@ -153,8 +153,8 @@ A developer or end-user wants an interactive command-line interface to search fo
 
 ### Edge Cases
 
-- What happens when the Qobuz API returns rate limit errors? The library should automatically retry with exponential backoff, up to a maximum of 3 retries, before surfacing a clear rate limit error (see FR-018b).
-- How does the system handle network timeouts or connection failures during downloads? Errors should be reported with context about the operation that failed.
+- What happens when the Qobuz API returns rate limit errors? The library should automatically retry with exponential backoff, up to a configurable retry limit (default: 3 retries), before surfacing a clear rate limit error (see FR-018b).
+- How does the system handle network timeouts or connection failures during downloads? Errors should be reported as `HttpError` with context about the operation that failed (track ID, album ID, quality). Transient failures are retried per FR-018b; non-transient failures surface immediately.
 - What happens when the web player credential extraction fails (e.g., Qobuz changes their web player structure)? A clear error should indicate that automatic credential refresh is unavailable and manual configuration is needed.
 - How does the system handle tracks or albums that are not available in the user's region or subscription tier? An appropriate error should indicate unavailability (the API returns a standard error response; the library MUST surface this as a `DownloadError` or `ApiErrorResponse` with a message indicating regional/subscription unavailability).
 - What happens when metadata fields contain special characters or very long values? Filenames should be sanitized (truncated to 255 bytes maximum, stripped of path separators and control characters) and metadata should be encoded correctly for each audio format.
@@ -170,9 +170,9 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-004**: The library MUST automatically extract and refresh application credentials (app ID and app secret) from the Qobuz web player JavaScript bundle
 - **FR-005**: The library MUST search for albums, artists, tracks, and playlists by text query, and MUST support a combined catalog search that returns results grouped by content type via `SearchResult`
 - **FR-006**: The library MUST retrieve detailed information for albums, artists, tracks, and playlists by their unique identifiers
-- **FR-007**: The library MUST download individual tracks at user-selected quality levels (MP3 320kbps, FLAC, Hi-Res 24-bit/96kHz, Hi-Res 24-bit/192kHz)
+- **FR-007**: The library MUST download individual tracks at user-selected quality levels (MP3 320kbps, FLAC 16-bit/44.1kHz, Hi-Res 24-bit/96kHz, Hi-Res 24-bit/192kHz)
 - **FR-008**: The library MUST download complete albums with all tracks organized into artist/album directory structure, using a configurable concurrency limit (default: 4 simultaneous downloads)
-- **FR-009**: The library MUST automatically retry downloads when credential-related signature errors occur, by invoking the credential refresh mechanism defined in FR-004 and retrying
+- **FR-009**: The library MUST automatically retry downloads **once** when credential-related signature errors occur, by invoking the credential refresh mechanism defined in FR-004 and retrying the failed download
 - **FR-010**: The library MUST embed comprehensive metadata into downloaded audio files, including title, artist, album, album artist, genre, date, composer, conductor, performer, track number, disc number, and cover art
 - **FR-011**: The library MUST handle format-specific metadata tagging (Vorbis Comments for FLAC, ID3v2 for MP3)
 - **FR-012**: The library MUST deduplicate artist and composer names when multiple roles reference the same person
@@ -182,7 +182,7 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-016**: The library MUST retrieve the user's favorites list and favorite IDs
 - **FR-017**: The library MUST sign API requests with MD5-based request signatures when required
 - **FR-018a**: The library MUST provide structured error types for all failure scenarios, as defined by the `QobuzApiError` enum in data-model.md (13 variants: `AuthenticationError`, `HttpError`, `IoError`, `ApiErrorResponse`, `ApiResponseParseError`, `InitializationError`, `CredentialsError`, `DownloadError`, `MetadataError`, `ResourceNotFoundError`, `RateLimitError`, `InvalidParameterError`, `UnexpectedApiResponseError`)
-- **FR-018b**: The library MUST automatically retry rate-limited requests with exponential backoff (max 3 retries)
+- **FR-018b**: The library MUST automatically retry rate-limited requests with exponential backoff using a configurable retry limit (default: 3 retries)
 
 **Note on constitution scope**: Constitution Principle III references GUI elements, and a uniform quality interface across streaming operations. This spec explicitly scopes out streaming playback and any GUI. The GUI provisions and streaming interface uniformity requirements are deferred to a future feature. The quality selection uniformity requirement applies to album downloads, track downloads, and file URL retrieval only.
 - **FR-019**: The library MUST sanitize filenames for cross-platform compatibility

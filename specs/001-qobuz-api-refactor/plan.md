@@ -15,7 +15,7 @@ Refactor the `qobuz-api-rust` library into a clean, high-performance Rust crate 
 **Testing**: `cargo test` (unit tests at bottom of files), `tempfile` for filesystem fixtures, deterministic mocks for API integration tests, `criterion` for benchmarks
 **Target Platform**: Linux (primary), cross-platform compatible
 **Project Type**: Library crate + CLI binary
-**Performance Goals**: Single `reqwest::Client` with connection pooling; credential refresh at most once per session; configurable concurrent downloads (default 4); `tokio` for I/O-bound, `rayon` for CPU-bound metadata tagging
+**Performance Goals**: Single `reqwest::Client` with connection pooling; credential refresh at most once per session; configurable concurrent downloads (default 4); configurable retry limit (default 3) with exponential backoff; `tokio` for I/O-bound, `rayon` for CPU-bound metadata tagging
 **Constraints**: Max 400 lines per file; zero clippy pedantic warnings; no unsafe code; no `unwrap`/`expect`/`panic`; max 3 levels nesting; all public items documented
 **Scale/Scope**: ~15-20 source modules; 7 user stories; 23 functional requirements; single-user desktop client
 
@@ -83,7 +83,8 @@ src/
 │   ├── artist.rs            # Artist, Biography
 │   ├── track.rs             # Track, AudioInfo
 │   ├── playlist.rs          # Playlist
-│   ├── search.rs            # SearchResult, ItemSearchResult, UserFavorites
+│   ├── search.rs            # SearchResult, ItemSearchResult
+│   ├── favorites.rs         # UserFavorites
 │   ├── credential.rs        # Credential, Login
 │   ├── file_url.rs          # FileUrl
 │   └── subscription.rs      # Subscription, User
@@ -104,7 +105,9 @@ tests/
 ├── integration/
 │   ├── auth_tests.rs        # Authentication integration tests (mocked)
 │   ├── search_tests.rs      # Search integration tests (mocked)
-│   └── download_tests.rs    # Download integration tests (mocked)
+│   ├── download_tests.rs    # Download integration tests (mocked)
+│   ├── favorites_tests.rs   # Favorites integration tests (mocked)
+│   └── metadata_tests.rs    # Metadata integration tests (mocked)
 ```
 
 **Structure Decision**: Single-project structure grouped by capability/domain. The `api/` module contains the HTTP client layer split by endpoint domain. `models/` contains pure data structures. `metadata/` handles audio file tagging. `cli/` provides the interactive interface. Shared utilities (`signing`, `credentials`, `sanitize`, `errors`) are top-level modules in `src/`. This follows the constitution's "group by capability/domain" rule and avoids the forbidden `models/handlers/utils` anti-pattern.
