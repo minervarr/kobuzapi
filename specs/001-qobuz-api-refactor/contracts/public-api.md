@@ -9,6 +9,7 @@ This document defines the public API surface of the `qobuz-api-rust-refactor` li
 ## Library Re-exports (`lib.rs`)
 
 ```rust
+pub use api::http_client::HttpClient;
 pub use api::service::QobuzApiService;
 pub use errors::QobuzApiError;
 pub use metadata::config::MetadataConfig;
@@ -24,6 +25,25 @@ pub use models::file_url::FileUrl;
 pub use models::credential::Credential;
 pub use sanitize::sanitize_filename;
 ```
+
+---
+
+## HttpClient Trait
+
+### `HttpClient` (trait, `src/api/http_client.rs`)
+
+Trait abstraction over HTTP operations enabling deterministic testing via a mock implementation. Production code uses `ReqwestClient` (wrapping `reqwest::Client`); tests use `MockHttpClient`.
+
+```rust
+pub trait HttpClient: Send + Sync {
+    async fn get(&self, url: &str, headers: HeaderMap) -> Result<Response, QobuzApiError>;
+    async fn post(&self, url: &str, headers: HeaderMap, body: Option<String>) -> Result<Response, QobuzApiError>;
+    async fn signed_get(&self, url: &str, params: &[(&str, &str)], app_secret: &str) -> Result<Response, QobuzApiError>;
+    async fn bytes_stream(&self, url: &str) -> Result<impl Stream<Item = Result<Bytes, QobuzApiError>>, QobuzApiError>;
+}
+```
+
+**Design rationale**: Per research.md section 8, trait abstraction is the recommended approach for deterministic integration testing without real network calls.
 
 ---
 

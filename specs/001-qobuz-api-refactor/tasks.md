@@ -48,10 +48,10 @@
 - [x] T016 [P] Create `src/models/search.rs` with `SearchResult<T>`, `ItemSearchResult<T>` structs per data-model.md
 - [x] T016a [P] Create `src/models/favorites.rs` with `UserFavorites` struct per data-model.md
 - [x] T017 [P] Create `src/models/subscription.rs` with `Subscription`, `User` structs per data-model.md
-- [x] T018 Create `src/api/mod.rs` with module declarations for `service`, `requests`, `auth`, `content/`, `favorites` per plan.md
+- [x] T018 Create `src/api/mod.rs` with module declarations for `http_client`, `service`, `requests`, `auth`, `content/`, `favorites` per plan.md
 - [x] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()` (consumes signature functions from `src/signing.rs`), response parsing, and retry-with-backoff wrapper (configurable retry limit, default 3 retries, exponential backoff) per research.md sections 1 and 6
-- [x] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md
-- [x] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 (deterministic testing via trait abstraction)
+- [x] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md; initialize `reqwest::Client` with connection pooling and sensible timeout defaults; use `parking_lot::Mutex` for `credentials_refreshed` flag if concurrent access is needed
+- [x] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 and contracts/public-api.md (deterministic testing via trait abstraction)
 - [x] T075 [P] Create declarative macros in `src/api/requests.rs` (`search_endpoint!`, `get_endpoint!`) to eliminate duplication across search (T027-T030) and get (T034-T038) method patterns per constitution Principle I
 - [x] T076 [P] Create `tests/integration/` directory with `auth_tests.rs`, `search_tests.rs`, `download_tests.rs`, `favorites_tests.rs`, `metadata_tests.rs` scaffolding (empty test modules with `MockHttpClient` stub) per plan.md project structure
 - [x] T033 Create `src/api/content/mod.rs` with module declarations for albums, artists, tracks, playlists, catalog per plan.md
@@ -129,7 +129,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context per constitution Principle II
+- [ ] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context, regional/subscription unavailability error surfacing (verifying `DownloadError` or `ApiErrorResponse` with unavailability message) per constitution Principle II
 - [ ] T041 [US4] Implement `get_track_file_url()` in `src/api/content/tracks.rs` — GET `/track/getFileUrl` with signed request (track file URL signature per research.md), returns `FileUrl` per contracts/public-api.md
 - [ ] T042 [US4] Implement streaming download function in `src/api/requests.rs` — `bytes_stream()` with `tokio::io::BufWriter` for efficient disk I/O per research.md section 1
 - [ ] T043 [US4] Implement `download_track()` in `src/api/content/tracks.rs` — gets file URL, streams to disk, formats filename as `{NN}. {title}.{ext}`, handles signature error recovery with credential refresh per contracts/public-api.md
@@ -150,13 +150,13 @@
 
 ### Implementation for User Story 5
 
-- [ ] T081 [US5] Write unit tests in `src/metadata/extractor.rs` and `src/metadata/embedder.rs` for: comprehensive field extraction, artist deduplication, classical music conductor priority, FLAC/MP3 tag writing, separator formatting, `MetadataConfig` field toggling per constitution Principle II
+- [ ] T081 [US5] Write unit tests in `src/metadata/extractor.rs` and `src/metadata/embedder.rs` for: comprehensive field extraction, artist deduplication, classical music conductor priority, FLAC/MP3 tag writing, separator formatting, `MetadataConfig` field toggling, special character encoding in metadata values (Unicode, control characters, very long strings) per constitution Principle II
 - [ ] T047 [P] [US5] Create `src/metadata/mod.rs` with module declarations and re-exports per plan.md
 - [ ] T048 [P] [US5] Create `src/metadata/config.rs` with `MetadataConfig` struct (all boolean fields, `Default` impl with `comment: false`, rest `true`) per data-model.md
 - [ ] T049 [US5] Create `src/metadata/extractor.rs` with `extract_comprehensive_metadata()` — extracts all metadata fields from API models (`Track`, `Album`, `Artist`) into a structured intermediate representation; uses `rayon::par_iter` for batch extraction when processing album tracks per contracts/public-api.md and constitution Principle IV
 - [ ] T050 [US5] Implement artist deduplication logic in `src/metadata/extractor.rs` — deduplicates when multiple roles reference the same person per FR-012
 - [ ] T051 [US5] Implement classical music metadata handling in `src/metadata/extractor.rs` — prioritizes conductor as album artist, handles orchestra information per FR-022
-- [ ] T052 [US5] Create `src/metadata/embedder.rs` with `embed_metadata_in_file()` — writes tags using `lofty`: Vorbis Comments for FLAC, ID3v2 for MP3, cover art via `Picture`, respects `MetadataConfig` field toggles; uses `rayon::par_iter` for batch embedding; formats multi-artist fields with comma separator for FLAC (Vorbis Comments) and slash separator for MP3 (ID3v2) per spec.md US5 acceptance scenario 3; per research.md section 3 and contracts/public-api.md
+- [ ] T052 [US5] Create `src/metadata/embedder.rs` with `embed_metadata_in_file()` — writes tags using `lofty`: Vorbis Comments for FLAC, ID3v2 for MP3, cover art via `Picture`, respects `MetadataConfig` field toggles; uses `rayon::par_iter` for batch embedding; formats multi-artist fields with comma separator for FLAC (Vorbis Comments) and slash separator for MP3 (ID3v2) per spec.md US5 acceptance scenario 3; correctly encodes special characters and very long values in metadata fields per spec.md edge cases per research.md section 3 and contracts/public-api.md
 - [ ] T053 [US5] Integrate metadata embedding into `download_track()` and `download_album()` in `src/api/content/tracks.rs` and `src/api/content/albums.rs` — call embedder when `config` is provided per contracts/public-api.md
 - [ ] T054 [US5] Wire metadata re-exports into `src/lib.rs` per contracts/public-api.md
 

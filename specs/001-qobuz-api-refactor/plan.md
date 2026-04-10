@@ -67,6 +67,7 @@ src/
 ├── api/                     # API client layer
 │   ├── mod.rs               # Module declarations
 │   ├── service.rs           # QobuzApiService struct, constructors, auth state
+│   ├── http_client.rs       # HttpClient trait definition and ReqwestClient implementation (trait abstraction for deterministic testing per research.md section 8)
 │   ├── requests.rs          # HTTP primitives (get, post, signed_get, signature generation)
 │   ├── auth.rs              # Login, token auth, env auth, credential refresh
 │   ├── content/
