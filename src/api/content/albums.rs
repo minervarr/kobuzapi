@@ -22,7 +22,10 @@ use crate::{
     },
     errors::QobuzApiError::{self, DownloadError},
     metadata::config::MetadataConfig,
-    models::{album::Album, search::ItemSearchResult},
+    models::{
+        album::Album,
+        search::{AlbumSearchResponse, ItemSearchResult},
+    },
     sanitize::sanitize_filename,
 };
 
@@ -48,7 +51,8 @@ pub async fn search_albums(
     limit: Option<i32>,
     offset: Option<i32>,
 ) -> Result<ItemSearchResult<Box<Album>>, QobuzApiError> {
-    search(service, "/album/search", query, limit, offset).await
+    let resp: AlbumSearchResponse = search(service, "/album/search", query, limit, offset).await?;
+    Ok(resp.albums)
 }
 
 /// Retrieves album details by ID.
@@ -213,7 +217,7 @@ mod tests {
 
     #[test]
     fn search_albums_deserializes_results() -> Result<()> {
-        let body = r#"{"items":[{"id":"123","title":"Test Album"}],"total":1}"#;
+        let body = r#"{"albums":{"items":[{"id":"123","title":"Test Album"}],"total":1}}"#;
         let server = MockServer::start(200, body)?;
         let service = make_service(&server.base_url())?;
         let rt = Runtime::new()?;
@@ -226,7 +230,11 @@ mod tests {
 
     #[test]
     fn search_albums_empty_results() -> Result<()> {
-        assert_empty_search_test!(search_albums, "Nonexistent");
+        assert_empty_search_test!(
+            search_albums,
+            "Nonexistent",
+            r#"{"albums":{"items":[],"total":0}}"#
+        );
         Ok(())
     }
 

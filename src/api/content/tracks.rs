@@ -22,7 +22,12 @@ use crate::{
     },
     errors::QobuzApiError::{self, DownloadError},
     metadata::config::MetadataConfig,
-    models::{album::Album, file_url::FileUrl, search::ItemSearchResult, track::Track},
+    models::{
+        album::Album,
+        file_url::FileUrl,
+        search::{ItemSearchResult, TrackSearchResponse},
+        track::Track,
+    },
     signing::sign_track_file_url,
 };
 
@@ -48,7 +53,8 @@ pub async fn search_tracks(
     limit: Option<i32>,
     offset: Option<i32>,
 ) -> Result<ItemSearchResult<Box<Track>>, QobuzApiError> {
-    search(service, "/track/search", query, limit, offset).await
+    let resp: TrackSearchResponse = search(service, "/track/search", query, limit, offset).await?;
+    Ok(resp.tracks)
 }
 
 /// Retrieves track details by ID.
@@ -257,7 +263,7 @@ mod tests {
 
     #[test]
     fn search_tracks_deserializes_results() -> Result<()> {
-        let body = r#"{"items":[{"id":1,"title":"So What"}],"total":1}"#;
+        let body = r#"{"tracks":{"items":[{"id":1,"title":"So What"}],"total":1}}"#;
         let server = MockServer::start(200, body)?;
         let service = make_service(&server.base_url())?;
         let rt = Runtime::new()?;
@@ -270,7 +276,11 @@ mod tests {
 
     #[test]
     fn search_tracks_empty_results() -> Result<()> {
-        assert_empty_search_test!(search_tracks, "Nothing");
+        assert_empty_search_test!(
+            search_tracks,
+            "Nothing",
+            r#"{"tracks":{"items":[],"total":0}}"#
+        );
         Ok(())
     }
 

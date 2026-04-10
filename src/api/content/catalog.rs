@@ -65,7 +65,7 @@ mod tests {
 
     #[test]
     fn search_catalog_groups_all_types() -> Result<()> {
-        let body = r#"{"items":[],"total":0}"#;
+        let body = r#"{"albums":{"items":[],"total":0},"artists":{"items":[],"total":0},"tracks":{"items":[],"total":0},"playlists":{"items":[],"total":0}}"#;
         let server = MockServer::start_with_max_requests(200, body, 16)?;
         let service = make_service(&server.base_url())?;
         let rt = Runtime::new()?;

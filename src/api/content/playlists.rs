@@ -6,7 +6,10 @@ use crate::{
         service::QobuzApiService,
     },
     errors::QobuzApiError,
-    models::{playlist::Playlist, search::ItemSearchResult},
+    models::{
+        playlist::Playlist,
+        search::{ItemSearchResult, PlaylistSearchResponse},
+    },
 };
 
 /// Searches for playlists matching the query.
@@ -31,7 +34,9 @@ pub async fn search_playlists(
     limit: Option<i32>,
     offset: Option<i32>,
 ) -> Result<ItemSearchResult<Box<Playlist>>, QobuzApiError> {
-    search(service, "/playlist/search", query, limit, offset).await
+    let resp: PlaylistSearchResponse =
+        search(service, "/playlist/search", query, limit, offset).await?;
+    Ok(resp.playlists)
 }
 
 /// Retrieves playlist details by ID.
@@ -74,7 +79,7 @@ mod tests {
 
     #[test]
     fn search_playlists_deserializes_results() -> Result<()> {
-        let body = r#"{"items":[{"id":"pl1","name":"Jazz Mix"}],"total":1}"#;
+        let body = r#"{"playlists":{"items":[{"id":"pl1","name":"Jazz Mix"}],"total":1}}"#;
         let server = MockServer::start(200, body)?;
         let service = make_service(&server.base_url())?;
         let rt = Runtime::new()?;
@@ -87,7 +92,11 @@ mod tests {
 
     #[test]
     fn search_playlists_empty_results() -> Result<()> {
-        assert_empty_search_test!(search_playlists, "Nothing");
+        assert_empty_search_test!(
+            search_playlists,
+            "Nothing",
+            r#"{"playlists":{"items":[],"total":0}}"#
+        );
         Ok(())
     }
 

@@ -22,9 +22,8 @@ macro_rules! assert_empty_search {
 
 #[macro_export]
 macro_rules! assert_empty_search_test {
-    ($search_fn:path, $query:expr) => {{
-        let body = r#"{"items":[],"total":0}"#;
-        let server = $crate::api::test_support::MockServer::start(200, body)?;
+    ($search_fn:path, $query:expr, $body:expr) => {{
+        let server = $crate::api::test_support::MockServer::start(200, $body)?;
         let service = $crate::api::test_support::make_service(&server.base_url())?;
         let rt = ::tokio::runtime::Runtime::new()?;
         let result = rt.block_on($search_fn(&service, $query, None, None))?;

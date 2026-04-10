@@ -20,6 +20,9 @@ tokio-stream = "0.1.18"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 
+[features]
+live-tests = []
+
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }
 tempfile = "3.27.0"
@@ -31,6 +34,12 @@ path = "tests/integration/mock_http_client.rs"
 [[test]]
 name = "auth-integration"
 path = "tests/integration/auth_tests.rs"
+required-features = ["live-tests"]
+
+[[test]]
+name = "search-integration"
+path = "tests/integration/search_tests.rs"
+required-features = ["live-tests"]
 
 [lints.clippy]
 # missing_asserts_for_indexing = "deny"

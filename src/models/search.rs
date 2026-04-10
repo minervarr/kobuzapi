@@ -4,6 +4,20 @@ use serde::Deserialize;
 
 use crate::models::{album::Album, artist::Artist, playlist::Playlist, track::Track};
 
+/// API response wrapper for album search (`/album/search`).
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+pub struct AlbumSearchResponse {
+    /// Album search results.
+    pub albums: ItemSearchResult<Box<Album>>,
+}
+
+/// API response wrapper for artist search (`/artist/search`).
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+pub struct ArtistSearchResponse {
+    /// Artist search results.
+    pub artists: ItemSearchResult<Box<Artist>>,
+}
+
 /// Generic paginated result container.
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 pub struct ItemSearchResult<T> {
@@ -17,6 +31,13 @@ pub struct ItemSearchResult<T> {
     pub offset: Option<i32>,
 }
 
+/// API response wrapper for playlist search (`/playlist/search`).
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+pub struct PlaylistSearchResponse {
+    /// Playlist search results.
+    pub playlists: ItemSearchResult<Box<Playlist>>,
+}
+
 /// Grouped search results across content types.
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 pub struct SearchResult {
@@ -28,6 +49,13 @@ pub struct SearchResult {
     pub tracks: Option<ItemSearchResult<Box<Track>>>,
     /// Matching playlists.
     pub playlists: Option<ItemSearchResult<Box<Playlist>>>,
+}
+
+/// API response wrapper for track search (`/track/search`).
+#[derive(Clone, Debug, Deserialize, PartialEq)]
+pub struct TrackSearchResponse {
+    /// Track search results.
+    pub tracks: ItemSearchResult<Box<Track>>,
 }
 
 /// Collection of user's favorited items.

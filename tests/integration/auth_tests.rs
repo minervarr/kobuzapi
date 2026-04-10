@@ -7,69 +7,49 @@
 //!
 //! Setup: copy `.env.example` to `.env` and fill in your credentials, then:
 //!
-//! `cargo test --test auth-integration`
+//! `cargo test --test auth-integration --features live-tests`
 //!
-//! In CI without credentials, run `cargo test` (without `--test auth-integration`) to run only
-//! unit tests and the mock integration.
+//! In CI without credentials, run `cargo test` to run only unit tests and the mock integration.
 
-use std::{env::var, path::Path};
+mod common;
+
+use std::env::var;
+
+use anyhow::{Result, anyhow};
 
 use qobuz_api_rust_refactor::api::service::QobuzApiService;
 
-use anyhow::{Result, anyhow, bail};
+use common::ensure_env_credentials;
 
+/// User credentials loaded from the `.env` file.
 struct UserCredentials {
+    /// Email address or username.
     email: Option<String>,
+    /// Password.
     password: Option<String>,
+    /// User ID for token-based authentication.
     user_id: Option<String>,
+    /// User auth token for token-based authentication.
     user_auth_token: Option<String>,
 }
 
-/// Loads the `.env` file and returns user credentials.
+/// Loads and validates user credentials from the environment.
 ///
-/// App credentials (`QOBUZ_APP_ID`/`QOBUZ_APP_SECRET`) are optional —
-/// `QobuzApiService::new()` auto-extracts them from the Qobuz web player.
+/// # Returns
+///
+/// `Ok(UserCredentials)` with the loaded credentials.
 ///
 /// # Errors
 ///
-/// Returns an error if `.env` is missing, cannot be parsed, or has no user credentials at all.
+/// Returns an error if `.env` is missing, cannot be parsed, or has no user credentials.
 fn require_user_credentials() -> Result<UserCredentials> {
-    let env_path = Path::new(".env");
-
-    if !env_path.exists() {
-        bail!(
-            "No .env file found. Copy .env.example to .env and fill in your Qobuz \
-             credentials.\nSet either QOBUZ_EMAIL + QOBUZ_PASSWORD or QOBUZ_USER_ID + \
-             QOBUZ_USER_AUTH_TOKEN."
-        );
-    }
-
-    dotenvy::from_path(env_path).map_err(|e| anyhow!("Failed to parse .env: {e}"))?;
-
-    let email = var("QOBUZ_EMAIL").or_else(|_| var("QOBUZ_USERNAME")).ok();
-    let password = var("QOBUZ_PASSWORD").ok();
-    let user_id = var("QOBUZ_USER_ID").ok();
-    let user_auth_token = var("QOBUZ_USER_AUTH_TOKEN").ok();
-
-    let has_email_auth = email.is_some() && password.is_some();
-    let has_token_auth = user_id.is_some() && user_auth_token.is_some();
-
-    if !has_email_auth && !has_token_auth {
-        bail!(
-            "No user credentials in .env. Provide one of:\n- QOBUZ_EMAIL (or QOBUZ_USERNAME) + \
-             QOBUZ_PASSWORD\n- QOBUZ_USER_ID + QOBUZ_USER_AUTH_TOKEN"
-        );
-    }
-
-    if email.is_some() && password.is_none() {
-        bail!("QOBUZ_EMAIL is set but QOBUZ_PASSWORD is missing in .env");
-    }
+    ensure_env_credentials()?;
 
     Ok(UserCredentials {
-        email,
-        password,
-        user_id,
-        user_auth_token,
+        email: var("QOBUZ_EMAIL").or_else(|_| var("QOBUZ_USERNAME")).ok(),
+        password: var("QOBUZ_PASSWORD").ok(),
+        user_id: var("QOBUZ_USER_ID").ok(),
+        user_auth_token: var("QOBUZ_USER_AUTH_TOKEN").ok(),
     })
 }
 
@@ -94,11 +74,6 @@ mod tests {
 
     use super::{create_service, require_user_credentials};
 
-    /// Verifies that email/password login succeeds with correct credentials.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if `.env` is missing, email/password are not set, or login fails.
     #[test]
     fn live_email_password_login_succeeds() -> Result<()> {
         let creds = require_user_credentials()?;
@@ -123,11 +98,6 @@ mod tests {
         Ok(())
     }
 
-    /// Verifies that wrong email/password credentials are rejected by the API.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if `.env` is missing or if wrong credentials are incorrectly accepted.
     #[test]
     fn live_email_password_wrong_credentials_fail() -> Result<()> {
         require_user_credentials()?;
@@ -151,11 +121,6 @@ mod tests {
         Ok(())
     }
 
-    /// Verifies that token-based login succeeds with correct credentials.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if `.env` is missing, `USER_ID`/`AUTH_TOKEN` are not set, or login fails.
     #[test]
     fn live_token_login_succeeds() -> Result<()> {
         let creds = require_user_credentials()?;
@@ -181,11 +146,6 @@ mod tests {
         Ok(())
     }
 
-    /// Verifies that env-based authentication succeeds with credentials from `.env`.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if `.env` is missing or authentication fails.
     #[test]
     fn live_env_auth_succeeds() -> Result<()> {
         require_user_credentials()?;
@@ -202,11 +162,6 @@ mod tests {
         Ok(())
     }
 
-    /// Verifies the full `QobuzApiService::new()` + `authenticate_with_env()` flow.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if `.env` is missing or the full flow fails.
     #[test]
     fn live_service_new_reads_env_and_authenticates() -> Result<()> {
         require_user_credentials()?;

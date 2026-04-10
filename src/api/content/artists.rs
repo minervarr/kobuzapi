@@ -6,7 +6,11 @@ use crate::{
         service::QobuzApiService,
     },
     errors::QobuzApiError,
-    models::{album::Album, artist::Artist, search::ItemSearchResult},
+    models::{
+        album::Album,
+        artist::Artist,
+        search::{ArtistSearchResponse, ItemSearchResult},
+    },
 };
 /// Searches for artists matching the query.
 ///
@@ -30,7 +34,9 @@ pub async fn search_artists(
     limit: Option<i32>,
     offset: Option<i32>,
 ) -> Result<ItemSearchResult<Box<Artist>>, QobuzApiError> {
-    search(service, "/artist/search", query, limit, offset).await
+    let resp: ArtistSearchResponse =
+        search(service, "/artist/search", query, limit, offset).await?;
+    Ok(resp.artists)
 }
 
 /// Retrieves artist details by ID.
@@ -106,7 +112,7 @@ mod tests {
 
     #[test]
     fn search_artists_deserializes_results() -> Result<()> {
-        let body = r#"{"items":[{"id":1,"name":"Miles Davis"}],"total":1}"#;
+        let body = r#"{"artists":{"items":[{"id":1,"name":"Miles Davis"}],"total":1}}"#;
         let server = MockServer::start(200, body)?;
         let service = make_service(&server.base_url())?;
         let rt = Runtime::new()?;
@@ -119,7 +125,11 @@ mod tests {
 
     #[test]
     fn search_artists_empty_results() -> Result<()> {
-        assert_empty_search_test!(search_artists, "Nobody");
+        assert_empty_search_test!(
+            search_artists,
+            "Nobody",
+            r#"{"artists":{"items":[],"total":0}}"#
+        );
         Ok(())
     }
 
