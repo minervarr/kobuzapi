@@ -34,8 +34,8 @@ A developer using the library needs to authenticate with the Qobuz music streami
 
 **Acceptance Scenarios**:
 
-1. **Given** the user provides a valid email and password, **When** authentication is attempted, **Then** the library establishes a session and stores the auth token
-2. **Given** the user provides a valid user ID and auth token, **When** token-based authentication is attempted, **Then** the library validates the token and stores it for subsequent requests
+1. **Given** the user provides a valid email and password, **When** authentication is attempted, **Then** the library establishes a session and stores the `user_auth_token`
+2. **Given** the user provides a valid user ID and auth token, **When** token-based authentication is attempted, **Then** the library validates the token and stores it as `user_auth_token` for subsequent requests
 3. **Given** environment variables contain valid credentials, **When** automatic authentication is triggered, **Then** the library reads credentials and establishes a session without manual input
 4. **Given** invalid credentials are provided, **When** authentication is attempted, **Then** a clear error message indicates the authentication failure reason
 5. **Given** the user has an active session, **When** app credentials expire or become invalid, **Then** the library automatically refreshes them from the Qobuz web player without requiring user intervention (see FR-004)
@@ -182,7 +182,7 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-016**: The library MUST retrieve the user's favorites list and favorite IDs
 - **FR-017**: The library MUST sign API requests with MD5-based request signatures when required
 - **FR-018a**: The library MUST provide structured error types for all failure scenarios, as defined by the `QobuzApiError` enum in data-model.md (13 variants: `AuthenticationError`, `HttpError`, `IoError`, `ApiErrorResponse`, `ApiResponseParseError`, `InitializationError`, `CredentialsError`, `DownloadError`, `MetadataError`, `ResourceNotFoundError`, `RateLimitError`, `InvalidParameterError`, `UnexpectedApiResponseError`)
-- **FR-018b**: The library MUST automatically retry rate-limited requests with exponential backoff using a configurable retry limit (default: 3 retries)
+- **FR-018b**: The library MUST automatically retry rate-limited requests with exponential backoff using a configurable retry limit (default: 3 retries). Backoff delay is `base_delay * 2^attempt` where `base_delay` is 1 second, producing delays of 1s, 2s, 4s for attempts 0–2. Implementation uses `tokio::time::sleep` per research.md section 6
 - **FR-018c**: FR-009 (credential refresh retry) and FR-018b (rate limit retry) are independent retry policies. FR-009 governs credential-related signature errors only: refresh credentials once, then retry the download once. FR-018b governs HTTP-level rate limits (429) and transient network errors, with its own retry budget. These policies stack: a download may trigger FR-009 recovery (refresh + retry), and if the retried request hits a rate limit, FR-018b applies separately.
 - **FR-019**: The library MUST sanitize filenames for cross-platform compatibility
 - **FR-020**: The project MUST provide an interactive CLI binary for searching, browsing, and downloading music
@@ -196,7 +196,7 @@ Constitution Principle III references GUI elements and a uniform quality interfa
 
 ### Key Entities
 
-- **QobuzApiService**: The central service that holds authentication state (app ID, app secret, auth token) and provides all API operations
+- **QobuzApiService**: The central service that holds authentication state (app ID, app secret, `user_auth_token`) and provides all API operations
 - **Album**: A music album with title, artist, track list, release date, genre, label, cover art, and audio quality information
 - **Artist**: A music artist with name, biography, image, and associated releases
 - **Track**: An individual music track with title, artist, album, duration, track number, composers, performers, and audio quality
@@ -206,6 +206,8 @@ Constitution Principle III references GUI elements and a uniform quality interfa
 - **MetadataConfig**: Configuration object specifying which metadata fields to embed in audio files
 - **UserFavorites**: The user's collection of favorited albums, artists, and tracks
 - **Credential**: Unified credential struct holding both user authentication data (user ID, `user_auth_token`, email, hashed password) and application-level data (`app_id`, `app_secret`). User and application credentials are merged into a single struct because they share the same `.env` file persistence mechanism and are loaded together during service initialization. See data-model.md for field definitions.
+- **User**: A Qobuz user with display name, subscription details, and credential capabilities. Referenced as `Playlist.creator`.
+- **Subscription**: The user's Qobuz subscription details (tier, status). Referenced via the `User` entity.
 - **QobuzApiError**: Structured error type covering authentication, network, API response, metadata, download, and rate limiting failures
 
 ## Success Criteria *(mandatory)*

@@ -109,6 +109,8 @@ A music album with full metadata.
 
 **Relationships**: Contains `Artist`, `Label`, `Genre`, `Image`. Referenced by `Track`.
 
+**Note**: `id` is `String` because the Qobuz API returns album IDs as strings in all relevant endpoints. Other entities use `i32` where the API returns numeric IDs.
+
 ---
 
 ### Artist
@@ -181,7 +183,7 @@ A curated list of tracks.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `id` | `Option<String>` | Unique playlist identifier |
+| `id` | `Option<String>` | Unique playlist identifier (Qobuz API returns string IDs for playlists) |
 | `name` | `Option<String>` | Playlist name |
 | `description` | `Option<String>` | Description text |
 | `tracks_count` | `Option<i32>` | Number of tracks |
@@ -318,6 +320,8 @@ User authentication credentials.
 | `extralarge` | `Option<String>` | Extra-large URL |
 | `mega` | `Option<String>` | Highest resolution URL |
 | `back` | `Option<String>` | Back cover URL |
+
+**Resolution priority** (highest to lowest, used by FR-014): `mega` > `extralarge` > `large` > `medium` > `thumbnail` > `small`. The embedder selects the first available field in this order.
 
 #### Genre
 | Field | Type | Description |
