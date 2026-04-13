@@ -75,15 +75,11 @@ fn serve_response(mut stream: TcpStream, response: &[u8]) {
     drop(stream.flush());
 }
 
-fn accept_and_serve(listener: &TcpListener, bytes: &[u8]) {
-    if let Ok(s) = listener.accept().map(|(s, _)| s) {
-        serve_response(s, bytes);
-    }
-}
-
 fn serve_loop(listener: &TcpListener, bytes: &[u8], max_requests: usize) {
     for _ in 0..max_requests {
-        accept_and_serve(listener, bytes);
+        if let Ok(s) = listener.accept().map(|(s, _)| s) {
+            serve_response(s, bytes);
+        }
     }
 }
 

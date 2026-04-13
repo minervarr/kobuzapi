@@ -1,16 +1,19 @@
 //! Track search, browse, and download operations.
 
 use std::{
-    fs::create_dir_all,
+    fs::{create_dir_all, metadata},
     path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
 use {
     reqwest::Response,
-    tokio::{fs::File, io::AsyncWriteExt},
+    tokio::{
+        fs::{File, OpenOptions},
+        io::AsyncWriteExt,
+    },
     tokio_stream::StreamExt,
-    tracing::{debug, info},
+    tracing::{debug, info, warn},
 };
 
 use crate::{
@@ -30,6 +33,7 @@ use crate::{
         search::{ItemSearchResult, TrackSearchResponse},
         track::Track,
     },
+    sanitize::sanitize_filename,
     signing::sign_track_file_url,
 };
 
@@ -187,6 +191,20 @@ pub async fn download_track(
     output_dir: &Path,
     config: Option<&MetadataConfig>,
 ) -> Result<PathBuf, QobuzApiError> {
+    let track = get_track(service, track_id).await?;
+
+    let ext = Album::extension_for_format(format_id);
+    let track_num = track.track_number.unwrap_or(track_id);
+    let title = track.title.as_deref().unwrap_or("Unknown");
+    let safe_name = sanitize_filename(&format!("{track_num:02}. {title}"));
+    let filename = format!("{safe_name}.{ext}");
+
+    create_dir_all(output_dir)?;
+    let path = output_dir.join(&filename);
+
+    let offset = detect_partial_file(&path);
+    let range = offset.map(|s| format!("bytes={s}-"));
+
     let file_url = get_track_file_url(service, track_id, format_id).await?;
 
     let url = file_url.url.ok_or_else(|| DownloadError {
@@ -194,17 +212,75 @@ pub async fn download_track(
     })?;
 
     let token = service.require_auth_token()?;
-    let response = download_stream(service.http_client(), &url, token, None).await?;
+    let response = download_stream(service.http_client(), &url, token, range.as_deref()).await?;
 
-    let path = save_track_to_disk(response, track_id, output_dir, format_id).await?;
+    let resumed = offset.is_some() && response.status().as_u16() == 206;
+    if offset.is_some() && !resumed {
+        warn!(
+            track_id,
+            path = %path.display(),
+            "Server did not support Range request, re-downloading full file"
+        );
+    }
 
-    info!(track_id, format_id, path = %path.display(), "Track downloaded");
+    write_response_to_file(response, &path, resumed).await?;
+
+    info!(
+        track_id,
+        format_id,
+        path = %path.display(),
+        resumed,
+        "Track downloaded"
+    );
 
     if let Some(cfg) = config {
         debug!(track_id, ?cfg, "Metadata embedding not yet implemented");
     }
 
     Ok(path)
+}
+
+/// Detects whether a partial file exists on disk with non-zero size.
+///
+/// # Arguments
+///
+/// * `path` - File path to check
+///
+/// # Returns
+///
+/// `Some(size)` if the file exists and has content, `None` otherwise.
+fn detect_partial_file(path: &Path) -> Option<u64> {
+    let size = metadata(path).ok().map(|m| m.len())?;
+    (size > 0).then_some(size)
+}
+
+/// Writes a streaming HTTP response to a file, optionally appending.
+///
+/// # Arguments
+///
+/// * `response` - HTTP response containing the audio stream
+/// * `path` - Destination file path
+/// * `append` - If `true`, append to existing file; otherwise create/overwrite
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` on file I/O or stream read failures.
+async fn write_response_to_file(
+    response: Response,
+    path: &Path,
+    append: bool,
+) -> Result<(), QobuzApiError> {
+    let mut file = if append {
+        OpenOptions::new().append(true).open(path).await?
+    } else {
+        File::create(path).await?
+    };
+    let mut stream = response.bytes_stream();
+    while let Some(chunk) = stream.next().await {
+        file.write_all(&chunk?).await?;
+    }
+    file.flush().await?;
+    Ok(())
 }
 
 /// Saves a streaming response to disk with formatted filename.
@@ -215,6 +291,7 @@ pub async fn download_track(
 /// * `track_id` - Track identifier (used in filename)
 /// * `output_dir` - Directory to save the file
 /// * `format_id` - Quality format ID (determines file extension)
+/// * `append` - If `true`, append to existing file (resume); otherwise create new
 ///
 /// # Returns
 ///
@@ -228,35 +305,29 @@ pub async fn save_track_to_disk(
     track_id: i32,
     output_dir: &Path,
     format_id: i32,
+    append: bool,
 ) -> Result<PathBuf, QobuzApiError> {
     create_dir_all(output_dir)?;
 
     let ext = Album::extension_for_format(format_id);
-    let filename = format!("{track_id:02}.{ext}");
-    let path = output_dir.join(&filename);
-
-    let mut file = File::create(&path).await?;
-    let mut stream = response.bytes_stream();
-
-    while let Some(chunk) = stream.next().await {
-        let chunk = chunk?;
-        file.write_all(&chunk).await?;
-    }
-
-    file.flush().await?;
+    let path = output_dir.join(format!("{track_id:02}.{ext}"));
+    write_response_to_file(response, &path, append).await?;
     Ok(path)
 }
 
 #[cfg(test)]
 mod tests {
+    use std::fs::write;
+
     use {
         anyhow::{Result, anyhow, ensure},
+        tempfile::TempDir,
         tokio::runtime::Runtime,
     };
 
     use crate::{
         api::{
-            content::tracks::{get_track, search_tracks},
+            content::tracks::{detect_partial_file, get_track, search_tracks},
             test_support::{MockServer, make_service},
         },
         assert_empty_search_test,
@@ -315,6 +386,32 @@ mod tests {
         let rt = Runtime::new()?;
         let result = rt.block_on(get_track(&service, 99999));
         ensure!(result.is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn detect_partial_file_returns_none_for_missing() -> Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("nonexistent.flac");
+        ensure!(detect_partial_file(&path).is_none());
+        Ok(())
+    }
+
+    #[test]
+    fn detect_partial_file_returns_size_for_existing() -> Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("partial.flac");
+        write(&path, b"hello world")?;
+        ensure!(detect_partial_file(&path) == Some(11));
+        Ok(())
+    }
+
+    #[test]
+    fn detect_partial_file_returns_none_for_empty() -> Result<()> {
+        let dir = TempDir::new()?;
+        let path = dir.path().join("empty.flac");
+        write(&path, b"")?;
+        ensure!(detect_partial_file(&path).is_none());
         Ok(())
     }
 }

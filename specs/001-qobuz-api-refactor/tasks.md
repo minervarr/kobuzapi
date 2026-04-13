@@ -129,14 +129,14 @@
 
 ### Implementation for User Story 4
 
-- [ ] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context, regional/subscription unavailability error surfacing (verifying `DownloadError` or `ApiErrorResponse` with unavailability message) per constitution Principle II
-- [ ] T041 [US4] Implement `get_track_file_url()` in `src/api/content/tracks.rs` — GET `/track/getFileUrl` with signed request (track file URL signature per research.md), returns `FileUrl` per contracts/public-api.md
-- [ ] T042 [US4] Implement streaming download function in `src/api/requests.rs` — `bytes_stream()` with `tokio::io::BufWriter` for efficient disk I/O per research.md section 1
-- [ ] T043 [US4] Implement `download_track()` in `src/api/content/tracks.rs` — gets file URL, streams to disk, formats filename as `{NN}. {title}.{ext}`, handles signature error recovery with credential refresh per contracts/public-api.md
-- [ ] T043a [US4] Implement HTTP range-request resume logic in `src/api/requests.rs` — detect partial file on disk, send `Range` header to resume from last byte, verify `Content-Range` response per FR-023 and constitution Principle IV (resumable downloads)
-- [ ] T044 [US4] Implement `download_album()` in `src/api/content/albums.rs` — fetches album details, creates `{artist}/{album_title}/` directory, downloads all tracks with `tokio::sync::Semaphore` for bounded concurrency (default 4) per contracts/public-api.md
-- [ ] T045 [US4] Add download progress tracing and error context (track ID, album ID, quality) in `src/api/content/tracks.rs` and `src/api/content/albums.rs`
-- [ ] T046 [US4] Wire download methods into `QobuzApiService` in `src/api/service.rs` — expose `get_track_file_url()`, `download_track()`, `download_album()` as public API
+- [x] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context, regional/subscription unavailability error surfacing (verifying `DownloadError` or `ApiErrorResponse` with unavailability message) per constitution Principle II
+- [x] T041 [US4] Implement `get_track_file_url()` in `src/api/content/tracks.rs` — GET `/track/getFileUrl` with signed request (track file URL signature per research.md), returns `FileUrl` per contracts/public-api.md
+- [x] T042 [US4] Implement streaming download function in `src/api/requests.rs` — `bytes_stream()` with `tokio::io::BufWriter` for efficient disk I/O per research.md section 1
+- [x] T043 [US4] Implement `download_track()` in `src/api/content/tracks.rs` — gets file URL, streams to disk, formats filename as `{NN}. {title}.{ext}`, handles signature error recovery with credential refresh per contracts/public-api.md
+- [x] T043a [US4] Implement HTTP range-request resume logic in `src/api/requests.rs` — detect partial file on disk, send `Range` header to resume from last byte, verify `Content-Range` response per FR-023 and constitution Principle IV (resumable downloads)
+- [x] T044 [US4] Implement `download_album()` in `src/api/content/albums.rs` — fetches album details, creates `{artist}/{album_title}/` directory, downloads all tracks with `tokio::sync::Semaphore` for bounded concurrency (default 4) per contracts/public-api.md
+- [x] T045 [US4] Add download progress tracing and error context (track ID, album ID, quality) in `src/api/content/tracks.rs` and `src/api/content/albums.rs`
+- [x] T046 [US4] Wire download methods into `QobuzApiService` in `src/api/service.rs` — expose `get_track_file_url()`, `download_track()`, `download_album()` as public API
 
 **Checkpoint**: Downloads fully functional. Users can download tracks and albums at any quality level with concurrent downloads.
 

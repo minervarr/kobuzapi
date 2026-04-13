@@ -1,14 +1,14 @@
 //! Album search and browse operations.
 
 use std::{
-    fs::create_dir_all,
+    fs::{create_dir_all, metadata},
     path::{Path, PathBuf},
     sync::Arc,
 };
 
 use {
     tokio::{spawn, sync::Semaphore},
-    tracing::{error, info},
+    tracing::{error, info, warn},
 };
 
 use crate::{
@@ -76,6 +76,59 @@ pub async fn get_album(
     extra: Option<&str>,
 ) -> Result<Album, QobuzApiError> {
     get_by_id(service, "/album/get", "album_id", album_id, extra).await
+}
+
+/// Detects a partial file on disk and returns the byte offset and Range header value for resumable
+/// downloads.
+///
+/// Checks if a partial file exists for the given track and format, and if so, returns the
+/// byte offset (file size) and a formatted Range header string for the HTTP request.
+///
+/// # Arguments
+///
+/// * `dir` - Directory containing the track file
+/// * `track_id` - Track identifier
+/// * `format_id` - Quality format ID (e.g., 5=MP3, 6=FLAC 16-bit, 7=FLAC 24-bit/96kHz)
+///
+/// # Returns
+///
+/// A tuple of `(offset, range)` where:
+/// - `offset`: The byte position to resume from (file size), or `None` if no partial file exists
+/// - `range`: The `Range` HTTP header value (e.g., `"bytes=1234567-"`), or `None`
+fn detect_resume_offset(
+    dir: &Path,
+    track_id: i32,
+    format_id: i32,
+) -> (Option<u64>, Option<String>) {
+    let ext = Album::extension_for_format(format_id);
+    let existing_path = dir.join(format!("{track_id:02}.{ext}"));
+    let offset = existing_path
+        .exists()
+        .then(|| metadata(&existing_path).ok())
+        .flatten()
+        .filter(|m| m.len() > 0)
+        .map(|m| m.len());
+    let range = offset.map(|s| format!("bytes={s}-"));
+    (offset, range)
+}
+
+/// Warns if a Range request was made but the server responded with 200 instead of 206.
+///
+/// This indicates the server does not support resumable downloads, so the full file
+/// will be re-downloaded from byte 0.
+///
+/// # Arguments
+///
+/// * `had_offset` - Whether we attempted to resume (found a partial file)
+/// * `resumed` - Whether the server responded with 206 Partial Content
+/// * `track_id` - Track identifier for logging
+fn warn_if_not_resumed(had_offset: bool, resumed: bool, track_id: i32) {
+    if had_offset && !resumed {
+        warn!(
+            track_id,
+            "Server did not support Range request, re-downloading full file"
+        );
+    }
 }
 
 /// Downloads all tracks in an album concurrently.
@@ -169,9 +222,24 @@ pub async fn download_album(
                 message: format!("No download URL for track {track_id}"),
             })?;
 
-            let response = download_stream(&*service_client, &url, &token, None).await?;
+            let (offset, range) = detect_resume_offset(&dir_clone, track_id, format_id);
 
-            let path = save_track_to_disk(response, track_id, &dir_clone, format_id).await?;
+            let response =
+                download_stream(&*service_client, &url, &token, range.as_deref()).await?;
+
+            let resumed = offset.is_some() && response.status().as_u16() == 206;
+            warn_if_not_resumed(offset.is_some(), resumed, track_id);
+
+            let path =
+                save_track_to_disk(response, track_id, &dir_clone, format_id, resumed).await?;
+
+            info!(
+                track_id,
+                format_id,
+                path = %path.display(),
+                resumed,
+                "Track downloaded"
+            );
 
             drop(permit);
             Ok::<PathBuf, QobuzApiError>(path)
