@@ -145,10 +145,6 @@ pub async fn extract_from_web_player() -> Result<(String, String), QobuzApiError
 /// # Returns
 ///
 /// The full URL of the bundle JavaScript file.
-///
-/// # Errors
-///
-/// Returns `QobuzApiError::CredentialsError` if the bundle URL cannot be found.
 fn extract_bundle_url(html: &str) -> Result<String, QobuzApiError> {
     let re = Regex::new(r#"src="(/[^"]*bundle[^"]*\.js)""#).map_err(|e| CredentialsError {
         message: format!("Invalid regex: {e}"),
@@ -176,10 +172,6 @@ fn extract_bundle_url(html: &str) -> Result<String, QobuzApiError> {
 /// # Returns
 ///
 /// A tuple of `(app_id, app_secret)`.
-///
-/// # Errors
-///
-/// Returns `QobuzApiError::CredentialsError` if either value cannot be found.
 fn extract_app_credentials(js: &str) -> Result<(String, String), QobuzApiError> {
     let re =
         Regex::new(r#"production:\{api:\{appId:"(\d+)",appSecret:"([^"]+)""#).map_err(|e| {
@@ -220,10 +212,6 @@ fn extract_app_credentials(js: &str) -> Result<(String, String), QobuzApiError> 
 /// # Returns
 ///
 /// `Ok(())` on success.
-///
-/// # Errors
-///
-/// Returns `QobuzApiError::IoError` if permissions cannot be set.
 fn set_file_permissions(path: &Path) -> Result<(), QobuzApiError> {
     #[cfg(unix)]
     {

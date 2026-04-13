@@ -42,6 +42,10 @@ pub fn detect_partial_file(path: &Path) -> Option<u64> {
 /// * `path` - Destination file path
 /// * `append` - If `true`, append to existing file; otherwise create/overwrite
 ///
+/// # Returns
+///
+/// `Ok(())` on success.
+///
 /// # Errors
 ///
 /// Returns a `QobuzApiError` on file I/O or stream read failures.

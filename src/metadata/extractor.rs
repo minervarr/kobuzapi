@@ -105,7 +105,6 @@ fn dedupe_names(names: &[&str]) -> String {
 /// # Returns
 ///
 /// A `ComprehensiveMetadata` struct with all extracted fields.
-#[must_use]
 pub fn extract_comprehensive_metadata(
     track: &Track,
     album: Option<&Album>,

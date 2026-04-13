@@ -37,7 +37,6 @@ pub fn to_hex(bytes: &[u8]) -> String {
 /// # Returns
 ///
 /// Lowercase hex string of the MD5 hash.
-#[must_use]
 pub fn sign_request(
     method: &str,
     endpoint: &str,

@@ -38,10 +38,6 @@ struct UserCredentials {
 /// # Returns
 ///
 /// `Ok(UserCredentials)` with the loaded credentials.
-///
-/// # Errors
-///
-/// Returns an error if `.env` is missing, cannot be parsed, or has no user credentials.
 fn require_user_credentials() -> Result<UserCredentials> {
     ensure_env_credentials()?;
 
@@ -56,9 +52,9 @@ fn require_user_credentials() -> Result<UserCredentials> {
 /// Creates a `QobuzApiService` using `new()`, which auto-extracts app credentials from the web
 /// player (or reads them from `.env` if present).
 ///
-/// # Errors
+/// # Returns
 ///
-/// Returns an error if app credential extraction fails and no `.env` app credentials exist.
+/// A `Result` containing the `QobuzApiService` instance, or an error if creation fails.
 fn create_service() -> Result<QobuzApiService> {
     QobuzApiService::new().map_err(|e| anyhow!("Failed to create service: {e}"))
 }

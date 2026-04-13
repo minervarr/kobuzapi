@@ -459,10 +459,6 @@ pub fn init_logging() {
 /// # Returns
 ///
 /// `Ok(())` if valid credentials are found.
-///
-/// # Errors
-///
-/// Returns an error if `.env` is missing, cannot be parsed, or has no user credentials.
 pub fn ensure_env_credentials() -> Result<()> {
     let env_path = Path::new(".env");
 
