@@ -32,6 +32,15 @@ macro_rules! assert_empty_search_test {
     }};
 }
 
+#[macro_export]
+macro_rules! setup_test {
+    ($status:expr, $body:expr, $server:ident, $service:ident, $rt:ident) => {
+        let $server = $crate::api::test_support::MockServer::start($status, $body)?;
+        let $service = $crate::api::test_support::make_service(&$server.base_url())?;
+        let $rt = ::tokio::runtime::Runtime::new()?;
+    };
+}
+
 pub struct MockServer {
     addr: SocketAddr,
 }

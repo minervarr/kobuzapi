@@ -209,7 +209,7 @@ mod tests {
 
     use crate::{
         api::{
-            content::albums::search_albums,
+            content::albums::{get_album, search_albums},
             test_support::{MockServer, make_service},
         },
         assert_empty_search_test,
@@ -245,6 +245,41 @@ mod tests {
         let service = make_service(&server.base_url())?;
         let rt = Runtime::new()?;
         let result = rt.block_on(search_albums(&service, "Test", None, None));
+        ensure!(result.is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn get_album_by_id() -> Result<()> {
+        let body = r#"{"id":"sr6843","title":"Kind of Blue","tracks_count":5}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let album = rt.block_on(get_album(&service, "sr6843", None))?;
+        ensure!(album.title.as_deref() == Some("Kind of Blue"));
+        ensure!(album.tracks_count == Some(5));
+        Ok(())
+    }
+
+    #[test]
+    fn get_album_with_extra_param() -> Result<()> {
+        let body = r#"{"id":"sr6843","title":"Kind of Blue","track_ids":[1,2,3]}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let album = rt.block_on(get_album(&service, "sr6843", Some("track_ids")))?;
+        let ids = album.track_ids.ok_or_else(|| anyhow!("no track_ids"))?;
+        ensure!(ids == vec![1, 2, 3]);
+        Ok(())
+    }
+
+    #[test]
+    fn get_album_not_found() -> Result<()> {
+        let body = r#"{"status":"error","code":404,"message":"Album not found"}"#;
+        let server = MockServer::start(404, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_album(&service, "nonexistent", None));
         ensure!(result.is_err());
         Ok(())
     }

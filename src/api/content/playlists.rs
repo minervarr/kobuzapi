@@ -64,25 +64,22 @@ pub async fn get_playlist(
 
 #[cfg(test)]
 mod tests {
-    use {
-        anyhow::{Result, anyhow, ensure},
-        tokio::runtime::Runtime,
-    };
+    use anyhow::{Result, anyhow, ensure};
 
     use crate::{
-        api::{
-            content::playlists::{get_playlist, search_playlists},
-            test_support::{MockServer, make_service},
-        },
-        assert_empty_search_test,
+        api::content::playlists::{get_playlist, search_playlists},
+        assert_empty_search_test, setup_test,
     };
 
     #[test]
     fn search_playlists_deserializes_results() -> Result<()> {
-        let body = r#"{"playlists":{"items":[{"id":"pl1","name":"Jazz Mix"}],"total":1}}"#;
-        let server = MockServer::start(200, body)?;
-        let service = make_service(&server.base_url())?;
-        let rt = Runtime::new()?;
+        setup_test!(
+            200,
+            r#"{"playlists":{"items":[{"id":"pl1","name":"Jazz Mix"}],"total":1}}"#,
+            server,
+            service,
+            rt
+        );
         let result = rt.block_on(search_playlists(&service, "Jazz", Some(5), None))?;
         let items = result.items.ok_or_else(|| anyhow!("no items"))?;
         ensure!(items.len() == 1);
@@ -102,10 +99,13 @@ mod tests {
 
     #[test]
     fn get_playlist_by_id() -> Result<()> {
-        let body = r#"{"id":"pl42","name":"My Playlist","tracks_count":10}"#;
-        let server = MockServer::start(200, body)?;
-        let service = make_service(&server.base_url())?;
-        let rt = Runtime::new()?;
+        setup_test!(
+            200,
+            r#"{"id":"pl42","name":"My Playlist","tracks_count":10}"#,
+            server,
+            service,
+            rt
+        );
         let playlist = rt.block_on(get_playlist(&service, "pl42", None))?;
         ensure!(playlist.name.as_deref() == Some("My Playlist"));
         Ok(())
@@ -113,11 +113,43 @@ mod tests {
 
     #[test]
     fn search_playlists_error_response() -> Result<()> {
-        let body = r#"{"status":"error","code":401,"message":"Unauthorized"}"#;
-        let server = MockServer::start(401, body)?;
-        let service = make_service(&server.base_url())?;
-        let rt = Runtime::new()?;
+        setup_test!(
+            401,
+            r#"{"status":"error","code":401,"message":"Unauthorized"}"#,
+            server,
+            service,
+            rt
+        );
         let result = rt.block_on(search_playlists(&service, "fail", None, None));
+        ensure!(result.is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn get_playlist_with_extra() -> Result<()> {
+        setup_test!(
+            200,
+            r#"{"id":"pl42","name":"My Playlist","tracks_count":10}"#,
+            server,
+            service,
+            rt
+        );
+        let playlist = rt.block_on(get_playlist(&service, "pl42", Some("tracks")))?;
+        ensure!(playlist.name.as_deref() == Some("My Playlist"));
+        ensure!(playlist.tracks_count == Some(10));
+        Ok(())
+    }
+
+    #[test]
+    fn get_playlist_not_found() -> Result<()> {
+        setup_test!(
+            404,
+            r#"{"status":"error","code":404,"message":"Playlist not found"}"#,
+            server,
+            service,
+            rt
+        );
+        let result = rt.block_on(get_playlist(&service, "nonexistent", None));
         ensure!(result.is_err());
         Ok(())
     }

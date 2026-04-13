@@ -305,4 +305,15 @@ mod tests {
         ensure!(result.is_err());
         Ok(())
     }
+
+    #[test]
+    fn get_track_not_found() -> Result<()> {
+        let body = r#"{"status":"error","code":404,"message":"Track not found"}"#;
+        let server = MockServer::start(404, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_track(&service, 99999));
+        ensure!(result.is_err());
+        Ok(())
+    }
 }

@@ -1,6 +1,6 @@
 //! Central API service holding authentication state and providing all operations.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use {tokio::runtime::Runtime, tracing::info};
 
@@ -8,21 +8,44 @@ use crate::{
     api::{
         auth::{authenticate_with_env, login, login_with_token, refresh_app_credentials},
         content::{
-            albums::search_albums, artists::search_artists, catalog::search_catalog,
-            playlists::search_playlists, tracks::search_tracks,
+            albums::{download_album, get_album, search_albums},
+            artists::{get_artist, get_release_list, search_artists},
+            catalog::search_catalog,
+            playlists::{get_playlist, search_playlists},
+            tracks::{download_track, get_track, get_track_file_url, search_tracks},
+        },
+        favorites::{
+            add_user_favorites, delete_user_favorites, get_user_favorite_ids, get_user_favorites,
         },
         http_client::{HttpClient, ReqwestClient},
     },
     credentials::{extract_from_web_player, load_app_credentials, save_app_credentials},
     errors::QobuzApiError::{self, AuthenticationError, InitializationError},
+    metadata::config::MetadataConfig,
     models::{
         album::Album,
         artist::Artist,
+        file_url::FileUrl,
         playlist::Playlist,
-        search::{ItemSearchResult, SearchResult},
+        search::{ItemSearchResult, SearchResult, UserFavorites},
         track::Track,
     },
 };
+
+/// Delegates to an async function via a blocking Tokio runtime.
+macro_rules! delegate {
+    ($vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $ret:ty = $path:path) => {
+        #[doc = concat!("Delegates to [`", stringify!($path), "`].")]
+        #[doc = ""]
+        #[doc = "# Errors"]
+        #[doc = ""]
+        #[doc = "Returns a `QobuzApiError` if not authenticated or the API request fails."]
+        $vis fn $name(&self $(, $arg: $ty)*) -> Result<$ret, QobuzApiError> {
+            let rt = Runtime::new()?;
+            rt.block_on($path(self $(, $arg)*))
+        }
+    };
+}
 
 /// Base URL for all Qobuz API v0.2 endpoints.
 const BASE_URL: &str = "https://www.qobuz.com/api.json/0.2";
@@ -291,130 +314,30 @@ impl QobuzApiService {
         refresh_app_credentials(self)
     }
 
-    /// Searches all content types (albums, artists, tracks, playlists).
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - Search query string
-    /// * `limit` - Maximum number of results per content type
-    /// * `offset` - Pagination offset
-    ///
-    /// # Returns
-    ///
-    /// A `SearchResult` with grouped results for each content type.
-    ///
-    /// # Errors
-    ///
-    /// Returns a `QobuzApiError` if not authenticated or any search request fails.
-    pub fn search_catalog(
-        &self,
-        query: &str,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> Result<SearchResult, QobuzApiError> {
-        let rt = Runtime::new()?;
-        rt.block_on(search_catalog(self, query, limit, offset))
-    }
+    // Search
+    delegate!(pub fn search_catalog(query: &str, limit: Option<i32>, offset: Option<i32>) -> SearchResult = search_catalog);
+    delegate!(pub fn search_albums(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Album>> = search_albums);
+    delegate!(pub fn search_artists(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Artist>> = search_artists);
+    delegate!(pub fn search_tracks(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Track>> = search_tracks);
+    delegate!(pub fn search_playlists(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Playlist>> = search_playlists);
 
-    /// Searches for albums matching the query.
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - Search query string
-    /// * `limit` - Maximum number of results
-    /// * `offset` - Pagination offset
-    ///
-    /// # Returns
-    ///
-    /// A paginated `ItemSearchResult` containing matching albums.
-    ///
-    /// # Errors
-    ///
-    /// Returns a `QobuzApiError` if not authenticated or the API request fails.
-    pub fn search_albums(
-        &self,
-        query: &str,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> Result<ItemSearchResult<Box<Album>>, QobuzApiError> {
-        let rt = Runtime::new()?;
-        rt.block_on(search_albums(self, query, limit, offset))
-    }
+    // Browse
+    delegate!(pub fn get_album(album_id: &str, extra: Option<&str>) -> Album = get_album);
+    delegate!(pub fn get_artist(artist_id: i32, extra: Option<&str>) -> Artist = get_artist);
+    delegate!(pub fn get_track(track_id: i32) -> Track = get_track);
+    delegate!(pub fn get_playlist(playlist_id: &str, extra: Option<&str>) -> Playlist = get_playlist);
+    delegate!(pub fn get_release_list(artist_id: i32, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Album>> = get_release_list);
 
-    /// Searches for artists matching the query.
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - Search query string
-    /// * `limit` - Maximum number of results
-    /// * `offset` - Pagination offset
-    ///
-    /// # Returns
-    ///
-    /// A paginated `ItemSearchResult` containing matching artists.
-    ///
-    /// # Errors
-    ///
-    /// Returns a `QobuzApiError` if not authenticated or the API request fails.
-    pub fn search_artists(
-        &self,
-        query: &str,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> Result<ItemSearchResult<Box<Artist>>, QobuzApiError> {
-        let rt = Runtime::new()?;
-        rt.block_on(search_artists(self, query, limit, offset))
-    }
+    // Download
+    delegate!(pub fn get_track_file_url(track_id: i32, format_id: i32) -> FileUrl = get_track_file_url);
+    delegate!(pub fn download_track(track_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> std::path::PathBuf = download_track);
+    delegate!(pub fn download_album(album_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_album);
 
-    /// Searches for tracks matching the query.
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - Search query string
-    /// * `limit` - Maximum number of results
-    /// * `offset` - Pagination offset
-    ///
-    /// # Returns
-    ///
-    /// A paginated `ItemSearchResult` containing matching tracks.
-    ///
-    /// # Errors
-    ///
-    /// Returns a `QobuzApiError` if not authenticated or the API request fails.
-    pub fn search_tracks(
-        &self,
-        query: &str,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> Result<ItemSearchResult<Box<Track>>, QobuzApiError> {
-        let rt = Runtime::new()?;
-        rt.block_on(search_tracks(self, query, limit, offset))
-    }
-
-    /// Searches for playlists matching the query.
-    ///
-    /// # Arguments
-    ///
-    /// * `query` - Search query string
-    /// * `limit` - Maximum number of results
-    /// * `offset` - Pagination offset
-    ///
-    /// # Returns
-    ///
-    /// A paginated `ItemSearchResult` containing matching playlists.
-    ///
-    /// # Errors
-    ///
-    /// Returns a `QobuzApiError` if not authenticated or the API request fails.
-    pub fn search_playlists(
-        &self,
-        query: &str,
-        limit: Option<i32>,
-        offset: Option<i32>,
-    ) -> Result<ItemSearchResult<Box<Playlist>>, QobuzApiError> {
-        let rt = Runtime::new()?;
-        rt.block_on(search_playlists(self, query, limit, offset))
-    }
+    // Favorites
+    delegate!(pub fn add_user_favorites(item_ids: &[i32], item_type: &str) -> () = add_user_favorites);
+    delegate!(pub fn delete_user_favorites(item_ids: &[i32], item_type: &str) -> () = delete_user_favorites);
+    delegate!(pub fn get_user_favorites(item_type: &str, limit: Option<i32>, offset: Option<i32>) -> UserFavorites = get_user_favorites);
+    delegate!(pub fn get_user_favorite_ids() -> UserFavorites = get_user_favorite_ids);
 }
 
 #[cfg(test)]

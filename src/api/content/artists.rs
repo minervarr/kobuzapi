@@ -104,7 +104,7 @@ mod tests {
 
     use crate::{
         api::{
-            content::artists::{get_artist, search_artists},
+            content::artists::{get_artist, get_release_list, search_artists},
             test_support::{MockServer, make_service},
         },
         assert_empty_search_test,
@@ -152,6 +152,30 @@ mod tests {
         let rt = Runtime::new()?;
         let result = rt.block_on(get_artist(&service, 99999, None));
         ensure!(result.is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn get_artist_with_extra() -> Result<()> {
+        let body = r#"{"id":42,"name":"Coltrane","albums_count":10}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let artist = rt.block_on(get_artist(&service, 42, Some("albums")))?;
+        ensure!(artist.name.as_deref() == Some("Coltrane"));
+        Ok(())
+    }
+
+    #[test]
+    fn get_release_list_returns_albums() -> Result<()> {
+        let body = r#"{"items":[{"id":"a1","title":"A Love Supreme"}],"total":1}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_release_list(&service, 42, Some(5), None))?;
+        let items = result.items.ok_or_else(|| anyhow!("no items"))?;
+        ensure!(items.len() == 1);
+        ensure!(items[0].title.as_deref() == Some("A Love Supreme"));
         Ok(())
     }
 }

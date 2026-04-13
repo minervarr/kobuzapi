@@ -108,14 +108,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T079 [US3] Write unit tests in each content module for: get-by-ID with valid/invalid IDs, `ResourceNotFoundError` on 404, optional `extra` param handling per constitution Principle II
-- [ ] T034 [P] [US3] Implement `get_album()` in `src/api/content/albums.rs` — GET `/album/get` with optional `extra` param, returns `Album` per contracts/public-api.md
-- [ ] T035 [P] [US3] Implement `get_artist()` in `src/api/content/artists.rs` — GET `/artist/get` with optional `extra` param, returns `Artist` per contracts/public-api.md
-- [ ] T036 [P] [US3] Implement `get_track()` in `src/api/content/tracks.rs` — GET `/track/get`, returns `Track` per contracts/public-api.md
-- [ ] T037 [P] [US3] Implement `get_playlist()` in `src/api/content/playlists.rs` — GET `/playlist/get` with optional `extra` param, returns `Playlist` per contracts/public-api.md
-- [ ] T038 [P] [US3] Implement `get_release_list()` in `src/api/content/artists.rs` — GET `/artist/getReleasesList`, returns `ItemSearchResult<Box<Album>>` per contracts/public-api.md
-- [ ] T039 [US3] Wire content browsing methods into `QobuzApiService` in `src/api/service.rs` — expose all get methods as public API
-- [ ] T040 [US3] Add `ResourceNotFoundError` handling for non-existent content IDs in `src/api/requests.rs` response parsing
+- [x] T079 [US3] Write unit tests in each content module for: get-by-ID with valid/invalid IDs, `ResourceNotFoundError` on 404, optional `extra` param handling per constitution Principle II
+- [x] T034 [P] [US3] Implement `get_album()` in `src/api/content/albums.rs` — GET `/album/get` with optional `extra` param, returns `Album` per contracts/public-api.md
+- [x] T035 [P] [US3] Implement `get_artist()` in `src/api/content/artists.rs` — GET `/artist/get` with optional `extra` param, returns `Artist` per contracts/public-api.md
+- [x] T036 [P] [US3] Implement `get_track()` in `src/api/content/tracks.rs` — GET `/track/get`, returns `Track` per contracts/public-api.md
+- [x] T037 [P] [US3] Implement `get_playlist()` in `src/api/content/playlists.rs` — GET `/playlist/get` with optional `extra` param, returns `Playlist` per contracts/public-api.md
+- [x] T038 [P] [US3] Implement `get_release_list()` in `src/api/content/artists.rs` — GET `/artist/getReleasesList`, returns `ItemSearchResult<Box<Album>>` per contracts/public-api.md
+- [x] T039 [US3] Wire content browsing methods into `QobuzApiService` in `src/api/service.rs` — expose all get methods as public API
+- [x] T040 [US3] Add `ResourceNotFoundError` handling for non-existent content IDs in `src/api/requests.rs` response parsing
 
 **Checkpoint**: Content browsing fully functional. Users can retrieve detailed metadata for any content by ID.
 
