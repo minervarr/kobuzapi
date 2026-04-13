@@ -1,24 +1,20 @@
 //! Track search, browse, and download operations.
 
 use std::{
-    fs::{create_dir_all, metadata},
+    convert::AsRef,
+    fs::create_dir_all,
     path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use {
-    reqwest::Response,
-    tokio::{
-        fs::{File, OpenOptions},
-        io::AsyncWriteExt,
-    },
-    tokio_stream::StreamExt,
-    tracing::{debug, info, warn},
-};
+use tracing::{info, warn};
 
 use crate::{
     api::{
-        content::{get_by_id, search},
+        content::{
+            download_io::{detect_partial_file, fetch_track_cover, write_response_to_file},
+            get_by_id, search,
+        },
         http_client::HttpClient,
         requests::{
             RequestAuth, build_url_with_params, download_stream, parse_response, retry_with_backoff,
@@ -26,7 +22,10 @@ use crate::{
         service::QobuzApiService,
     },
     errors::QobuzApiError::{self, DownloadError},
-    metadata::config::MetadataConfig,
+    metadata::{
+        config::MetadataConfig, embedder::embed_metadata_in_file,
+        extractor::extract_comprehensive_metadata,
+    },
     models::{
         album::Album,
         file_url::FileUrl,
@@ -123,6 +122,7 @@ pub async fn get_track_file_url(
 /// # Arguments
 ///
 /// * `client` - HTTP client implementation
+/// * `base_url` - API base URL
 /// * `auth` - Application credentials and user authentication token
 /// * `track_id` - Track identifier
 /// * `format_id` - Quality format ID
@@ -234,84 +234,13 @@ pub async fn download_track(
     );
 
     if let Some(cfg) = config {
-        debug!(track_id, ?cfg, "Metadata embedding not yet implemented");
+        let album_info = track.album.as_ref().map(AsRef::as_ref);
+        let mut meta = extract_comprehensive_metadata(&track, album_info, None);
+
+        meta.cover_art_data = fetch_track_cover(service, &meta, token).await;
+        embed_metadata_in_file(&path, &meta, cfg)?;
     }
 
-    Ok(path)
-}
-
-/// Detects whether a partial file exists on disk with non-zero size.
-///
-/// # Arguments
-///
-/// * `path` - File path to check
-///
-/// # Returns
-///
-/// `Some(size)` if the file exists and has content, `None` otherwise.
-fn detect_partial_file(path: &Path) -> Option<u64> {
-    let size = metadata(path).ok().map(|m| m.len())?;
-    (size > 0).then_some(size)
-}
-
-/// Writes a streaming HTTP response to a file, optionally appending.
-///
-/// # Arguments
-///
-/// * `response` - HTTP response containing the audio stream
-/// * `path` - Destination file path
-/// * `append` - If `true`, append to existing file; otherwise create/overwrite
-///
-/// # Errors
-///
-/// Returns a `QobuzApiError` on file I/O or stream read failures.
-async fn write_response_to_file(
-    response: Response,
-    path: &Path,
-    append: bool,
-) -> Result<(), QobuzApiError> {
-    let mut file = if append {
-        OpenOptions::new().append(true).open(path).await?
-    } else {
-        File::create(path).await?
-    };
-    let mut stream = response.bytes_stream();
-    while let Some(chunk) = stream.next().await {
-        file.write_all(&chunk?).await?;
-    }
-    file.flush().await?;
-    Ok(())
-}
-
-/// Saves a streaming response to disk with formatted filename.
-///
-/// # Arguments
-///
-/// * `response` - HTTP response containing the audio stream
-/// * `track_id` - Track identifier (used in filename)
-/// * `output_dir` - Directory to save the file
-/// * `format_id` - Quality format ID (determines file extension)
-/// * `append` - If `true`, append to existing file (resume); otherwise create new
-///
-/// # Returns
-///
-/// The path to the saved file.
-///
-/// # Errors
-///
-/// Returns a `QobuzApiError` if directory creation, file I/O, or streaming fails.
-pub async fn save_track_to_disk(
-    response: Response,
-    track_id: i32,
-    output_dir: &Path,
-    format_id: i32,
-    append: bool,
-) -> Result<PathBuf, QobuzApiError> {
-    create_dir_all(output_dir)?;
-
-    let ext = Album::extension_for_format(format_id);
-    let path = output_dir.join(format!("{track_id:02}.{ext}"));
-    write_response_to_file(response, &path, append).await?;
     Ok(path)
 }
 
@@ -321,16 +250,23 @@ mod tests {
 
     use {
         anyhow::{Result, anyhow, ensure},
+        reqwest::Response,
         tempfile::TempDir,
         tokio::runtime::Runtime,
     };
 
     use crate::{
         api::{
-            content::tracks::{detect_partial_file, get_track, search_tracks},
-            test_support::{MockServer, make_service},
+            content::{
+                download_io::detect_partial_file,
+                tracks::{get_track, search_tracks},
+            },
+            requests::retry_with_backoff,
+            service::QobuzApiService,
+            test_support::{MockServer, SequentialMockServer, make_service},
         },
         assert_empty_search_test,
+        errors::QobuzApiError,
     };
 
     #[test]
@@ -412,6 +348,54 @@ mod tests {
         let path = dir.path().join("empty.flac");
         write(&path, b"")?;
         ensure!(detect_partial_file(&path).is_none());
+        Ok(())
+    }
+
+    fn rate_limit_response() -> (u16, String) {
+        (
+            429,
+            r#"{"status":"error","message":"rate limited"}"#.to_string(),
+        )
+    }
+
+    fn make_test_request(service: &QobuzApiService) -> Result<Response, QobuzApiError> {
+        let rt = Runtime::new()?;
+        let client = service.http_client();
+        rt.block_on(retry_with_backoff(
+            client,
+            &format!("{}/test", service.base_url()),
+            "token",
+        ))
+    }
+
+    #[test]
+    fn rate_limit_retry_exhausts_retries() -> Result<()> {
+        let server = SequentialMockServer::start(vec![
+            rate_limit_response(),
+            rate_limit_response(),
+            rate_limit_response(),
+            rate_limit_response(),
+        ])?;
+        let service = make_service(&server.base_url())?;
+        let result = make_test_request(&service);
+        let err = result.err().ok_or_else(|| anyhow!("expected error"))?;
+        ensure!(format!("{err}").contains("Rate limited"));
+        Ok(())
+    }
+
+    #[test]
+    fn rate_limit_retry_succeeds_after_backoff() -> Result<()> {
+        let server = SequentialMockServer::start(vec![
+            rate_limit_response(),
+            rate_limit_response(),
+            (
+                200,
+                r#"{"url":"https://example.com/file.flac"}"#.to_string(),
+            ),
+        ])?;
+        let service = make_service(&server.base_url())?;
+        let result = make_test_request(&service)?;
+        ensure!(result.status().is_success());
         Ok(())
     }
 }

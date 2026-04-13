@@ -3,6 +3,7 @@
 use std::{
     fs::{create_dir_all, metadata},
     path::{Path, PathBuf},
+    result::Result,
     sync::Arc,
 };
 
@@ -14,14 +15,19 @@ use {
 use crate::{
     api::{
         content::{
+            download_io::save_track_to_disk,
             get_by_id, search,
-            tracks::{get_track_file_url_raw, save_track_to_disk},
+            tracks::{get_track, get_track_file_url_raw},
         },
         requests::{RequestAuth, download_stream},
         service::QobuzApiService,
     },
     errors::QobuzApiError::{self, DownloadError},
-    metadata::config::MetadataConfig,
+    metadata::{
+        config::{MetadataConfig, MetadataField::CoverArt},
+        embedder::embed_metadata_batch,
+        extractor::{best_cover_url, extract_comprehensive_metadata},
+    },
     models::{
         album::Album,
         search::{AlbumSearchResponse, ItemSearchResult},
@@ -163,14 +169,6 @@ pub async fn download_album(
 ) -> Result<Vec<PathBuf>, QobuzApiError> {
     let album = get_album(service, album_id, Some("track_ids")).await?;
 
-    if let Some(cfg) = config {
-        info!(
-            album_id,
-            ?cfg,
-            "Metadata config provided for album download"
-        );
-    }
-
     let artist_name = album
         .artist
         .as_ref()
@@ -185,12 +183,12 @@ pub async fn download_album(
 
     create_dir_all(&dir)?;
 
-    let track_ids = album.track_ids.unwrap_or_default();
+    let track_ids = album.track_ids.clone().unwrap_or_default();
     let max_concurrent = concurrency.unwrap_or(4);
     let semaphore = Arc::new(Semaphore::new(max_concurrent));
     let mut handles = Vec::new();
 
-    for track_id in track_ids {
+    for &track_id in &track_ids {
         let permit = Arc::clone(&semaphore)
             .acquire_owned()
             .await
@@ -265,7 +263,53 @@ pub async fn download_album(
     }
 
     info!(album_id, count = results.len(), "Album download complete");
+
+    if let Some(cfg) = config {
+        let cover_data = download_cover_data(service, &album, cfg).await?;
+
+        let mut file_metas = Vec::new();
+        for (&track_id, path) in track_ids.iter().zip(results.iter()) {
+            let track = get_track(service, track_id).await?;
+            let mut meta = extract_comprehensive_metadata(&track, Some(&album), None);
+            meta.cover_art_data.clone_from(&cover_data);
+            file_metas.push((path.clone(), meta));
+        }
+
+        for result in embed_metadata_batch(&file_metas, cfg) {
+            result?;
+        }
+    }
+
     Ok(results)
+}
+
+/// Downloads cover art data for an album if cover art metadata is enabled.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+/// * `album` - Album containing cover art URL
+/// * `config` - Metadata configuration controlling field embedding
+///
+/// # Returns
+///
+/// Cover art image bytes, or `None` if cover art is disabled or unavailable.
+async fn download_cover_data(
+    service: &QobuzApiService,
+    album: &Album,
+    config: &MetadataConfig,
+) -> Result<Option<Vec<u8>>, QobuzApiError> {
+    if !config.is_enabled(CoverArt) {
+        return Ok(None);
+    }
+    let Some(url) = album.image.as_ref().and_then(best_cover_url) else {
+        return Ok(None);
+    };
+    let token = service.require_auth_token()?;
+    let Ok(resp) = service.http_client().get_with_auth(&url, token, None).await else {
+        return Ok(None);
+    };
+    Ok(resp.bytes().await.ok().map(|b| b.to_vec()))
 }
 
 #[cfg(test)]

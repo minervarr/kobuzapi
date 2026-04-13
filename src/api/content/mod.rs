@@ -3,6 +3,7 @@
 pub mod albums;
 pub mod artists;
 pub mod catalog;
+pub mod download_io;
 pub mod playlists;
 pub mod tracks;
 

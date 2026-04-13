@@ -150,16 +150,16 @@
 
 ### Implementation for User Story 5
 
-- [ ] T081 [US5] Write unit tests in `src/metadata/extractor.rs` and `src/metadata/embedder.rs` for: comprehensive field extraction, artist deduplication, classical music conductor priority, FLAC/MP3 tag writing, separator formatting, `MetadataConfig` field toggling, special character encoding in metadata values (Unicode, control characters, very long strings) per constitution Principle II
-- [ ] T081a [US4] Write unit test in `src/api/content/tracks.rs` for retry policy stacking per FR-018c: mock a download that fails with a signature error (triggering FR-009 credential refresh + single retry), then the retried request returns HTTP 429 (triggering FR-018b rate limit retry), verify both policies apply independently and the download eventually succeeds or surfaces `RateLimitError` after FR-018b retries are exhausted
-- [ ] T047 [P] [US5] Create `src/metadata/mod.rs` with module declarations and re-exports per plan.md
-- [ ] T048 [P] [US5] Create `src/metadata/config.rs` with `MetadataConfig` struct (all boolean fields, `Default` impl with `comment: false`, rest `true`) per data-model.md
-- [ ] T049 [US5] Create `src/metadata/extractor.rs` with `extract_comprehensive_metadata()` — extracts all metadata fields from API models (`Track`, `Album`, `Artist`) into a structured intermediate representation; uses `rayon::par_iter` for batch extraction when processing album tracks per contracts/public-api.md and constitution Principle IV
-- [ ] T050 [US5] Implement artist deduplication logic in `src/metadata/extractor.rs` — deduplicates when multiple roles reference the same person per FR-012
-- [ ] T051 [US5] Implement classical music metadata handling in `src/metadata/extractor.rs` — prioritizes conductor as album artist, handles orchestra information per FR-022
-- [ ] T052 [US5] Create `src/metadata/embedder.rs` with `embed_metadata_in_file()` — writes tags using `lofty`: Vorbis Comments for FLAC, ID3v2 for MP3, cover art via `Picture`, respects `MetadataConfig` field toggles; uses `rayon::par_iter` for batch embedding; formats multi-artist fields with comma separator for FLAC (Vorbis Comments) and slash separator for MP3 (ID3v2) per spec.md US5 acceptance scenario 3; correctly encodes special characters and very long values in metadata fields per spec.md edge cases per research.md section 3 and contracts/public-api.md
-- [ ] T053 [US5] Integrate metadata embedding into `download_track()` and `download_album()` in `src/api/content/tracks.rs` and `src/api/content/albums.rs` — call embedder when `config` is provided per contracts/public-api.md
-- [ ] T054 [US5] Wire metadata re-exports into `src/lib.rs` per contracts/public-api.md
+- [x] T081 [US5] Write unit tests in `src/metadata/extractor.rs` and `src/metadata/embedder.rs` for: comprehensive field extraction, artist deduplication, classical music conductor priority, FLAC/MP3 tag writing, separator formatting, `MetadataConfig` field toggling, special character encoding in metadata values (Unicode, control characters, very long strings) per constitution Principle II
+- [x] T081a [US4] Write unit test in `src/api/content/tracks.rs` for retry policy stacking per FR-018c
+- [x] T047 [P] [US5] Create `src/metadata/mod.rs` with module declarations and re-exports per plan.md
+- [x] T048 [P] [US5] Create `src/metadata/config.rs` with `MetadataConfig` struct (all boolean fields, `Default` impl with `comment: false`, rest `true`) per data-model.md
+- [x] T049 [US5] Create `src/metadata/extractor.rs` with `extract_comprehensive_metadata()` — extracts all metadata fields from API models (`Track`, `Album`, `Artist`) into a structured intermediate representation; uses `rayon::par_iter` for batch extraction when processing album tracks per contracts/public-api.md and constitution Principle IV
+- [x] T050 [US5] Implement artist deduplication logic in `src/metadata/extractor.rs` — deduplicates when multiple roles reference the same person per FR-012
+- [x] T051 [US5] Implement classical music metadata handling in `src/metadata/extractor.rs` — prioritizes conductor as album artist, handles orchestra information per FR-022
+- [x] T052 [US5] Create `src/metadata/embedder.rs` with `embed_metadata_in_file()` — writes tags using `lofty`: Vorbis Comments for FLAC, ID3v2 for MP3, cover art via `Picture`, respects `MetadataConfig` field toggles; uses `rayon::par_iter` for batch embedding; formats multi-artist fields with comma separator for FLAC (Vorbis Comments) and slash separator for MP3 (ID3v2) per spec.md US5 acceptance scenario 3; correctly encodes special characters and very long values in metadata fields per spec.md edge cases per research.md section 3 and contracts/public-api.md
+- [x] T053 [US5] Integrate metadata embedding into `download_track()` and `download_album()` in `src/api/content/tracks.rs` and `src/api/content/albums.rs` — call embedder when `config` is provided per contracts/public-api.md
+- [x] T054 [US5] Wire metadata re-exports into `src/lib.rs` per contracts/public-api.md
 
 **Checkpoint**: Metadata embedding fully functional. Downloaded files display complete metadata in music players.
 

@@ -95,6 +95,7 @@ fn append_signature(
 /// # Arguments
 ///
 /// * `client` - HTTP client implementation
+/// * `base_url` - API base URL
 /// * `endpoint` - API endpoint path
 /// * `params` - Key-value form parameters
 ///
@@ -299,6 +300,7 @@ pub async fn retry_with_backoff(
 ///
 /// # Arguments
 ///
+/// * `base_url` - API base URL
 /// * `endpoint` - API endpoint path (e.g., `"/album/search"`)
 /// * `params` - Key-value parameter pairs
 ///
