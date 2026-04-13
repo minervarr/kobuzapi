@@ -15,7 +15,7 @@ Refactor the `qobuz-api-rust` library into a clean, high-performance Rust crate 
 **Testing**: `cargo test` (unit tests at bottom of files), `tempfile` for filesystem fixtures, deterministic mocks for API integration tests, `criterion` for benchmarks
 **Target Platform**: Linux (primary), cross-platform compatible
 **Project Type**: Library crate + CLI binary
-**Performance Goals**: Single `reqwest::Client` with connection pooling; credential refresh at most once per session; configurable concurrent downloads (default 4); configurable retry limit (default 3) with exponential backoff; `tokio` for I/O-bound, `rayon` for CPU-bound metadata tagging
+**Performance Goals**: Single `reqwest::Client` with connection pooling (connect timeout: 10s, request timeout: 30s); credential refresh at most once per session; configurable concurrent downloads (default 4); configurable retry limit (default 3) with exponential backoff; `tokio` for I/O-bound, `rayon` for CPU-bound metadata tagging
 **Constraints**: Max 400 lines per file; zero clippy pedantic warnings; no unsafe code; no `unwrap`/`expect`/`panic`; max 3 levels nesting; all public items documented
 **Scale/Scope**: ~15-20 source modules; 7 user stories; 23 functional requirements; single-user desktop client
 
@@ -27,7 +27,7 @@ Refactor the `qobuz-api-rust` library into a clean, high-performance Rust crate 
 |-----------|--------|-------|
 | I. Zero-Compromise Code Quality | PASS | Plan enforces pedantic clippy (68 deny lints), 400-line limit, no unsafe, no `.ui/.xml/.blp`, `macro_rules!` for dedup, `thiserror`/`anyhow` error handling, full documentation |
 | II. Test-First Engineering | PASS | Plan mandates Red-Green-Refactor, unit tests at bottom of files, deterministic mocks, `tempfile` for fixtures, `cargo test` before commit |
-| III. Consistent User Experience | PASS | Plan specifies MusicBrainz Picard naming (`Artist/Album/NN. Title.ext`), actionable error messages, uniform quality interface, structured tracing internally, curated user output |
+| III. Consistent User Experience | CONDITIONAL PASS | Plan specifies MusicBrainz Picard naming (`Artist/Album/NN. Title.ext`), actionable error messages, uniform quality interface across album/track downloads and file URL retrieval, structured tracing internally, curated user output. **Note**: Constitution mandates uniform quality interface "across streaming operations" — streaming is explicitly deferred per spec Out of Scope section. The streaming uniformity requirement will be addressed in a future feature. Quality uniformity for this feature covers album downloads, track downloads, and file URL retrieval only. |
 | IV. Performance & Reliability | PASS | Single `reqwest::Client` with connection pooling, credential refresh ≤1 per session, `tokio`/`rayon` split, configurable retries with exponential backoff, `criterion` benchmarks |
 
 **Gate Result**: ALL PASS — proceeding to Phase 0.
@@ -38,7 +38,7 @@ Refactor the `qobuz-api-rust` library into a clean, high-performance Rust crate 
 |-----------|--------|-------|
 | I. Zero-Compromise Code Quality | PASS | Data model uses `Option<T>` fields for safe partial deserialization; error type is flat enum with `thiserror`; module structure groups by capability/domain; no file exceeds 400 lines in design; all public items documented in contracts |
 | II. Test-First Engineering | PASS | Contract specifies pre/post-conditions for all public methods; integration test files defined per domain (auth, search, download); deterministic mocking strategy documented in research |
-| III. Consistent User Experience | PASS | Quickstart demonstrates MusicBrainz Picard naming; error categories are user-actionable; quality levels present uniform interface; CLI provides REPL for all operations |
+| III. Consistent User Experience | CONDITIONAL PASS | Quickstart demonstrates MusicBrainz Picard naming; error categories are user-actionable; quality levels present uniform interface across album/track downloads and file URL retrieval; CLI provides REPL for all operations. **Note**: Streaming uniformity deferred per spec Out of Scope — see initial constitution check above. |
 | IV. Performance & Reliability | PASS | Single `reqwest::Client` enforced in contract; `credentials_refreshed` flag prevents >1 refresh per session; `tokio::sync::Semaphore` for bounded concurrency; retry with exponential backoff specified; HTTP range-request resume for partial downloads (FR-023) |
 
 **Post-Design Gate Result**: ALL PASS — design is constitution-compliant.
