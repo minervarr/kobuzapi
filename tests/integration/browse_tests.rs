@@ -14,7 +14,7 @@
 
 mod common;
 
-use common::{
+use crate::common::{
     create_authenticated_service, get_album_by_query, get_artist_by_query, get_browse_ids,
     init_logging,
 };

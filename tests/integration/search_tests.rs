@@ -14,7 +14,7 @@
 
 mod common;
 
-use common::{create_authenticated_service, get_test_keywords, init_logging};
+use crate::common::{create_authenticated_service, get_test_keywords, init_logging};
 
 #[cfg(test)]
 mod tests {
