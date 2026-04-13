@@ -92,13 +92,13 @@ fn spawn_server(listener: TcpListener, bytes: Vec<u8>, max_requests: usize) {
 }
 
 pub fn make_service(base_url: &str) -> Result<QobuzApiService> {
-    let client = ReqwestClient::new()?;
+    let client = ReqwestClient::new("test-app-id")?;
     let mut svc = QobuzApiService::new_test(client.into_boxed(), base_url);
     svc.set_auth_token("test-token".to_string());
     Ok(svc)
 }
 
 pub fn make_service_without_auth(base_url: &str) -> Result<QobuzApiService> {
-    let client = ReqwestClient::new()?;
+    let client = ReqwestClient::new("test-app-id")?;
     Ok(QobuzApiService::new_test(client.into_boxed(), base_url))
 }

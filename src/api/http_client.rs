@@ -2,7 +2,10 @@
 
 use std::{future::Future, pin::Pin};
 
-use reqwest::{Client, Response};
+use reqwest::{
+    Client, Response,
+    header::{HeaderMap, HeaderName, HeaderValue},
+};
 
 use crate::errors::QobuzApiError;
 
@@ -73,6 +76,10 @@ pub struct ReqwestClient {
 impl ReqwestClient {
     /// Creates a new `ReqwestClient` with default headers and connection pooling.
     ///
+    /// # Arguments
+    ///
+    /// * `app_id` - Qobuz application ID sent as `x-app-id` header on every request
+    ///
     /// # Returns
     ///
     /// A `ReqwestClient` ready for making HTTP requests.
@@ -80,9 +87,17 @@ impl ReqwestClient {
     /// # Errors
     ///
     /// Returns a `QobuzApiError` if the reqwest client builder fails.
-    pub fn new() -> Result<Self, QobuzApiError> {
+    pub fn new(app_id: &str) -> Result<Self, QobuzApiError> {
+        let mut default_headers = HeaderMap::new();
+        if let Ok(val) = HeaderValue::from_str(app_id) {
+            default_headers.insert(HeaderName::from_static("x-app-id"), val);
+        }
+
         let inner = Client::builder()
-            .user_agent("qobuz-api-rust-refactor")
+            .user_agent(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0",
+            )
+            .default_headers(default_headers)
             .build()?;
 
         Ok(Self { inner })
@@ -135,7 +150,7 @@ impl HttpClient for ReqwestClient {
         token: &str,
         range: Option<&str>,
     ) -> BoxFuture<'_, Result<Response, QobuzApiError>> {
-        let mut req = self.inner.get(url).bearer_auth(token);
+        let mut req = self.inner.get(url).header("X-User-Auth-Token", token);
 
         if let Some(r) = range {
             req = req.header("Range", r);

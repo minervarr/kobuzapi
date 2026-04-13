@@ -2,9 +2,9 @@
 
 use std::{future::Future, pin::Pin};
 
-use qobuz_api_rust_refactor::{api::http_client::HttpClient, errors::QobuzApiError};
-
 use reqwest::Response;
+
+use qobuz_api_rust_refactor::{api::http_client::HttpClient, errors::QobuzApiError};
 
 type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 

@@ -267,7 +267,7 @@ pub async fn download_stream(
 /// # Errors
 ///
 /// Returns a `QobuzApiError::RateLimitError` if all retries are exhausted.
-async fn retry_with_backoff(
+pub async fn retry_with_backoff(
     client: &dyn HttpClient,
     url: &str,
     user_auth_token: &str,
@@ -305,7 +305,12 @@ async fn retry_with_backoff(
 /// # Returns
 ///
 /// A fully formed URL string with encoded query parameters.
-fn build_url_with_params(base_url: &str, endpoint: &str, params: &[(String, String)]) -> String {
+#[must_use]
+pub fn build_url_with_params(
+    base_url: &str,
+    endpoint: &str,
+    params: &[(String, String)],
+) -> String {
     let mut url = format!("{base_url}{endpoint}");
     if !params.is_empty() {
         let query: String = params
@@ -352,7 +357,7 @@ fn urlencoding(s: &str) -> String {
 /// # Errors
 ///
 /// Returns a `QobuzApiError` on non-success status codes or JSON deserialization failure.
-async fn parse_response<T: DeserializeOwned>(
+pub async fn parse_response<T: DeserializeOwned>(
     response: Response,
     endpoint: &str,
 ) -> Result<T, QobuzApiError> {

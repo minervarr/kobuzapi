@@ -146,7 +146,7 @@ pub async fn download_album(
             })?;
 
         let dir_clone = dir.clone();
-        let service_client = QobuzApiService::http_client_ref()?;
+        let service_client = QobuzApiService::http_client_ref(&service.app_id)?;
         let app_id = service.app_id.clone();
         let app_secret = service.app_secret.clone();
         let token = service.require_auth_token()?.to_string();

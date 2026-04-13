@@ -8,3 +8,4 @@ pub mod playlist;
 pub mod search;
 pub mod subscription;
 pub mod track;
+pub mod util;

@@ -41,6 +41,16 @@ name = "search-integration"
 path = "tests/integration/search_tests.rs"
 required-features = ["live-tests"]
 
+[[test]]
+name = "browse-integration"
+path = "tests/integration/browse_tests.rs"
+required-features = ["live-tests"]
+
+[[test]]
+name = "download-integration"
+path = "tests/integration/download_tests.rs"
+required-features = ["live-tests"]
+
 [lints.clippy]
 # missing_asserts_for_indexing = "deny"
 # unused_trait_names = "deny"

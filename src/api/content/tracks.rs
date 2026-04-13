@@ -17,7 +17,9 @@ use crate::{
     api::{
         content::{get_by_id, search},
         http_client::HttpClient,
-        requests::{self, RequestAuth},
+        requests::{
+            RequestAuth, build_url_with_params, download_stream, parse_response, retry_with_backoff,
+        },
         service::QobuzApiService,
     },
     errors::QobuzApiError::{self, DownloadError},
@@ -143,20 +145,19 @@ pub async fn get_track_file_url_raw(
 
     let sig = sign_track_file_url(format_id, track_id, &ts, auth.app_secret);
 
-    let mut params: Vec<(String, String)> = vec![
+    let params: Vec<(String, String)> = vec![
         ("track_id".to_string(), track_id.to_string()),
         ("format_id".to_string(), format_id.to_string()),
         ("intent".to_string(), "stream".to_string()),
         ("request_ts".to_string(), ts),
         ("request_sig".to_string(), sig),
         ("app_id".to_string(), auth.app_id.to_string()),
-        (
-            "user_auth_token".to_string(),
-            auth.user_auth_token.to_string(),
-        ),
     ];
 
-    requests::signed_get(client, base_url, "/track/getFileUrl", &mut params, auth).await
+    let url = build_url_with_params(base_url, "/track/getFileUrl", &params);
+    let response = retry_with_backoff(client, &url, auth.user_auth_token).await?;
+
+    parse_response::<FileUrl>(response, "/track/getFileUrl").await
 }
 
 /// Downloads a single track to the specified directory.
@@ -193,7 +194,7 @@ pub async fn download_track(
     })?;
 
     let token = service.require_auth_token()?;
-    let response = requests::download_stream(service.http_client(), &url, token, None).await?;
+    let response = download_stream(service.http_client(), &url, token, None).await?;
 
     let path = save_track_to_disk(response, track_id, output_dir, format_id).await?;
 

@@ -65,12 +65,12 @@ fn create_service() -> Result<QobuzApiService> {
 
 #[cfg(test)]
 mod tests {
-    use qobuz_api_rust_refactor::errors::QobuzApiError::{ApiErrorResponse, AuthenticationError};
-
     use {
         anyhow::{Result, anyhow, bail, ensure},
         tracing::info,
     };
+
+    use qobuz_api_rust_refactor::errors::QobuzApiError::{ApiErrorResponse, AuthenticationError};
 
     use super::{create_service, require_user_credentials};
 

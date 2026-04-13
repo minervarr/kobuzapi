@@ -332,6 +332,7 @@ pub fn refresh_app_credentials(service: &mut QobuzApiService) -> Result<(), Qobu
 
     service.app_id = app_id;
     service.app_secret = app_secret;
+    service.rebuild_http_client()?;
     service.mark_credentials_refreshed();
 
     info!("App credentials refreshed successfully");

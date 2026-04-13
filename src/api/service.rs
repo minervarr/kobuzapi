@@ -47,6 +47,35 @@ macro_rules! delegate {
     };
 }
 
+/// Delegates to an async function with automatic credential refresh on signature errors.
+macro_rules! delegate_with_retry {
+    ($vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $ret:ty = $path:path) => {
+        #[doc = concat!("Delegates to [`", stringify!($path), "`] with auto-refresh on signature errors.")]
+        #[doc = ""]
+        #[doc = "# Errors"]
+        #[doc = ""]
+        #[doc = "Returns a `QobuzApiError` if not authenticated, the API request fails, or refresh fails."]
+        $vis fn $name(&mut self $(, $arg: $ty)*) -> Result<$ret, QobuzApiError> {
+            let rt = Runtime::new()?;
+
+            let result = rt.block_on($path(self $(, $arg)*));
+
+            match result {
+                Err(crate::errors::QobuzApiError::ApiErrorResponse { message, .. })
+                    if message.contains("Invalid Request Signature") =>
+                {
+                    info!(concat!("Signature invalid for ", stringify!($path), ", refreshing credentials"));
+
+                    refresh_app_credentials(self)?;
+
+                    rt.block_on($path(self $(, $arg)*))
+                }
+                other => other,
+            }
+        }
+    };
+}
+
 /// Base URL for all Qobuz API v0.2 endpoints.
 const BASE_URL: &str = "https://www.qobuz.com/api.json/0.2";
 
@@ -91,7 +120,7 @@ impl QobuzApiService {
             });
         }
 
-        let client = ReqwestClient::new()?;
+        let client = ReqwestClient::new(&app_id)?;
 
         Ok(Self {
             base_url: BASE_URL.to_string(),
@@ -226,6 +255,22 @@ impl QobuzApiService {
         &self.app_secret
     }
 
+    /// Rebuilds the HTTP client after updating `app_id`.
+    ///
+    /// Use this after changing `app_id` to update the `x-app-id` default header.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` indicating success or failure.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if HTTP client creation fails.
+    pub fn rebuild_http_client(&mut self) -> Result<(), QobuzApiError> {
+        self.client = ReqwestClient::new(&self.app_id)?.into_boxed();
+        Ok(())
+    }
+
     /// Returns a cloned `Box<dyn HttpClient>` for use in spawned tasks.
     ///
     /// # Returns
@@ -235,8 +280,8 @@ impl QobuzApiService {
     /// # Errors
     ///
     /// Returns a `QobuzApiError` if HTTP client creation fails.
-    pub fn http_client_ref() -> Result<Box<dyn HttpClient>, QobuzApiError> {
-        let client = ReqwestClient::new()?;
+    pub fn http_client_ref(app_id: &str) -> Result<Box<dyn HttpClient>, QobuzApiError> {
+        let client = ReqwestClient::new(app_id)?;
         Ok(client.into_boxed())
     }
 
@@ -328,10 +373,10 @@ impl QobuzApiService {
     delegate!(pub fn get_playlist(playlist_id: &str, extra: Option<&str>) -> Playlist = get_playlist);
     delegate!(pub fn get_release_list(artist_id: i32, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Album>> = get_release_list);
 
-    // Download
-    delegate!(pub fn get_track_file_url(track_id: i32, format_id: i32) -> FileUrl = get_track_file_url);
-    delegate!(pub fn download_track(track_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> std::path::PathBuf = download_track);
-    delegate!(pub fn download_album(album_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_album);
+    // Download - with auto-refresh on signature errors
+    delegate_with_retry!(pub fn get_track_file_url(track_id: i32, format_id: i32) -> FileUrl = get_track_file_url);
+    delegate_with_retry!(pub fn download_track(track_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> PathBuf = download_track);
+    delegate_with_retry!(pub fn download_album(album_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_album);
 
     // Favorites
     delegate!(pub fn add_user_favorites(item_ids: &[i32], item_type: &str) -> () = add_user_favorites);

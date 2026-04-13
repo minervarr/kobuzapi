@@ -64,7 +64,7 @@ pub fn sign_request(
 /// Generates a signed hash for track file URL requests.
 ///
 /// Algorithm: build fixed-format string
-/// `"trackgetFileUrlformat_id{fid}intentstreamtrack_id{tid}{ts}{secret}"`, MD5 hash.
+/// `"trackgetFileUrlformat_id{fid}intentstreamtrack_id{tid}{ts}{app_secret}"`, MD5 hash.
 ///
 /// # Arguments
 ///
