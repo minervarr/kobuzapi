@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Hans Zimmer - Time - FLAC - 2206801.flac
+[System]        Directory                       : metadata_tests/downloads/flac
+[System]        File Size                       : 45 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:40:33+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:40:33+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:40:33+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 20
+[FLAC]          Frame Size Max                  : 22501
+[FLAC]          Sample Rate                     : 44100
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 24
+[FLAC]          Total Samples                   : 12152020
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 600
+[FLAC]          Picture Height                  : 600
+[FLAC]          Picture Bits Per Pixel          : 24
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 80298
+[FLAC]          Picture                         : (Binary data 80298 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : Time
+[Vorbis]        Album                           : Inception  (Music from the Motion Picture)
+[Vorbis]        Albumartist                     : Hans Zimmer
+[Vorbis]        Artist                          : Hans Zimmer
+[Vorbis]        Composer                        : Hans Zimmer
+[Vorbis]        Producer                        : Alex Gibson
+[Vorbis]        Label                           : WaterTower Music
+[Vorbis]        Genre                           : Bandes originales de films
+[Vorbis]        Track Number                    : 12
+[Vorbis]        Tracktotal                      : 12
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 1
+[Vorbis]        Copyright                       : © 2010 Motion Picture Artwork © 2010 Warner Bros. Entertainment Inc. Motion Picture Photography © 2010 Warner Bros. Entertainment Inc. and Legendary Pictures. ℗ 2010 This compilation WaterTower Music as licensee for Warner Bros. Entertainment Inc.
+[Vorbis]        ISRC Number                     : USRE11000577
+[Vorbis]        Year                            : 2010
+[Vorbis]        Date                            : 2010-07-09
+[Vorbis]        Media                           : album
+[Vorbis]        Involvedpeople                  : Matt Dunkley, Conductor - Johnny Marr, Guitar - Lorne Balfe, Producer, Additional Music - Richard Edwards, Trombone - Richard Watkins, French Horn - Isobel Griffiths, Orchestral Contractor - Alan Meyerson, Mixer - mary Scully, Bass - Andrew Kawczynski, Additional Programmer - Bruce L. Fowler, Orchestration - Carl Rydlund, Orchestration - Chris Barrett, AssistantEngineer - Christopher Nolan, ExecutiveProducer - Chuck Choi, Technical Engineer - Elizabeth Finch, Orchestration - Howard Scarr, Synthesizer Programmer - Jacob Shea, Additional Programmer - Mel Wesson, Designer - Nick Delaplane, Additional Programmer - Pat Sullivan, Masterer - Peter Oso Snell, AssistantEngineer - Rick Giovinazzo, Orchestration - Suzette Moriarty, Orchestration - Thomas Broderick, Technical Engineer - Walter Fowler, Orchestration - Hans Zimmer, Composer, Producer, Synthesizer Programmer, Music, Synthesizer, MainArtist - Alex Gibson, Producer, Music Editor - Anthony Pleeth, Cello - Daniel Kresco, Assistant Mixing Engineer - Dave Stewart, Trombone - Ed Neumeister, Orchestration - Geoff Foster, Recorded by - Kevin Kaska, Orchestration - Mike Higham, AssistantEngineer - Owen Slade, Tuba - Perry Montague-Mason, Lead Violin - Peter Lale, Viola - Ryan Rubin, Music Editor
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Organization                    : WaterTower Music
+[Vorbis]        Upc                             : 0093624965008
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/inception-hans-zimmer/0093624965008
+[Composite]     Duration                        : 0:04:36

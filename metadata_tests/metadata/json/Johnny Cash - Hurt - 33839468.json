@@ -1,0 +1,135 @@
+{
+  "id": 33839468,
+  "title": "Hurt",
+  "version": "Album Version",
+  "isrc": "USDJ20200650",
+  "track_number": 2,
+  "duration": 216,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "0060253727735",
+    "title": "American IV: The Man Comes Around",
+    "version": null,
+    "upc": "0060253727735",
+    "url": "https://www.qobuz.com/fr-fr/album/american-iv-the-man-comes-around-johnny-cash/0060253727735",
+    "artist": {
+      "id": 22802,
+      "name": "Johnny Cash",
+      "slug": "johnny-cash",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 4619,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 22802,
+        "name": "Johnny Cash",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 573076,
+      "name": "Various Composers",
+      "slug": "various-composers",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 14879928,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 1294,
+      "name": "American Recordings",
+      "slug": "american-recordings"
+    },
+    "genre": {
+      "id": 4,
+      "name": "Country",
+      "slug": "country",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/35/77/0060253727735_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/35/77/0060253727735_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/35/77/0060253727735_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 3103,
+    "tracks_count": 15,
+    "media_count": 1,
+    "release_date_original": "2002-11-05",
+    "release_date_stream": "2002-11-05",
+    "release_date_download": "2002-11-05",
+    "product_type": "album",
+    "release_type": "album",
+    "hires": false,
+    "hires_streamable": false,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/american-iv-the-man-comes-around-johnny-cash/0060253727735",
+    "released_at": 1036450800,
+    "copyright": "© 2002 American Recording Company, LLC ℗ 2002 American Recording Company, LLC",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 16,
+    "maximum_sampling_rate": 44.1,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 22802,
+    "name": "Johnny Cash",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Johnny Cash, MainArtist - Rick Rubin, Producer - Benmont Tench, Organ, Piano, Mellotron - Trent Reznor, ComposerLyricist - John Carter Cash, AssociateProducer, RecordingSecondEngineer - Andrew Scheps, RecordingSecondEngineer - Mike Campbell, AcousticGuitar - Thom Russo, RecordingSecondEngineer - Smokey Hormel, AcousticGuitar - Chuck Turner, RecordingSecondEngineer - David Ferguson, MixingEngineer, RecordingEngineer",
+  "composer": {
+    "id": 209674,
+    "name": "Trent Reznor",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "℗ 2002 American Recordings, LLC",
+  "streamable": true,
+  "downloadable": true,
+  "hires": false,
+  "maximum_bit_depth": 16,
+  "maximum_sampling_rate": 44.1,
+  "maximum_channel_count": 2,
+  "release_date_original": "2002-11-05",
+  "release_date_stream": "2002-11-05",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

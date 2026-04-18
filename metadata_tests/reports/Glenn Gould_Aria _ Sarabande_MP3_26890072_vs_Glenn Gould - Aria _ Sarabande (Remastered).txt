@@ -1,0 +1,2 @@
+Differences between Glenn Gould - Aria _ Sarabande - MP3 - 26890072.txt and Glenn Gould - Aria _ Sarabande (Remastered).txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/bach-the-goldberg-variations-1981-gould-remastered-glenn-gould/0886445085471

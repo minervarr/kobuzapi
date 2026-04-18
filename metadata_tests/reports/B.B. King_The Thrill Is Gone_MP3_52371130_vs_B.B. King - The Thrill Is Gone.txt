@@ -1,0 +1,4 @@
+Differences between B.B. King - The Thrill Is Gone - MP3 - 52371130.txt and B.B. King - The Thrill Is Gone.txt:
+Field 'Artist' differs:
+  Rust: B.B. King
+  C#:   B.B. King/Tracy Chapman

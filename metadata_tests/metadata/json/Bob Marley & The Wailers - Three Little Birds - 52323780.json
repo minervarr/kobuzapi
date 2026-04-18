@@ -1,0 +1,135 @@
+{
+  "id": 52323780,
+  "title": "Three Little Birds",
+  "version": null,
+  "isrc": "USIR27700016",
+  "track_number": 4,
+  "duration": 181,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "kfxmsafm77qab",
+    "title": "Legend – The Best Of Bob Marley & The Wailers",
+    "version": null,
+    "upc": "0602567830467",
+    "url": "https://www.qobuz.com/fr-fr/album/legend-the-best-of-bob-marley-the-wailers-bob-marley-the-wailers/kfxmsafm77qab",
+    "artist": {
+      "id": 42630,
+      "name": "Bob Marley & The Wailers",
+      "slug": "bob-marley-the-wailers",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 437,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 42630,
+        "name": "Bob Marley & The Wailers",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 573076,
+      "name": "Various Composers",
+      "slug": "various-composers",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 14224776,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 1147,
+      "name": "Island Records",
+      "slug": "island-records"
+    },
+    "genre": {
+      "id": 123,
+      "name": "Reggae",
+      "slug": "reggae",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/ab/7q/kfxmsafm77qab_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/ab/7q/kfxmsafm77qab_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/ab/7q/kfxmsafm77qab_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 4324,
+    "tracks_count": 16,
+    "media_count": 1,
+    "release_date_original": "2002-09-22",
+    "release_date_stream": "2002-09-22",
+    "release_date_download": "2002-09-22",
+    "product_type": "album",
+    "release_type": "bestof",
+    "hires": true,
+    "hires_streamable": true,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/legend-the-best-of-bob-marley-the-wailers-bob-marley-the-wailers/kfxmsafm77qab",
+    "released_at": 1032645600,
+    "copyright": "© 2002 UMG Recordings, Inc. This Compilation ℗ 2002 UMG Recordings, Inc.",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 24,
+    "maximum_sampling_rate": 96.0,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 42630,
+    "name": "Bob Marley & The Wailers",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Bob Marley & The Wailers, MainArtist, Producer - Bob Marley, Vocalist, Guitar, AcousticGuitar, Percussion, ComposerLyricist - Junior Marvin, Guitar - Aston Barrett, ElectricBassGuitar, Guitar, Percussion, MixingEngineer - Carlton Barrett, DrumKit, Percussion - Tyrone Downie, Keyboard, Percussion, BackgroundVocalist - Alvin \"Seeco\" Patterson, Percussion - I Threes, BackgroundVocalist - Rita Marley, BackgroundVocalist - Marcia Griffiths, BackgroundVocalist - Judy Mowatt, BackgroundVocalist - The Wailers, Producer - CHRIS BLACKWELL, Producer, MixingEngineer - Karl Pitterson, MixingEngineer, Engineer - Guy Bidmead, RecordingSecondEngineer - Terry Barham, RecordingSecondEngineer",
+  "composer": {
+    "id": 14121,
+    "name": "Bob Marley",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "℗ 1977 UMG Recordings, Inc.",
+  "streamable": true,
+  "downloadable": true,
+  "hires": true,
+  "maximum_bit_depth": 24,
+  "maximum_sampling_rate": 96.0,
+  "maximum_channel_count": 2,
+  "release_date_original": "2002-09-22",
+  "release_date_stream": "2002-09-22",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

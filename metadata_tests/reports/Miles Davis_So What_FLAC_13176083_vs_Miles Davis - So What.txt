@@ -1,0 +1,6 @@
+Differences between Miles Davis - So What - FLAC - 13176083.txt and Miles Davis - So What.txt:
+Field 'Itunesadvisory' exists in C# but not in Rust: 0
+Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/kind-of-blue-miles-davis/5099749522428
+Field 'Organization' exists in C# but not in Rust: Columbia
+Field 'Upc' exists in C# but not in Rust: 5099749522428
+Field 'Involvedpeople' exists in C# but not in Rust: Miles Davis, Associated Performer, Main Artist, Trumpet, Associated Performer, Trumpet. - Irving Townsend, Producer. - Jimmy Cobb, Drums. - M. Davis, Composer, Lyricist. - Bill Evans, Piano. - Paul Chambers, Bass. - Julian "Cannonball" Adderley, Alto Saxophone. - John Coltrane, Tenor Saxophone

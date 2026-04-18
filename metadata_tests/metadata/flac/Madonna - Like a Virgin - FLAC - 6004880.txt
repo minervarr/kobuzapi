@@ -1,0 +1,52 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Madonna - Like a Virgin - FLAC - 6004880.flac
+[System]        Directory                       : metadata_tests/downloads/flac
+[System]        File Size                       : 135 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:35:56+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:35:56+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:35:56+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 8854
+[FLAC]          Frame Size Max                  : 16994
+[FLAC]          Sample Rate                     : 192000
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 24
+[FLAC]          Total Samples                   : 41880840
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 600
+[FLAC]          Picture Height                  : 600
+[FLAC]          Picture Bits Per Pixel          : 24
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 66560
+[FLAC]          Picture                         : (Binary data 66560 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : Like a Virgin
+[Vorbis]        Album                           : Like A Virgin (Hi-Res Version)
+[Vorbis]        Albumartist                     : Madonna
+[Vorbis]        Artist                          : Madonna
+[Vorbis]        Producer                        : NILE RODGERS
+[Vorbis]        Label                           : Warner Records - Sire
+[Vorbis]        Genre                           : Pop
+[Vorbis]        Track Number                    : 3
+[Vorbis]        Tracktotal                      : 9
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 1
+[Vorbis]        Copyright                       : 2012 © 1984 Sire Records Company ℗ 1984 Sire Records
+[Vorbis]        ISRC Number                     : USWB11200454
+[Vorbis]        Year                            : 1984
+[Vorbis]        Date                            : 1984-11-14
+[Vorbis]        Media                           : album
+[Vorbis]        Involvedpeople                  : Bob Ludwig, Masterer - Billy Steinberg, Writer - TOM KELLY, Writer - NILE RODGERS, Producer, Engineer - BERNARD EDWARDS, Bass - Tony Thompson, Drums - Rob Sabino, Synthesizer - Madonna, Vocals, MainArtist - Jason Corsaro, Mixer - Rob Eaton, Engineer
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Organization                    : Warner Records - Sire
+[Vorbis]        Upc                             : 0093624951117
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/like-a-virgin-hi-res-version-madonna/0093624951117
+[Composite]     Duration                        : 0:03:38

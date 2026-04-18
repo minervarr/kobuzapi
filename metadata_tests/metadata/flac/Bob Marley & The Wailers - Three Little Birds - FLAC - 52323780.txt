@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Bob Marley & The Wailers - Three Little Birds - FLAC - 52323780.flac
+[System]        Directory                       : metadata_tests/downloads/flac
+[System]        File Size                       : 64 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:38:57+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:38:57+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:38:57+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 1889
+[FLAC]          Frame Size Max                  : 20346
+[FLAC]          Sample Rate                     : 96000
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 24
+[FLAC]          Total Samples                   : 17380408
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 600
+[FLAC]          Picture Height                  : 600
+[FLAC]          Picture Bits Per Pixel          : 24
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 74763
+[FLAC]          Picture                         : (Binary data 74763 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : Three Little Birds
+[Vorbis]        Album                           : Legend – The Best Of Bob Marley & The Wailers
+[Vorbis]        Albumartist                     : Bob Marley & The Wailers
+[Vorbis]        Artist                          : Bob Marley & The Wailers
+[Vorbis]        Composer                        : Bob Marley
+[Vorbis]        Producer                        : CHRIS BLACKWELL
+[Vorbis]        Label                           : Island Records
+[Vorbis]        Genre                           : Reggae
+[Vorbis]        Track Number                    : 4
+[Vorbis]        Tracktotal                      : 16
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 1
+[Vorbis]        Copyright                       : ℗ 1977 UMG Recordings, Inc.
+[Vorbis]        ISRC Number                     : USIR27700016
+[Vorbis]        Year                            : 2002
+[Vorbis]        Date                            : 2002-09-22
+[Vorbis]        Media                           : bestof
+[Vorbis]        Involvedpeople                  : Bob Marley & The Wailers, MainArtist, Producer - Bob Marley, Vocalist, Guitar, AcousticGuitar, Percussion, ComposerLyricist - Junior Marvin, Guitar - Aston Barrett, ElectricBassGuitar, Guitar, Percussion, MixingEngineer - Carlton Barrett, DrumKit, Percussion - Tyrone Downie, Keyboard, Percussion, BackgroundVocalist - Alvin "Seeco" Patterson, Percussion - I Threes, BackgroundVocalist - Rita Marley, BackgroundVocalist - Marcia Griffiths, BackgroundVocalist - Judy Mowatt, BackgroundVocalist - The Wailers, Producer - CHRIS BLACKWELL, Producer, MixingEngineer - Karl Pitterson, MixingEngineer, Engineer - Guy Bidmead, RecordingSecondEngineer - Terry Barham, RecordingSecondEngineer
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Organization                    : Island Records
+[Vorbis]        Upc                             : 0602567830467
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/legend-the-best-of-bob-marley-the-wailers-bob-marley-the-wailers/kfxmsafm77qab
+[Composite]     Duration                        : 0:03:01

@@ -1,0 +1,51 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : The Beatles - Hey Jude - MP3 - 235803319.mp3
+[System]        Directory                       : metadata_tests/downloads/mp3
+[System]        File Size                       : 17 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:38:09+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:38:09+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:38:09+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : MP3
+[File]          File Type Extension             : mp3
+[File]          MIME Type                       : audio/mpeg
+[File]          ID3 Size                        : 96265
+[MPEG]          MPEG Audio Version              : 1
+[MPEG]          Audio Layer                     : 3
+[MPEG]          Audio Bitrate                   : 320 kbps
+[MPEG]          Sample Rate                     : 44100
+[MPEG]          Channel Mode                    : Joint Stereo
+[MPEG]          MS Stereo                       : Off
+[MPEG]          Intensity Stereo                : Off
+[MPEG]          Copyright Flag                  : False
+[MPEG]          Original Media                  : True
+[MPEG]          Emphasis                        : None
+[MPEG]          Encoder                         : LAME3.99r
+[MPEG]          Lame VBR Quality                : 4
+[MPEG]          Lame Quality                    : 3
+[MPEG]          Lame Method                     : CBR
+[MPEG]          Lame Low Pass Filter            : 20.5 kHz
+[MPEG]          Lame Bitrate                    : 255 kbps
+[MPEG]          Lame Stereo Mode                : Joint Stereo
+[ID3v2_4]       Genre                           : Rock
+[ID3v2_4]       ISRC                            : GBUM71505902
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/the-beatles-1967-1970-the-beatles/rlrv742tr79jb
+[ID3v2_4]       Release Time                    : 2023:11:10
+[ID3v2_4]       Artist                          : The Beatles
+[ID3v2_4]       Part Of Set                     : 1/2
+[ID3v2_4]       Recording Time                  : 2023
+[ID3v2_4]       Copyright                       : ℗ 2015 Calderstone Productions Limited (a division of Universal Music Group)
+[ID3v2_4]       Composer                        : John Lennon/Paul Mccartney
+[ID3v2_4]       Band                            : The Beatles
+[ID3v2_4]       Album                           : The Beatles 1967 – 1970 (2023 Edition)
+[ID3v2_4]       Musician Credits                : The Beatles, MainArtist - Giles Martin, Producer, MixingEngineer - Sam Okell, MixingEngineer - Miles Showell, MasteringEngineer - Al Sirkett, SoundDesigner - Matt Mysko, MixingSecondEngineer - Simon Gibson, RecordingEngineer - James Clarke, RecordingEngineer - Andrew Walter, RecordingEngineer - George Martin, Producer - John Lennon, ComposerLyricist - Paul Mccartney, ComposerLyricist
+[ID3v2_4]       Media                           : compilation
+[ID3v2_4]       Track                           : 14/37
+[ID3v2_4]       Publisher                       : UMC (Universal Music Catalogue)
+[ID3v2_4]       Title                           : Hey Jude (2015 Mix)
+[ID3v2_4]       Picture MIME Type               : image/jpeg
+[ID3v2_4]       Picture Type                    : Front Cover
+[ID3v2_4]       Picture Description             : 
+[ID3v2_4]       Picture                         : (Binary data 94300 bytes, use -b option to extract)
+[Composite]     Date/Time Original              : 2023
+[Composite]     Duration                        : 0:07:12 (approx)

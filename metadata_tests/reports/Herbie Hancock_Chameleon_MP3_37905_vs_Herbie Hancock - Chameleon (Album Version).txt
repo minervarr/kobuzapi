@@ -1,0 +1,4 @@
+Differences between Herbie Hancock - Chameleon - MP3 - 37905.txt and Herbie Hancock - Chameleon (Album Version).txt:
+Field 'Artist' differs:
+  Rust: Herbie Hancock
+  C#:   Bennie Maupin/Herbie Hancock

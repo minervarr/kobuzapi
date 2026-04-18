@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Johnny Cash - Hurt - FLAC - 33839468.flac
+[System]        Directory                       : metadata_tests/downloads/flac
+[System]        File Size                       : 22 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:38:12+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:38:13+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:38:12+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 16
+[FLAC]          Frame Size Max                  : 14957
+[FLAC]          Sample Rate                     : 44100
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 16
+[FLAC]          Total Samples                   : 9549120
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 600
+[FLAC]          Picture Height                  : 600
+[FLAC]          Picture Bits Per Pixel          : 24
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 25432
+[FLAC]          Picture                         : (Binary data 25432 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : Hurt (Album Version)
+[Vorbis]        Album                           : American IV: The Man Comes Around
+[Vorbis]        Albumartist                     : Johnny Cash
+[Vorbis]        Artist                          : Johnny Cash
+[Vorbis]        Composer                        : Trent Reznor
+[Vorbis]        Producer                        : Rick Rubin
+[Vorbis]        Label                           : American Recordings
+[Vorbis]        Genre                           : Country
+[Vorbis]        Track Number                    : 2
+[Vorbis]        Tracktotal                      : 15
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 1
+[Vorbis]        Copyright                       : ℗ 2002 American Recordings, LLC
+[Vorbis]        ISRC Number                     : USDJ20200650
+[Vorbis]        Year                            : 2002
+[Vorbis]        Date                            : 2002-11-05
+[Vorbis]        Media                           : album
+[Vorbis]        Involvedpeople                  : Johnny Cash, MainArtist - Rick Rubin, Producer - Benmont Tench, Organ, Piano, Mellotron - Trent Reznor, ComposerLyricist - John Carter Cash, AssociateProducer, RecordingSecondEngineer - Andrew Scheps, RecordingSecondEngineer - Mike Campbell, AcousticGuitar - Thom Russo, RecordingSecondEngineer - Smokey Hormel, AcousticGuitar - Chuck Turner, RecordingSecondEngineer - David Ferguson, MixingEngineer, RecordingEngineer
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Organization                    : American Recordings
+[Vorbis]        Upc                             : 0060253727735
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/american-iv-the-man-comes-around-johnny-cash/0060253727735
+[Composite]     Duration                        : 0:03:37

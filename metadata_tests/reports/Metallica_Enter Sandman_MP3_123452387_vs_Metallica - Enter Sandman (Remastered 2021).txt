@@ -1,0 +1,2 @@
+Differences between Metallica - Enter Sandman - MP3 - 123452387.txt and Metallica - Enter Sandman (Remastered 2021).txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/metallica-metallica/e98mhimqarxfb

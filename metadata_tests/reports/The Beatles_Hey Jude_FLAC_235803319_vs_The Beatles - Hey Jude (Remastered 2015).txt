@@ -1,0 +1,6 @@
+Differences between The Beatles - Hey Jude - FLAC - 235803319.txt and The Beatles - Hey Jude (Remastered 2015).txt:
+Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/the-beatles-1967-1970-the-beatles/rlrv742tr79jb
+Field 'Organization' exists in C# but not in Rust: UMC (Universal Music Catalogue)
+Field 'Upc' exists in C# but not in Rust: 0602458682199
+Field 'Itunesadvisory' exists in C# but not in Rust: 0
+Field 'Involvedpeople' exists in C# but not in Rust: The Beatles, MainArtist - Giles Martin, Producer, MixingEngineer - Sam Okell, MixingEngineer - Miles Showell, MasteringEngineer - Al Sirkett, SoundDesigner - Matt Mysko, MixingSecondEngineer - Simon Gibson, RecordingEngineer - James Clarke, RecordingEngineer - Andrew Walter, RecordingEngineer - George Martin, Producer - John Lennon, ComposerLyricist - Paul Mccartney, ComposerLyricist

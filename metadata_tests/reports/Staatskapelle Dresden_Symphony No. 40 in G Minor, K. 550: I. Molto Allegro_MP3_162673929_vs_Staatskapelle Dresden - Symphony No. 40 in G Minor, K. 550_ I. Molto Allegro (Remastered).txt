@@ -1,0 +1,2 @@
+Differences between Staatskapelle Dresden - Symphony No. 40 in G Minor, K. 550_ I. Molto Allegro - MP3 - 162673929.txt and Staatskapelle Dresden - Symphony No. 40 in G Minor, K. 550_ I. Molto Allegro (Remastered).txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/mozart-symphony-no-39-40-staatskapelle-dresden-otmar-suitner/h00nx1b5bbu1a

@@ -1,0 +1,4 @@
+Differences between Hans Zimmer - Time - MP3 - 2206801.txt and Hans Zimmer - Time.txt:
+Field 'Artist' differs:
+  Rust: Matt Dunkley/Isobel Griffiths/Bruce L. Fowler/Carl Rydlund/Elizabeth Finch/Rick Giovinazzo/Suzette Moriarty/Walter Fowler/Hans Zimmer/Ed Neumeister/Kevin Kaska
+  C#:   Hans Zimmer

@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Bob Dylan - Like a Rolling Stone - FLAC - 15215741.flac
+[System]        Directory                       : metadata_tests/downloads/flac
+[System]        File Size                       : 44 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:39:46+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:39:46+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:39:46+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 14
+[FLAC]          Frame Size Max                  : 15454
+[FLAC]          Sample Rate                     : 44100
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 16
+[FLAC]          Total Samples                   : 16237032
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 600
+[FLAC]          Picture Height                  : 600
+[FLAC]          Picture Bits Per Pixel          : 24
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 45217
+[FLAC]          Picture                         : (Binary data 45217 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : Like a Rolling Stone
+[Vorbis]        Album                           : The Essential Bob Dylan
+[Vorbis]        Albumartist                     : Bob Dylan
+[Vorbis]        Artist                          : Bob Dylan
+[Vorbis]        Composer                        : Bob Dylan
+[Vorbis]        Producer                        : Tom Wilson
+[Vorbis]        Label                           : Columbia
+[Vorbis]        Genre                           : Rock
+[Vorbis]        Track Number                    : 8
+[Vorbis]        Tracktotal                      : 32
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 2
+[Vorbis]        Copyright                       : Originally released 1965. All rights reserved by Columbia Records, a division of Sony Music Entertainment
+[Vorbis]        ISRC Number                     : USSM19922509
+[Vorbis]        Year                            : 2000
+[Vorbis]        Date                            : 2000-10-31
+[Vorbis]        Media                           : bestof
+[Vorbis]        Involvedpeople                  : Bob Dylan, Associated Performer, Composer, Guitar, Harmonica, Lyricist, Main Artist, Piano, Associated Performer, Composer, Guitar, Harmonica, Lyricist, Piano.  - Michael Bloomfield, Guitar.  - Charlie McCoy, Guitar.  - Bobby Gregg, Drums.  - Alan Kooper, Organ, Piano.  - Paul Griffin, Organ, Piano.  - Frank Owens, Piano.  - Harvey Goldstein, Bass.  - Russ Savakus, Bass.  - Tom Wilson, Producer
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Organization                    : Columbia
+[Vorbis]        Upc                             : 0886444477109
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/the-essential-bob-dylan-bob-dylan/0886444477109
+[Composite]     Duration                        : 0:06:08

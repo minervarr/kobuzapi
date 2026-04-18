@@ -1,0 +1,6 @@
+Differences between B.B. King - The Thrill Is Gone - FLAC - 52371130.txt and B.B. King - The Thrill Is Gone.txt:
+Field 'Upc' exists in C# but not in Rust: 0602567833512
+Field 'Organization' exists in C# but not in Rust: Geffen
+Field 'Involvedpeople' exists in C# but not in Rust: B.B. King, MainArtist - Tracy Chapman, FeaturedArtist - JOHN PORTER, Producer - Joe McGrath, MixingEngineer, RecordingEngineer - Roy Hawkins, ComposerLyricist - Rick Darnell, ComposerLyricist
+Field 'Itunesadvisory' exists in C# but not in Rust: 0
+Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/deuces-wild-bb-king/m29vqv4i2xt6a

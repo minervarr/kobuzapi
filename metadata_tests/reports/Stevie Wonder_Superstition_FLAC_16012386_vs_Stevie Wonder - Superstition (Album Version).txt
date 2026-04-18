@@ -1,0 +1,6 @@
+Differences between Stevie Wonder - Superstition - FLAC - 16012386.txt and Stevie Wonder - Superstition (Album Version).txt:
+Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/talking-book-stevie-wonder/0060253780972
+Field 'Involvedpeople' exists in C# but not in Rust: Stevie Wonder, MainArtist, Producer, RecordingArranger, Vocalist, Clavichord, DrumKit, MoogBass, ComposerLyricist - ROBERT MARGOULEFF, AdditionalProducer, Engineer - Malcolm Cecil, AdditionalProducer - Trevor Lawrence, TenorSaxophone - Steve Madaio, Trumpet
+Field 'Organization' exists in C# but not in Rust: Motown
+Field 'Itunesadvisory' exists in C# but not in Rust: 0
+Field 'Upc' exists in C# but not in Rust: 0060253780972

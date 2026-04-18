@@ -1,0 +1,135 @@
+{
+  "id": 26890072,
+  "title": "Aria : Sarabande (Remastered)",
+  "version": null,
+  "isrc": "USSM11409807",
+  "track_number": 1,
+  "duration": 184,
+  "media_number": 1,
+  "work": "Goldberg Variations, BWV 988",
+  "album": {
+    "id": "0886445085471",
+    "title": "Bach: The Goldberg Variations (1981) - Gould Remastered",
+    "version": null,
+    "upc": "0886445085471",
+    "url": "https://www.qobuz.com/fr-fr/album/bach-the-goldberg-variations-1981-gould-remastered-glenn-gould/0886445085471",
+    "artist": {
+      "id": 9557,
+      "name": "Glenn Gould",
+      "slug": "glenn-gould",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 847,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 9557,
+        "name": "Glenn Gould",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 21,
+      "name": "Johann Sebastian Bach",
+      "slug": "johann-sebastian-bach",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 27403,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 4608,
+      "name": "Sony Classical",
+      "slug": "sony-classical"
+    },
+    "genre": {
+      "id": 30,
+      "name": "Piano solo",
+      "slug": "piano-solo",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/71/54/0886445085471_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/71/54/0886445085471_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/71/54/0886445085471_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 3063,
+    "tracks_count": 32,
+    "media_count": 1,
+    "release_date_original": "2015-09-11",
+    "release_date_stream": "2015-09-11",
+    "release_date_download": "2015-09-11",
+    "product_type": "album",
+    "release_type": "album",
+    "hires": true,
+    "hires_streamable": true,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/bach-the-goldberg-variations-1981-gould-remastered-glenn-gould/0886445085471",
+    "released_at": 1441922400,
+    "copyright": "(P) 1982 Sony Music Entertainment // Digital Remastering (P) 2015 Sony Music Entertainment",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 24,
+    "maximum_sampling_rate": 44.1,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 9557,
+    "name": "Glenn Gould",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Glenn Gould, Piano, Producer - Johann Sebastian Bach, Composer - (Samuel H. Carter, Producer - Stan Tonkel, Recording Engineer - Martin Greenblatt, Recording Engineer - Ray Moore, Recording Engineer - John Johnson, Recording Engineer)",
+  "composer": {
+    "id": 21,
+    "name": "Johann Sebastian Bach",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "(P) 1982 Sony Music Entertainment",
+  "streamable": true,
+  "downloadable": true,
+  "hires": true,
+  "maximum_bit_depth": 24,
+  "maximum_sampling_rate": 44.1,
+  "maximum_channel_count": 2,
+  "release_date_original": "1982-09-02",
+  "release_date_stream": "1982-09-02",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

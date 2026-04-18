@@ -1,0 +1,135 @@
+{
+  "id": 16012386,
+  "title": "Superstition",
+  "version": "Album Version",
+  "isrc": "USMO17200984",
+  "track_number": 6,
+  "duration": 266,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "0060253780972",
+    "title": "Talking Book",
+    "version": null,
+    "upc": "0060253780972",
+    "url": "https://www.qobuz.com/fr-fr/album/talking-book-stevie-wonder/0060253780972",
+    "artist": {
+      "id": 22195,
+      "name": "Stevie Wonder",
+      "slug": "stevie-wonder",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 2515,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 22195,
+        "name": "Stevie Wonder",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 573076,
+      "name": "Various Composers",
+      "slug": "various-composers",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 14879928,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 1183,
+      "name": "Motown",
+      "slug": "motown"
+    },
+    "genre": {
+      "id": 132,
+      "name": "R&B",
+      "slug": "rb",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/72/09/0060253780972_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/72/09/0060253780972_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/72/09/0060253780972_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 2603,
+    "tracks_count": 10,
+    "media_count": 1,
+    "release_date_original": "1972-10-28",
+    "release_date_stream": "1972-10-28",
+    "release_date_download": "1972-10-28",
+    "product_type": "album",
+    "release_type": "album",
+    "hires": true,
+    "hires_streamable": true,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/talking-book-stevie-wonder/0060253780972",
+    "released_at": 89074800,
+    "copyright": "© 1972 Motown Records, a Division of UMG Recordings, Inc. ℗ 2014 Motown Records, a Division of UMG Recordings, Inc.",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 24,
+    "maximum_sampling_rate": 192.0,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 22195,
+    "name": "Stevie Wonder",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Stevie Wonder, MainArtist, Producer, RecordingArranger, Vocalist, Clavichord, DrumKit, MoogBass, ComposerLyricist - ROBERT MARGOULEFF, AdditionalProducer, Engineer - Malcolm Cecil, AdditionalProducer - Trevor Lawrence, TenorSaxophone - Steve Madaio, Trumpet",
+  "composer": {
+    "id": 22195,
+    "name": "Stevie Wonder",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "℗ 1972 UMG Recordings, Inc.",
+  "streamable": true,
+  "downloadable": true,
+  "hires": true,
+  "maximum_bit_depth": 24,
+  "maximum_sampling_rate": 192.0,
+  "maximum_channel_count": 2,
+  "release_date_original": "1972-10-28",
+  "release_date_stream": "1972-10-28",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

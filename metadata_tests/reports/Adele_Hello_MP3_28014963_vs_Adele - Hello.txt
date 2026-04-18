@@ -1,0 +1,2 @@
+Differences between Adele - Hello - MP3 - 28014963.txt and Adele - Hello.txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/25-adele/0634904074067

@@ -1,0 +1,6 @@
+Differences between Kendrick Lamar - BLOOD. - FLAC - 40128300.txt and Kendrick Lamar - BLOOD.txt:
+Field 'Involvedpeople' exists in C# but not in Rust: Kendrick Lamar, MainArtist, ComposerLyricist - D. Tanenbaum, ComposerLyricist - Bekon, Producer - Anthony 'Top Dawg' Tiffith, Producer
+Field 'Organization' exists in C# but not in Rust: Aftermath
+Field 'Itunesadvisory' exists in C# but not in Rust: 1
+Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/damn-kendrick-lamar/0060255760871
+Field 'Upc' exists in C# but not in Rust: 0060255760871

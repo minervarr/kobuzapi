@@ -1,0 +1,2 @@
+Differences between Buena Vista Social Club - Chan Chan - MP3 - 387387265.txt and Buena Vista Social Club - Chan Chan (Remastered 2021).txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/buena-vista-social-club-buena-vista-social-club/bzjieyngo06sj

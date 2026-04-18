@@ -1,0 +1,51 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Donna Summer - I Feel Love - MP3 - 52482680.mp3
+[System]        Directory                       : metadata_tests/downloads/mp3
+[System]        File Size                       : 8.2 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:40:08+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:40:08+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:40:08+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : MP3
+[File]          File Type Extension             : mp3
+[File]          MIME Type                       : audio/mpeg
+[File]          ID3 Size                        : 110723
+[MPEG]          MPEG Audio Version              : 1
+[MPEG]          Audio Layer                     : 3
+[MPEG]          Audio Bitrate                   : 320 kbps
+[MPEG]          Sample Rate                     : 44100
+[MPEG]          Channel Mode                    : Joint Stereo
+[MPEG]          MS Stereo                       : On
+[MPEG]          Intensity Stereo                : Off
+[MPEG]          Copyright Flag                  : False
+[MPEG]          Original Media                  : True
+[MPEG]          Emphasis                        : None
+[MPEG]          Encoder                         : LAME3.99r
+[MPEG]          Lame VBR Quality                : 4
+[MPEG]          Lame Quality                    : 3
+[MPEG]          Lame Method                     : CBR
+[MPEG]          Lame Low Pass Filter            : 20.5 kHz
+[MPEG]          Lame Bitrate                    : 255 kbps
+[MPEG]          Lame Stereo Mode                : Joint Stereo
+[ID3v2_4]       Recording Time                  : 1979
+[ID3v2_4]       Composer                        : Pete Bellotte/Giorgio Moroder/Donna Summer
+[ID3v2_4]       Band                            : Donna Summer
+[ID3v2_4]       ISRC                            : USWWW0125612
+[ID3v2_4]       Genre                           : R&B
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/on-the-radio-greatest-hits-volumes-i-ii-donna-summer/r5vn4y8r3v9sc
+[ID3v2_4]       Release Time                    : 1979:10:15
+[ID3v2_4]       Musician Credits                : Pete Bellotte, Producer, ComposerLyricist - Giorgio Moroder, Producer, ComposerLyricist - Donna Summer, Vocalist, MainArtist, ComposerLyricist
+[ID3v2_4]       Album                           : On The Radio: Greatest Hits Volumes I & II
+[ID3v2_4]       Part Of Set                     : 1/1
+[ID3v2_4]       Copyright                       : ℗ 1979 The Island Def Jam Music Group
+[ID3v2_4]       Artist                          : Donna Summer
+[ID3v2_4]       Title                           : I Feel Love
+[ID3v2_4]       Publisher                       : Island Def Jam
+[ID3v2_4]       Media                           : compilation
+[ID3v2_4]       Track                           : 4/16
+[ID3v2_4]       Picture MIME Type               : image/jpeg
+[ID3v2_4]       Picture Type                    : Front Cover
+[ID3v2_4]       Picture Description             : 
+[ID3v2_4]       Picture                         : (Binary data 109029 bytes, use -b option to extract)
+[Composite]     Date/Time Original              : 1979
+[Composite]     Duration                        : 0:03:21 (approx)

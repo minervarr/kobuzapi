@@ -1,0 +1,135 @@
+{
+  "id": 13176083,
+  "title": "So What",
+  "version": null,
+  "isrc": "USSM15900113",
+  "track_number": 1,
+  "duration": 547,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "5099749522428",
+    "title": "Kind Of Blue",
+    "version": null,
+    "upc": "5099749522428",
+    "url": "https://www.qobuz.com/fr-fr/album/kind-of-blue-miles-davis/5099749522428",
+    "artist": {
+      "id": 6760,
+      "name": "Miles Davis",
+      "slug": "miles-davis",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 5824,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 6760,
+        "name": "Miles Davis",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 6760,
+      "name": "Miles Davis",
+      "slug": "miles-davis",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 5824,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 4592,
+      "name": "Columbia",
+      "slug": "columbia"
+    },
+    "genre": {
+      "id": 80,
+      "name": "Jazz",
+      "slug": "jazz",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/28/24/5099749522428_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/28/24/5099749522428_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/28/24/5099749522428_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 2723,
+    "tracks_count": 5,
+    "media_count": 1,
+    "release_date_original": "1959-08-17",
+    "release_date_stream": "1959-08-17",
+    "release_date_download": "1959-08-17",
+    "product_type": "single",
+    "release_type": "album",
+    "hires": true,
+    "hires_streamable": true,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/kind-of-blue-miles-davis/5099749522428",
+    "released_at": -327459600,
+    "copyright": "Originally released 1959 Sony Music Entertainment Inc.",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 24,
+    "maximum_sampling_rate": 192.0,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 6760,
+    "name": "Miles Davis",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Miles Davis, Associated Performer, Main Artist, Trumpet, Associated Performer, Trumpet\r - Irving Townsend, Producer\r - Jimmy Cobb, Drums\r - M. Davis, Composer, Lyricist\r - Bill Evans, Piano\r - Paul Chambers, Bass\r - Julian \"Cannonball\" Adderley, Alto Saxophone\r - John Coltrane, Tenor Saxophone",
+  "composer": {
+    "id": 6760,
+    "name": "Miles Davis",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "Originally released 1959. All rights reserved by Columbia Records, a division of Sony Music Entertainment",
+  "streamable": true,
+  "downloadable": true,
+  "hires": true,
+  "maximum_bit_depth": 24,
+  "maximum_sampling_rate": 192.0,
+  "maximum_channel_count": 2,
+  "release_date_original": "1959-08-17",
+  "release_date_stream": "1959-08-17",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

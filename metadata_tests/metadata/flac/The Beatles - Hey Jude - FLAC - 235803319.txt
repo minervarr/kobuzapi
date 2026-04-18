@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : The Beatles - Hey Jude - FLAC - 235803319.flac
+[System]        Directory                       : metadata_tests/downloads/flac
+[System]        File Size                       : 157 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:37:55+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:37:56+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:37:56+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 4898
+[FLAC]          Frame Size Max                  : 21233
+[FLAC]          Sample Rate                     : 96000
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 24
+[FLAC]          Total Samples                   : 41419520
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 600
+[FLAC]          Picture Height                  : 600
+[FLAC]          Picture Bits Per Pixel          : 24
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 94300
+[FLAC]          Picture                         : (Binary data 94300 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : Hey Jude (2015 Mix)
+[Vorbis]        Album                           : The Beatles 1967 – 1970 (2023 Edition)
+[Vorbis]        Albumartist                     : The Beatles
+[Vorbis]        Artist                          : The Beatles
+[Vorbis]        Composer                        : Paul Mccartney
+[Vorbis]        Producer                        : George Martin
+[Vorbis]        Label                           : UMC (Universal Music Catalogue)
+[Vorbis]        Genre                           : Rock
+[Vorbis]        Track Number                    : 14
+[Vorbis]        Tracktotal                      : 37
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 2
+[Vorbis]        Copyright                       : ℗ 2015 Calderstone Productions Limited (a division of Universal Music Group)
+[Vorbis]        ISRC Number                     : GBUM71505902
+[Vorbis]        Year                            : 2023
+[Vorbis]        Date                            : 2023-11-10
+[Vorbis]        Media                           : compilation
+[Vorbis]        Involvedpeople                  : The Beatles, MainArtist - Giles Martin, Producer, MixingEngineer - Sam Okell, MixingEngineer - Miles Showell, MasteringEngineer - Al Sirkett, SoundDesigner - Matt Mysko, MixingSecondEngineer - Simon Gibson, RecordingEngineer - James Clarke, RecordingEngineer - Andrew Walter, RecordingEngineer - George Martin, Producer - John Lennon, ComposerLyricist - Paul Mccartney, ComposerLyricist
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Organization                    : UMC (Universal Music Catalogue)
+[Vorbis]        Upc                             : 0602458682199
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/the-beatles-1967-1970-the-beatles/rlrv742tr79jb
+[Composite]     Duration                        : 0:07:11

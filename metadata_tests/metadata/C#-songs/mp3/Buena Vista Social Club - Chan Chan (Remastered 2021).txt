@@ -1,0 +1,51 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Buena Vista Social Club - Chan Chan (Remastered 2021).mp3
+[System]        Directory                       : /home/arch/Downloads/C#/mp3
+[System]        File Size                       : 10 MB
+[System]        File Modification Date/Time     : 2026:04:18 14:58:35+02:00
+[System]        File Access Date/Time           : 2026:04:18 14:58:35+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 14:58:35+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : MP3
+[File]          File Type Extension             : mp3
+[File]          MIME Type                       : audio/mpeg
+[File]          ID3 Size                        : 69092
+[MPEG]          MPEG Audio Version              : 1
+[MPEG]          Audio Layer                     : 3
+[MPEG]          Audio Bitrate                   : 320 kbps
+[MPEG]          Sample Rate                     : 44100
+[MPEG]          Channel Mode                    : Joint Stereo
+[MPEG]          MS Stereo                       : Off
+[MPEG]          Intensity Stereo                : Off
+[MPEG]          Copyright Flag                  : False
+[MPEG]          Original Media                  : True
+[MPEG]          Emphasis                        : None
+[MPEG]          Encoder                         : LAME3.99r
+[MPEG]          Lame VBR Quality                : 4
+[MPEG]          Lame Quality                    : 3
+[MPEG]          Lame Method                     : CBR
+[MPEG]          Lame Low Pass Filter            : 20.5 kHz
+[MPEG]          Lame Bitrate                    : 255 kbps
+[MPEG]          Lame Stereo Mode                : Joint Stereo
+[ID3v2_4]       Picture MIME Type               : image/jpeg
+[ID3v2_4]       Picture Type                    : Front Cover
+[ID3v2_4]       Picture Description             : 
+[ID3v2_4]       Picture                         : (Binary data 68034 bytes, use -b option to extract)
+[ID3v2_4]       Title                           : Chan Chan (Remastered 2021)
+[ID3v2_4]       Album                           : Buena Vista Social Club (25th Anniversary Edition)
+[ID3v2_4]       Band                            : Buena Vista Social Club
+[ID3v2_4]       Artist                          : Buena Vista Social Club
+[ID3v2_4]       Composer                        : Francisco Repilado
+[ID3v2_4]       Publisher                       : World Circuit
+[ID3v2_4]       Involved People                 : Buena Vista Social Club, MainArtist - Compay Segundo, BackgroundVocalist, Congas - Jerry Boys, MixingEngineer, RecordingEngineer - Ry Cooder, Producer, Guitar - Manuel 'Guajiro' Mirabal, Trumpet - Eliades Ochoa, Vocalist, Guitar - Ibrahim Ferrer, BackgroundVocalist - Orlando 'Cachaíto' López, BassGuitar - Carlos Gonzalez, Bongos - Alberto Valdès, Maracas - Bernie Grundman, MasteringEngineer - Francisco Repilado, ComposerLyricist
+[ID3v2_4]       Recording Time                  : 2021
+[ID3v2_4]       Release Time                    : 2021:09:17
+[ID3v2_4]       Genre                           : Musiques du monde
+[ID3v2_4]       Part Of Set                     : 1/2
+[ID3v2_4]       Track                           : 1/33
+[ID3v2_4]       Copyright                       : ℗ 2021 World Circuit Limited, a BMG Company
+[ID3v2_4]       ISRC                            : GB5KW2100139
+[ID3v2_4]       Media                           : album
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/buena-vista-social-club-buena-vista-social-club/bzjieyngo06sj
+[Composite]     Date/Time Original              : 2021
+[Composite]     Duration                        : 0:04:18 (approx)

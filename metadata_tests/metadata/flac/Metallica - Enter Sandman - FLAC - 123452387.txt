@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Metallica - Enter Sandman - FLAC - 123452387.flac
+[System]        Directory                       : metadata_tests/downloads/flac
+[System]        File Size                       : 119 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:39:23+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:39:23+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:39:23+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 1325
+[FLAC]          Frame Size Max                  : 19809
+[FLAC]          Sample Rate                     : 96000
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 24
+[FLAC]          Total Samples                   : 31829760
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 600
+[FLAC]          Picture Height                  : 600
+[FLAC]          Picture Bits Per Pixel          : 24
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 13674
+[FLAC]          Picture                         : (Binary data 13674 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : Enter Sandman (Remastered 2021)
+[Vorbis]        Album                           : Metallica (Remastered 2021)
+[Vorbis]        Albumartist                     : Metallica
+[Vorbis]        Artist                          : Metallica
+[Vorbis]        Composer                        : Lars Ulrich
+[Vorbis]        Producer                        : Lars Ulrich
+[Vorbis]        Label                           : Blackened Recordings  -  Universal Music
+[Vorbis]        Genre                           : Metal
+[Vorbis]        Track Number                    : 1
+[Vorbis]        Tracktotal                      : 12
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 1
+[Vorbis]        Copyright                       : ℗ 2021 Blackened Recordings Inc.
+[Vorbis]        ISRC Number                     : QMKHM1900001
+[Vorbis]        Year                            : 1991
+[Vorbis]        Date                            : 1991-08-01
+[Vorbis]        Media                           : album
+[Vorbis]        Involvedpeople                  : Bob Rock, Producer - Randy Staub, RecordingEngineer - James Hetfield, Producer, Vocalist, ComposerLyricist - Kirk Hammett, Guitar, ComposerLyricist - Lars Ulrich, Producer, ComposerLyricist, DrumKit - Jason Newsted, BassGuitar - MIKE TACCI, RecordingSecondEngineer - Metallica, MainArtist
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Organization                    : Blackened Recordings  -  Universal Music
+[Vorbis]        Upc                             : 0602438404537
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/metallica-metallica/e98mhimqarxfb
+[Composite]     Duration                        : 0:05:32

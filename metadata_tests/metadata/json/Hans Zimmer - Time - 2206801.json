@@ -1,0 +1,135 @@
+{
+  "id": 2206801,
+  "title": "Time",
+  "version": null,
+  "isrc": "USRE11000577",
+  "track_number": 12,
+  "duration": 275,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "0093624965008",
+    "title": "Inception ",
+    "version": "Music from the Motion Picture",
+    "upc": "0093624965008",
+    "url": "https://www.qobuz.com/fr-fr/album/inception-hans-zimmer/0093624965008",
+    "artist": {
+      "id": 22522,
+      "name": "Hans Zimmer",
+      "slug": "hans-zimmer",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 1724,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 22522,
+        "name": "Hans Zimmer",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 22522,
+      "name": "Hans Zimmer",
+      "slug": "hans-zimmer",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 1724,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 301754,
+      "name": "WaterTower Music",
+      "slug": "watertower-music-3"
+    },
+    "genre": {
+      "id": 92,
+      "name": "Bandes originales de films",
+      "slug": "bandes-originales-de-films",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/08/50/0093624965008_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/08/50/0093624965008_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/08/50/0093624965008_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 2953,
+    "tracks_count": 12,
+    "media_count": 1,
+    "release_date_original": "2010-07-09",
+    "release_date_stream": "2010-07-09",
+    "release_date_download": "2010-07-09",
+    "product_type": "album",
+    "release_type": "album",
+    "hires": true,
+    "hires_streamable": true,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/inception-hans-zimmer/0093624965008",
+    "released_at": 1278626400,
+    "copyright": "© 2010 Motion Picture Artwork © 2010 Warner Bros. Entertainment Inc. Motion Picture Photography © 2010 Warner Bros. Entertainment Inc. and Legendary Pictures. ℗ 2010 This compilation WaterTower Music as licensee for Warner Bros. Entertainment Inc.",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 24,
+    "maximum_sampling_rate": 44.1,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 22522,
+    "name": "Hans Zimmer",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Matt Dunkley, Conductor - Johnny Marr, Guitar - Lorne Balfe, Producer, Additional Music - Richard Edwards, Trombone - Richard Watkins, French Horn - Isobel Griffiths, Orchestral Contractor - Alan Meyerson, Mixer - mary Scully, Bass - Andrew Kawczynski, Additional Programmer - Bruce L. Fowler, Orchestration - Carl Rydlund, Orchestration - Chris Barrett, AssistantEngineer - Christopher Nolan, ExecutiveProducer - Chuck Choi, Technical Engineer - Elizabeth Finch, Orchestration - Howard Scarr, Synthesizer Programmer - Jacob Shea, Additional Programmer - Mel Wesson, Designer - Nick Delaplane, Additional Programmer - Pat Sullivan, Masterer - Peter Oso Snell, AssistantEngineer - Rick Giovinazzo, Orchestration - Suzette Moriarty, Orchestration - Thomas Broderick, Technical Engineer - Walter Fowler, Orchestration - Hans Zimmer, Composer, Producer, Synthesizer Programmer, Music, Synthesizer, MainArtist - Alex Gibson, Producer, Music Editor - Anthony Pleeth, Cello - Daniel Kresco, Assistant Mixing Engineer - Dave Stewart, Trombone - Ed Neumeister, Orchestration - Geoff Foster, Recorded by - Kevin Kaska, Orchestration - Mike Higham, AssistantEngineer - Owen Slade, Tuba - Perry Montague-Mason, Lead Violin - Peter Lale, Viola - Ryan Rubin, Music Editor",
+  "composer": {
+    "id": 22522,
+    "name": "Hans Zimmer",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "© 2010 Motion Picture Artwork © 2010 Warner Bros. Entertainment Inc. Motion Picture Photography © 2010 Warner Bros. Entertainment Inc. and Legendary Pictures. ℗ 2010 This compilation WaterTower Music as licensee for Warner Bros. Entertainment Inc.",
+  "streamable": true,
+  "downloadable": true,
+  "hires": true,
+  "maximum_bit_depth": 24,
+  "maximum_sampling_rate": 44.1,
+  "maximum_channel_count": 2,
+  "release_date_original": "2010-07-09",
+  "release_date_stream": "2010-07-09",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

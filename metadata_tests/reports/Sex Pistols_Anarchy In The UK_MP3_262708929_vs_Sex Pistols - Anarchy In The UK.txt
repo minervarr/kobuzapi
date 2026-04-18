@@ -1,0 +1,4 @@
+Differences between Sex Pistols - Anarchy In The UK - MP3 - 262708929.txt and Sex Pistols - Anarchy In The UK.txt:
+Field 'Composer' differs:
+  Rust: Steve Jones/Glen Matlock/Johnny Rotten/Paul Cook/John Lydon
+  C#:   Steve Jones/Glen Matlock/Johnny Rotten/Paul Cook

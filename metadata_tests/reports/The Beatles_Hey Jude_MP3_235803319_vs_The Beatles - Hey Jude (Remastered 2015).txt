@@ -1,0 +1,2 @@
+Differences between The Beatles - Hey Jude - MP3 - 235803319.txt and The Beatles - Hey Jude (Remastered 2015).txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/the-beatles-1967-1970-the-beatles/rlrv742tr79jb

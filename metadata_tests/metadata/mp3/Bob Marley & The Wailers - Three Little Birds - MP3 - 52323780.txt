@@ -1,0 +1,51 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Bob Marley & The Wailers - Three Little Birds - MP3 - 52323780.mp3
+[System]        Directory                       : metadata_tests/downloads/mp3
+[System]        File Size                       : 7.3 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:38:59+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:38:59+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:38:59+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : MP3
+[File]          File Type Extension             : mp3
+[File]          MIME Type                       : audio/mpeg
+[File]          ID3 Size                        : 77001
+[MPEG]          MPEG Audio Version              : 1
+[MPEG]          Audio Layer                     : 3
+[MPEG]          Audio Bitrate                   : 320 kbps
+[MPEG]          Sample Rate                     : 44100
+[MPEG]          Channel Mode                    : Joint Stereo
+[MPEG]          MS Stereo                       : Off
+[MPEG]          Intensity Stereo                : Off
+[MPEG]          Copyright Flag                  : False
+[MPEG]          Original Media                  : True
+[MPEG]          Emphasis                        : None
+[MPEG]          Encoder                         : LAME3.99r
+[MPEG]          Lame VBR Quality                : 4
+[MPEG]          Lame Quality                    : 3
+[MPEG]          Lame Method                     : CBR
+[MPEG]          Lame Low Pass Filter            : 20.5 kHz
+[MPEG]          Lame Bitrate                    : 255 kbps
+[MPEG]          Lame Stereo Mode                : Joint Stereo
+[ID3v2_4]       Part Of Set                     : 1/1
+[ID3v2_4]       Artist                          : Bob Marley & The Wailers
+[ID3v2_4]       Release Time                    : 2002:09:22
+[ID3v2_4]       Recording Time                  : 2002
+[ID3v2_4]       Composer                        : Bob Marley
+[ID3v2_4]       Title                           : Three Little Birds
+[ID3v2_4]       Genre                           : Reggae
+[ID3v2_4]       ISRC                            : USIR27700016
+[ID3v2_4]       Album                           : Legend – The Best Of Bob Marley & The Wailers
+[ID3v2_4]       Band                            : Bob Marley & The Wailers
+[ID3v2_4]       Copyright                       : ℗ 1977 UMG Recordings, Inc.
+[ID3v2_4]       Musician Credits                : Bob Marley & The Wailers, MainArtist, Producer - Bob Marley, Vocalist, Guitar, AcousticGuitar, Percussion, ComposerLyricist - Junior Marvin, Guitar - Aston Barrett, ElectricBassGuitar, Guitar, Percussion, MixingEngineer - Carlton Barrett, DrumKit, Percussion - Tyrone Downie, Keyboard, Percussion, BackgroundVocalist - Alvin "Seeco" Patterson, Percussion - I Threes, BackgroundVocalist - Rita Marley, BackgroundVocalist - Marcia Griffiths, BackgroundVocalist - Judy Mowatt, BackgroundVocalist - The Wailers, Producer - CHRIS BLACKWELL, Producer, MixingEngineer - Karl Pitterson, MixingEngineer, Engineer - Guy Bidmead, RecordingSecondEngineer - Terry Barham, RecordingSecondEngineer
+[ID3v2_4]       Track                           : 4/16
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/legend-the-best-of-bob-marley-the-wailers-bob-marley-the-wailers/kfxmsafm77qab
+[ID3v2_4]       Publisher                       : Island Records
+[ID3v2_4]       Media                           : bestof
+[ID3v2_4]       Picture MIME Type               : image/jpeg
+[ID3v2_4]       Picture Type                    : Front Cover
+[ID3v2_4]       Picture Description             : 
+[ID3v2_4]       Picture                         : (Binary data 74763 bytes, use -b option to extract)
+[Composite]     Date/Time Original              : 2002
+[Composite]     Duration                        : 0:03:01 (approx)

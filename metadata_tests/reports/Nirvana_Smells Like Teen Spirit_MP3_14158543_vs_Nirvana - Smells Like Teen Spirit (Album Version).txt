@@ -1,0 +1,2 @@
+Differences between Nirvana - Smells Like Teen Spirit - MP3 - 14158543.txt and Nirvana - Smells Like Teen Spirit (Album Version).txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/nevermind-nirvana/0060253749865

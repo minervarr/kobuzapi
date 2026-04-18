@@ -1,0 +1,6 @@
+Differences between Sex Pistols - Anarchy In The UK - FLAC - 262708929.txt and Sex Pistols - Anarchy In The UK.txt:
+Field 'Upc' exists in C# but not in Rust: 0602465235371
+Field 'Involvedpeople' exists in C# but not in Rust: Bill Price, Engineer, StudioPersonnel - CHRIS THOMAS, Producer - Steve Jones, ComposerLyricist - Glen Matlock, ComposerLyricist - Johnny Rotten, Vocals, AssociatedPerformer, ComposerLyricist - Paul Cook, ComposerLyricist - Sex Pistols, MainArtist
+Field 'Itunesadvisory' exists in C# but not in Rust: 0
+Field 'Organization' exists in C# but not in Rust: UMC (Universal Music Catalogue)
+Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/the-filth-the-fury-sex-pistols/s18af8yh3icrc

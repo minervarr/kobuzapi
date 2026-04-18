@@ -1,0 +1,6 @@
+Differences between Nirvana - Smells Like Teen Spirit - FLAC - 14158543.txt and Nirvana - Smells Like Teen Spirit (Album Version).txt:
+Field 'Upc' exists in C# but not in Rust: 0060253749865
+Field 'Itunesadvisory' exists in C# but not in Rust: 0
+Field 'Organization' exists in C# but not in Rust: Geffen
+Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/nevermind-nirvana/0060253749865
+Field 'Involvedpeople' exists in C# but not in Rust: Nirvana, MainArtist - Butch Vig, Producer, RecordingEngineer - ANDY WALLACE, MixingEngineer - Craig Doubet, MixingSecondEngineer - Kurt Cobain, Vocalist, Guitar, ComposerLyricist - Krist Novoselic, BassGuitar, ComposerLyricist - Dave Grohl, DrumKit, ComposerLyricist

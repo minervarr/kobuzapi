@@ -1,0 +1,4 @@
+Differences between Miles Davis - So What - MP3 - 13176083.txt and Miles Davis - So What.txt:
+Field 'Composer' differs:
+  Rust: M. Davis/Miles Davis
+  C#:   M. Davis

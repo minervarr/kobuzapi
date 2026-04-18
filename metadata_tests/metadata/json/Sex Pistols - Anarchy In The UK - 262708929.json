@@ -1,0 +1,135 @@
+{
+  "id": 262708929,
+  "title": "Anarchy In The UK",
+  "version": null,
+  "isrc": "GBDFX7700002",
+  "track_number": 8,
+  "duration": 211,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "s18af8yh3icrc",
+    "title": "The Filth & The Fury",
+    "version": "Original Motion Picture Soundtrack",
+    "upc": "0602465235371",
+    "url": "https://www.qobuz.com/fr-fr/album/the-filth-the-fury-sex-pistols/s18af8yh3icrc",
+    "artist": {
+      "id": 47467,
+      "name": "Sex Pistols",
+      "slug": "sex-pistols",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 113,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 47467,
+        "name": "Sex Pistols",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 573076,
+      "name": "Various Composers",
+      "slug": "various-composers",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 12733703,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 92555,
+      "name": "UMC (Universal Music Catalogue)",
+      "slug": "umc-universal-music-catalogue"
+    },
+    "genre": {
+      "id": 118,
+      "name": "Punk - New Wave",
+      "slug": "punk-new-wave",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/rc/ic/s18af8yh3icrc_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/rc/ic/s18af8yh3icrc_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/rc/ic/s18af8yh3icrc_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 3610,
+    "tracks_count": 18,
+    "media_count": 1,
+    "release_date_original": "2024-04-19",
+    "release_date_stream": "2024-04-19",
+    "release_date_download": "2024-04-19",
+    "product_type": "album",
+    "release_type": "album",
+    "hires": false,
+    "hires_streamable": false,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/the-filth-the-fury-sex-pistols/s18af8yh3icrc",
+    "released_at": 1713477600,
+    "copyright": "© 2024 Sex Pistols Residuals ℗ 2024 Sex Pistols Residuals",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 16,
+    "maximum_sampling_rate": 44.1,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 47467,
+    "name": "Sex Pistols",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Bill Price, Engineer, StudioPersonnel - CHRIS THOMAS, Producer - Steve Jones, ComposerLyricist - Glen Matlock, ComposerLyricist - Johnny Rotten, Vocals, AssociatedPerformer, ComposerLyricist - Paul Cook, ComposerLyricist - Sex Pistols, MainArtist",
+  "composer": {
+    "id": 135058,
+    "name": "John Lydon",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "℗ 1976 Sex Pistols Residuals",
+  "streamable": true,
+  "downloadable": true,
+  "hires": false,
+  "maximum_bit_depth": 16,
+  "maximum_sampling_rate": 44.1,
+  "maximum_channel_count": 2,
+  "release_date_original": "2024-04-19",
+  "release_date_stream": "2024-04-19",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

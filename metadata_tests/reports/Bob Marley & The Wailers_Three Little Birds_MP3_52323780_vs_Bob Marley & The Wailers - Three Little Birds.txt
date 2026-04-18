@@ -1,0 +1,2 @@
+Differences between Bob Marley & The Wailers - Three Little Birds - MP3 - 52323780.txt and Bob Marley & The Wailers - Three Little Birds.txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/legend-the-best-of-bob-marley-the-wailers-bob-marley-the-wailers/kfxmsafm77qab

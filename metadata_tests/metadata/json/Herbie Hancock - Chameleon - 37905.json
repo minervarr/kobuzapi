@@ -1,0 +1,135 @@
+{
+  "id": 37905,
+  "title": "Chameleon",
+  "version": "Album Version",
+  "isrc": "USSM17300165",
+  "track_number": 1,
+  "duration": 944,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "0074646512326",
+    "title": "Head Hunters",
+    "version": null,
+    "upc": "0074646512326",
+    "url": "https://www.qobuz.com/fr-fr/album/head-hunters-herbie-hancock/0074646512326",
+    "artist": {
+      "id": 10118,
+      "name": "Herbie Hancock",
+      "slug": "herbie-hancock",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 1299,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 10118,
+        "name": "Herbie Hancock",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 573076,
+      "name": "Various Composers",
+      "slug": "various-composers",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 14879928,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 4637,
+      "name": "Columbia - Legacy",
+      "slug": "columbia-legacy"
+    },
+    "genre": {
+      "id": 86,
+      "name": "Jazz fusion & Jazz rock",
+      "slug": "jazz-fusion-jazz-rock",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/26/23/0074646512326_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/26/23/0074646512326_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/26/23/0074646512326_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 2504,
+    "tracks_count": 4,
+    "media_count": 1,
+    "release_date_original": "1973-10-13",
+    "release_date_stream": "1973-10-13",
+    "release_date_download": "1973-10-13",
+    "product_type": "single",
+    "release_type": "album",
+    "hires": true,
+    "hires_streamable": true,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/head-hunters-herbie-hancock/0074646512326",
+    "released_at": 119314800,
+    "copyright": "(P) 1973 Sony Music Entertainment Inc.",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 24,
+    "maximum_sampling_rate": 96.0,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 10118,
+    "name": "Herbie Hancock",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "H. Mason, Composer\r - H. Mason, Lyricist\r - Bennie Maupin, Performer\r - Material, Producer\r - Paul Jackson, Acoustic Bass\r - Herbie Hancock, Composer\r - Herbie Hancock, Lyricist\r - Herbie Hancock, Producer\r - Herbie Hancock, Keyboards\r - Herbie Hancock, Performer\r - B. Maupin, Composer\r - B. Maupin, Lyricist\r - David Rubinson, Producer\r - Bill Summers, Percussion\r - P. Jackson, Composer\r - P. Jackson, Lyricist\r - Harvey Mason, Drums\r",
+  "composer": {
+    "id": 10118,
+    "name": "Herbie Hancock",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "(P) 1973 Columbia Records, a division of Sony Music Entertainment",
+  "streamable": true,
+  "downloadable": false,
+  "hires": true,
+  "maximum_bit_depth": 24,
+  "maximum_sampling_rate": 96.0,
+  "maximum_channel_count": 2,
+  "release_date_original": "1973-10-13",
+  "release_date_stream": "1973-10-13",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

@@ -1,0 +1,135 @@
+{
+  "id": 15215741,
+  "title": "Like a Rolling Stone",
+  "version": null,
+  "isrc": "USSM19922509",
+  "track_number": 8,
+  "duration": 368,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "0886444477109",
+    "title": "The Essential Bob Dylan",
+    "version": null,
+    "upc": "0886444477109",
+    "url": "https://www.qobuz.com/fr-fr/album/the-essential-bob-dylan-bob-dylan/0886444477109",
+    "artist": {
+      "id": 365921,
+      "name": "Bob Dylan",
+      "slug": "dylan-bob",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 4476,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 365921,
+        "name": "Bob Dylan",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 573076,
+      "name": "Various Composers",
+      "slug": "various-composers",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 14726711,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 4592,
+      "name": "Columbia",
+      "slug": "columbia"
+    },
+    "genre": {
+      "id": 119,
+      "name": "Rock",
+      "slug": "rock",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/09/71/0886444477109_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/09/71/0886444477109_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/09/71/0886444477109_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 8097,
+    "tracks_count": 32,
+    "media_count": 2,
+    "release_date_original": "2000-10-31",
+    "release_date_stream": "2000-10-31",
+    "release_date_download": "2000-10-31",
+    "product_type": "album",
+    "release_type": "bestof",
+    "hires": false,
+    "hires_streamable": false,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/the-essential-bob-dylan-bob-dylan/0886444477109",
+    "released_at": 972946800,
+    "copyright": "(P) 2014 Sony Music Entertainment",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 16,
+    "maximum_sampling_rate": 44.1,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 365921,
+    "name": "Bob Dylan",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Bob Dylan, Associated Performer, Composer, Guitar, Harmonica, Lyricist, Main Artist, Piano, Associated Performer, Composer, Guitar, Harmonica, Lyricist, Piano\r - Michael Bloomfield, Guitar\r - Charlie McCoy, Guitar\r - Bobby Gregg, Drums\r - Alan Kooper, Organ, Piano\r - Paul Griffin, Organ, Piano\r - Frank Owens, Piano\r - Harvey Goldstein, Bass\r - Russ Savakus, Bass\r - Tom Wilson, Producer",
+  "composer": {
+    "id": 365921,
+    "name": "Bob Dylan",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "Originally released 1965. All rights reserved by Columbia Records, a division of Sony Music Entertainment",
+  "streamable": true,
+  "downloadable": true,
+  "hires": false,
+  "maximum_bit_depth": 16,
+  "maximum_sampling_rate": 44.1,
+  "maximum_channel_count": 2,
+  "release_date_original": "2000-10-31",
+  "release_date_stream": "2000-10-31",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : B.B. King - The Thrill Is Gone.flac
+[System]        Directory                       : /home/arch/Downloads/C#/flac
+[System]        File Size                       : 34 MB
+[System]        File Modification Date/Time     : 2026:04:18 14:54:01+02:00
+[System]        File Access Date/Time           : 2026:04:18 14:54:01+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 15:03:29+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 3286
+[FLAC]          Frame Size Max                  : 15354
+[FLAC]          Sample Rate                     : 44100
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 16
+[FLAC]          Total Samples                   : 13279980
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 0
+[FLAC]          Picture Height                  : 0
+[FLAC]          Picture Bits Per Pixel          : 0
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 53382
+[FLAC]          Picture                         : (Binary data 53382 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : The Thrill Is Gone
+[Vorbis]        Album                           : Deuces Wild
+[Vorbis]        Albumartist                     : B.B. King
+[Vorbis]        Artist                          : B.B. King, Tracy Chapman
+[Vorbis]        Composer                        : Rick Darnell
+[Vorbis]        Organization                    : Geffen
+[Vorbis]        Label                           : Geffen
+[Vorbis]        Producer                        : JOHN PORTER
+[Vorbis]        Involvedpeople                  : B.B. King, MainArtist - Tracy Chapman, FeaturedArtist - JOHN PORTER, Producer - Joe McGrath, MixingEngineer, RecordingEngineer - Roy Hawkins, ComposerLyricist - Rick Darnell, ComposerLyricist
+[Vorbis]        Year                            : 1997
+[Vorbis]        Date                            : 1997-11-04
+[Vorbis]        Genre                           : Blues
+[Vorbis]        Track Number                    : 2
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 1
+[Vorbis]        Tracktotal                      : 17
+[Vorbis]        Copyright                       : ℗ 1997 Geffen Records
+[Vorbis]        Upc                             : 0602567833512
+[Vorbis]        ISRC Number                     : USMC19756800
+[Vorbis]        Mediatype                       : album
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/deuces-wild-bb-king/m29vqv4i2xt6a
+[Composite]     Duration                        : 0:05:01

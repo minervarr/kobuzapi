@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Buena Vista Social Club - Chan Chan (Remastered 2021).flac
+[System]        Directory                       : /home/arch/Downloads/C#/flac
+[System]        File Size                       : 100 MB
+[System]        File Modification Date/Time     : 2026:04:18 14:59:20+02:00
+[System]        File Access Date/Time           : 2026:04:18 14:59:20+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 15:03:29+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 1887
+[FLAC]          Frame Size Max                  : 20703
+[FLAC]          Sample Rate                     : 96000
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 24
+[FLAC]          Total Samples                   : 24792573
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 0
+[FLAC]          Picture Height                  : 0
+[FLAC]          Picture Bits Per Pixel          : 0
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 68034
+[FLAC]          Picture                         : (Binary data 68034 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : Chan Chan (Remastered 2021)
+[Vorbis]        Album                           : Buena Vista Social Club (25th Anniversary Edition)
+[Vorbis]        Albumartist                     : Buena Vista Social Club
+[Vorbis]        Artist                          : Buena Vista Social Club
+[Vorbis]        Composer                        : Francisco Repilado
+[Vorbis]        Organization                    : World Circuit
+[Vorbis]        Label                           : World Circuit
+[Vorbis]        Producer                        : Ry Cooder
+[Vorbis]        Involvedpeople                  : Buena Vista Social Club, MainArtist - Compay Segundo, BackgroundVocalist, Congas - Jerry Boys, MixingEngineer, RecordingEngineer - Ry Cooder, Producer, Guitar - Manuel 'Guajiro' Mirabal, Trumpet - Eliades Ochoa, Vocalist, Guitar - Ibrahim Ferrer, BackgroundVocalist - Orlando 'Cachaíto' López, BassGuitar - Carlos Gonzalez, Bongos - Alberto Valdès, Maracas - Bernie Grundman, MasteringEngineer - Francisco Repilado, ComposerLyricist
+[Vorbis]        Year                            : 2021
+[Vorbis]        Date                            : 2021-09-17
+[Vorbis]        Genre                           : Musiques du monde
+[Vorbis]        Track Number                    : 1
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 2
+[Vorbis]        Tracktotal                      : 33
+[Vorbis]        Copyright                       : ℗ 2021 World Circuit Limited, a BMG Company
+[Vorbis]        Upc                             : 4050538630107
+[Vorbis]        ISRC Number                     : GB5KW2100139
+[Vorbis]        Mediatype                       : album
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/buena-vista-social-club-buena-vista-social-club/bzjieyngo06sj
+[Composite]     Duration                        : 0:04:18

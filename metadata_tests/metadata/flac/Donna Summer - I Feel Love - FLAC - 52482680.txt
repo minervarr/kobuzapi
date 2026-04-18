@@ -1,0 +1,53 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : Donna Summer - I Feel Love - FLAC - 52482680.flac
+[System]        Directory                       : metadata_tests/downloads/flac
+[System]        File Size                       : 137 MB
+[System]        File Modification Date/Time     : 2026:04:18 20:40:05+02:00
+[System]        File Access Date/Time           : 2026:04:18 20:40:05+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 20:40:05+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : FLAC
+[File]          File Type Extension             : flac
+[File]          MIME Type                       : audio/flac
+[FLAC]          Block Size Min                  : 4608
+[FLAC]          Block Size Max                  : 4608
+[FLAC]          Frame Size Min                  : 14435
+[FLAC]          Frame Size Max                  : 18383
+[FLAC]          Sample Rate                     : 192000
+[FLAC]          Channels                        : 2
+[FLAC]          Bits Per Sample                 : 24
+[FLAC]          Total Samples                   : 38646677
+[FLAC]          MD5 Signature                   : 00000000000000000000000000000000
+[FLAC]          Picture Type                    : Front Cover
+[FLAC]          Picture MIME Type               : image/jpeg
+[FLAC]          Picture Description             : 
+[FLAC]          Picture Width                   : 600
+[FLAC]          Picture Height                  : 600
+[FLAC]          Picture Bits Per Pixel          : 24
+[FLAC]          Picture Indexed Colors          : 0
+[FLAC]          Picture Length                  : 109029
+[FLAC]          Picture                         : (Binary data 109029 bytes, use -b option to extract)
+[Vorbis]        Vendor                          : 
+[Vorbis]        Title                           : I Feel Love
+[Vorbis]        Album                           : On The Radio: Greatest Hits Volumes I & II
+[Vorbis]        Albumartist                     : Donna Summer
+[Vorbis]        Artist                          : Donna Summer
+[Vorbis]        Composer                        : Donna Summer
+[Vorbis]        Producer                        : Giorgio Moroder
+[Vorbis]        Label                           : Island Def Jam
+[Vorbis]        Genre                           : R&B
+[Vorbis]        Track Number                    : 4
+[Vorbis]        Tracktotal                      : 16
+[Vorbis]        Discnumber                      : 1
+[Vorbis]        Disctotal                       : 1
+[Vorbis]        Copyright                       : ℗ 1979 The Island Def Jam Music Group
+[Vorbis]        ISRC Number                     : USWWW0125612
+[Vorbis]        Year                            : 1979
+[Vorbis]        Date                            : 1979-10-15
+[Vorbis]        Media                           : compilation
+[Vorbis]        Involvedpeople                  : Pete Bellotte, Producer, ComposerLyricist - Giorgio Moroder, Producer, ComposerLyricist - Donna Summer, Vocalist, MainArtist, ComposerLyricist
+[Vorbis]        Itunesadvisory                  : 0
+[Vorbis]        Organization                    : Island Def Jam
+[Vorbis]        Upc                             : 0602567831365
+[Vorbis]        Url                             : https://www.qobuz.com/fr-fr/album/on-the-radio-greatest-hits-volumes-i-ii-donna-summer/r5vn4y8r3v9sc
+[Composite]     Duration                        : 0:03:21

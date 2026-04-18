@@ -1,0 +1,2 @@
+Differences between Kendrick Lamar - BLOOD. - MP3 - 40128300.txt and Kendrick Lamar - BLOOD.txt:
+Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/damn-kendrick-lamar/0060255760871

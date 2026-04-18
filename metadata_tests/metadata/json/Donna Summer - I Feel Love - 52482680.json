@@ -1,0 +1,135 @@
+{
+  "id": 52482680,
+  "title": "I Feel Love",
+  "version": null,
+  "isrc": "USWWW0125612",
+  "track_number": 4,
+  "duration": 201,
+  "media_number": 1,
+  "work": null,
+  "album": {
+    "id": "r5vn4y8r3v9sc",
+    "title": "On The Radio: Greatest Hits Volumes I & II",
+    "version": null,
+    "upc": "0602567831365",
+    "url": "https://www.qobuz.com/fr-fr/album/on-the-radio-greatest-hits-volumes-i-ii-donna-summer/r5vn4y8r3v9sc",
+    "artist": {
+      "id": 62467,
+      "name": "Donna Summer",
+      "slug": "donna-summer",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 279,
+      "roles": null,
+      "albums": null
+    },
+    "artists": [
+      {
+        "id": 62467,
+        "name": "Donna Summer",
+        "slug": null,
+        "picture": null,
+        "image": null,
+        "biography": null,
+        "albums_count": null,
+        "roles": [
+          "main-artist"
+        ],
+        "albums": null
+      }
+    ],
+    "composer": {
+      "id": 573076,
+      "name": "Various Composers",
+      "slug": "various-composers",
+      "picture": null,
+      "image": null,
+      "biography": null,
+      "albums_count": 14250802,
+      "roles": null,
+      "albums": null
+    },
+    "label": {
+      "id": 31867,
+      "name": "Island Def Jam",
+      "slug": "island-def-jam"
+    },
+    "genre": {
+      "id": 132,
+      "name": "R&B",
+      "slug": "rb",
+      "color": "#0070ef"
+    },
+    "genres": null,
+    "image": {
+      "small": "https://static.qobuz.com/images/covers/sc/v9/r5vn4y8r3v9sc_230.jpg",
+      "thumbnail": "https://static.qobuz.com/images/covers/sc/v9/r5vn4y8r3v9sc_50.jpg",
+      "medium": null,
+      "large": "https://static.qobuz.com/images/covers/sc/v9/r5vn4y8r3v9sc_600.jpg",
+      "extralarge": null,
+      "mega": null,
+      "back": null
+    },
+    "duration": 4280,
+    "tracks_count": 16,
+    "media_count": 1,
+    "release_date_original": "1979-10-15",
+    "release_date_stream": "1979-10-15",
+    "release_date_download": "1979-10-15",
+    "product_type": "album",
+    "release_type": "compilation",
+    "hires": true,
+    "hires_streamable": true,
+    "downloadable": true,
+    "streamable": true,
+    "track_ids": null,
+    "product_url": "/fr-fr/album/on-the-radio-greatest-hits-volumes-i-ii-donna-summer/r5vn4y8r3v9sc",
+    "released_at": 308790000,
+    "copyright": "© 1979 UMG Recordings, Inc. ℗ 2012 UMG Recordings, Inc.",
+    "product_sales_factors": null,
+    "maximum_bit_depth": 24,
+    "maximum_sampling_rate": 192.0,
+    "maximum_channel_count": 2
+  },
+  "performer": {
+    "id": 62467,
+    "name": "Donna Summer",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "performers": "Pete Bellotte, Producer, ComposerLyricist - Giorgio Moroder, Producer, ComposerLyricist - Donna Summer, Vocalist, MainArtist, ComposerLyricist",
+  "composer": {
+    "id": 15053,
+    "name": "Giorgio Moroder",
+    "slug": null,
+    "picture": null,
+    "image": null,
+    "biography": null,
+    "albums_count": null,
+    "roles": null,
+    "albums": null
+  },
+  "audio_info": {
+    "bit_depth": null,
+    "sampling_rate": null,
+    "channels": null,
+    "codec": null
+  },
+  "copyright": "℗ 1979 The Island Def Jam Music Group",
+  "streamable": true,
+  "downloadable": true,
+  "hires": true,
+  "maximum_bit_depth": 24,
+  "maximum_sampling_rate": 192.0,
+  "maximum_channel_count": 2,
+  "release_date_original": "1979-10-15",
+  "release_date_stream": "1979-10-15",
+  "parental_warning": false,
+  "product_sales_factors": null
+}

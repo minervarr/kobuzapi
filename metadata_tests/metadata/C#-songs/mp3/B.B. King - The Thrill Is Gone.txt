@@ -1,0 +1,51 @@
+[ExifTool]      ExifTool Version Number         : 13.55
+[System]        File Name                       : B.B. King - The Thrill Is Gone.mp3
+[System]        Directory                       : /home/arch/Downloads/C#/mp3
+[System]        File Size                       : 12 MB
+[System]        File Modification Date/Time     : 2026:04:18 14:54:11+02:00
+[System]        File Access Date/Time           : 2026:04:18 14:54:11+02:00
+[System]        File Inode Change Date/Time     : 2026:04:18 14:54:11+02:00
+[System]        File Permissions                : -rw-r--r--
+[File]          File Type                       : MP3
+[File]          File Type Extension             : mp3
+[File]          MIME Type                       : audio/mpeg
+[File]          ID3 Size                        : 54440
+[MPEG]          MPEG Audio Version              : 1
+[MPEG]          Audio Layer                     : 3
+[MPEG]          Audio Bitrate                   : 320 kbps
+[MPEG]          Sample Rate                     : 44100
+[MPEG]          Channel Mode                    : Joint Stereo
+[MPEG]          MS Stereo                       : Off
+[MPEG]          Intensity Stereo                : Off
+[MPEG]          Copyright Flag                  : False
+[MPEG]          Original Media                  : True
+[MPEG]          Emphasis                        : None
+[MPEG]          Encoder                         : LAME3.99r
+[MPEG]          Lame VBR Quality                : 4
+[MPEG]          Lame Quality                    : 3
+[MPEG]          Lame Method                     : CBR
+[MPEG]          Lame Low Pass Filter            : 20.5 kHz
+[MPEG]          Lame Bitrate                    : 255 kbps
+[MPEG]          Lame Stereo Mode                : Joint Stereo
+[ID3v2_4]       Picture MIME Type               : image/jpeg
+[ID3v2_4]       Picture Type                    : Front Cover
+[ID3v2_4]       Picture Description             : 
+[ID3v2_4]       Picture                         : (Binary data 53382 bytes, use -b option to extract)
+[ID3v2_4]       Title                           : The Thrill Is Gone
+[ID3v2_4]       Album                           : Deuces Wild
+[ID3v2_4]       Band                            : B.B. King
+[ID3v2_4]       Artist                          : B.B. King/Tracy Chapman
+[ID3v2_4]       Composer                        : Roy Hawkins/Rick Darnell
+[ID3v2_4]       Publisher                       : Geffen
+[ID3v2_4]       Involved People                 : B.B. King, MainArtist - Tracy Chapman, FeaturedArtist - JOHN PORTER, Producer - Joe McGrath, MixingEngineer, RecordingEngineer - Roy Hawkins, ComposerLyricist - Rick Darnell, ComposerLyricist
+[ID3v2_4]       Recording Time                  : 1997
+[ID3v2_4]       Release Time                    : 1997:11:04
+[ID3v2_4]       Genre                           : Blues
+[ID3v2_4]       Part Of Set                     : 1/1
+[ID3v2_4]       Track                           : 2/17
+[ID3v2_4]       Copyright                       : ℗ 1997 Geffen Records
+[ID3v2_4]       ISRC                            : USMC19756800
+[ID3v2_4]       Media                           : album
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/deuces-wild-bb-king/m29vqv4i2xt6a
+[Composite]     Date/Time Original              : 1997
+[Composite]     Duration                        : 0:05:01 (approx)
