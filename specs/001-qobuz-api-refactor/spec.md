@@ -91,10 +91,10 @@ A user wants to download individual tracks or entire albums from Qobuz at a chos
 
 1. **Given** a valid track ID and quality level, **When** download is initiated, **Then** the audio file is downloaded and saved to the specified path with a sanitized filename
 2. **Given** a valid album ID and quality level, **When** album download is initiated, **Then** all tracks are downloaded sequentially into a directory named after the album and artist
-3. **Given** a download fails due to expired credentials, **When** the library detects a signature error, **Then** credentials are automatically refreshed and the download is retried once only (see FR-009)
+3. **Given** a download fails due to expired credentials, **When** the library detects a signature error, **Then** the behavior specified in FR-009 applies (automatic credential refresh and single retry)
 4. **Given** a chosen quality level (MP3, FLAC, Hi-Res 24-bit), **When** the file URL is requested, **Then** the correct format URL matching the requested quality is returned
 5. **Given** a download is in progress, **When** a network interruption occurs, **Then** the error is reported with context about which track failed and whether retry is possible
-6. **Given** a partially downloaded file exists on disk, **When** download is re-initiated for the same track, **Then** the library detects the file is smaller than the server's `Content-Length`, sends an HTTP `Range` header to resume from the last byte, and appends the remaining data to the existing file (see FR-023)
+6. **Given** a partially downloaded file exists on disk, **When** download is re-initiated for the same track, **Then** the partial resume behavior specified in FR-023 applies
 
 ---
 
@@ -155,8 +155,8 @@ A developer or end-user wants an interactive command-line interface to search fo
 
 - What happens when the Qobuz API returns rate limit errors? The library should automatically retry with exponential backoff, up to a configurable retry limit (default: 3 retries), before surfacing a clear rate limit error (see FR-018b).
 - How does the system handle network timeouts or connection failures during downloads? Errors are reported as `HttpError` wrapping the underlying `reqwest::Error`. Operation context (track ID, album ID, quality level) is attached via structured `tracing` spans rather than the error type itself. Transient failures are retried per FR-018b; non-transient failures surface immediately.
-- What happens when the web player credential extraction fails (e.g., Qobuz changes their web player structure)? A clear error should indicate that automatic credential refresh is unavailable and manual configuration is needed.
-- How does the system handle tracks or albums that are not available in the user's region or subscription tier? An appropriate error should indicate unavailability (the API returns a standard error response; the library MUST surface this as a `DownloadError` or `ApiErrorResponse` with a message indicating regional/subscription unavailability).
+- What happens when the web player credential extraction fails (e.g., Qobuz changes their web player structure)? A `CredentialsError` is returned indicating that automatic credential refresh is unavailable and manual configuration is needed.
+- How does the system handle tracks or albums that are not available in the user's region or subscription tier? The API returns a standard error response; the library MUST surface this as an `ApiErrorResponse` with a message indicating regional/subscription unavailability.
 - What happens when metadata fields contain special characters or very long values? Filenames should be sanitized (truncated to 255 bytes maximum, stripped of path separators and control characters) and metadata should be encoded correctly for each audio format.
 - How does the system handle concurrent download requests? Each download should complete independently without interfering with others, bounded by a configurable concurrency limit (default: 4 simultaneous downloads).
 

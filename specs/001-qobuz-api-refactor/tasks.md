@@ -11,7 +11,7 @@
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2)
-- **Sub-task IDs**: Letter suffixes (e.g., `T002a`, `T043a`) indicate tasks inserted after initial numbering to avoid renumbering cascade. They are full tasks with the same standing as numeric IDs
+- **Sub-task IDs**: Tasks inserted after initial numbering use either letter suffixes (e.g., `T002a`, `T043a`) or higher numeric IDs (e.g., `T074`, `T085a`). Both conventions are valid and avoid renumbering cascade. Letter-suffixed tasks are full tasks with the same standing as numeric IDs
 - Include exact file paths in descriptions
 
 ---
@@ -129,7 +129,7 @@
 
 ### Implementation for User Story 4
 
-- [x] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context, regional/subscription unavailability error surfacing (verifying `DownloadError` or `ApiErrorResponse` with unavailability message) per constitution Principle II
+- [x] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context, regional/subscription unavailability error surfacing (verifying `ApiErrorResponse` with unavailability message) per constitution Principle II
 - [x] T041 [US4] Implement `get_track_file_url()` in `src/api/content/tracks.rs` — GET `/track/getFileUrl` with signed request (track file URL signature per research.md), returns `FileUrl` per contracts/public-api.md
 - [x] T042 [US4] Implement streaming download function in `src/api/requests.rs` — `bytes_stream()` with `tokio::io::BufWriter` for efficient disk I/O per research.md section 1
 - [x] T043 [US4] Implement `download_track()` in `src/api/content/tracks.rs` — gets file URL, streams to disk, formats filename as `{NN}. {title}.{ext}`, handles signature error recovery with credential refresh per contracts/public-api.md
@@ -195,7 +195,7 @@
 
 - [ ] T083 [US7] Write unit tests in `src/cli/interactive.rs` for: command parsing, search output formatting, download handler with quality selection, favorites commands, error output curation (no raw error dumps) per constitution Principle II and Principle III
 - [ ] T061 [US7] Create `src/cli/mod.rs` with module declarations per plan.md
-- [ ] T062 [US7] Create `src/cli/interactive.rs` with REPL loop — reads from `std::io::stdin`, parses commands (search, browse, download, favorites, quit), dispatches to `QobuzApiService`; all user-facing error output must use curated messages (no raw error dumps), with structured `tracing` internally per constitution Principle III per research.md section 9
+- [ ] T062 [US7] Create `src/cli/interactive.rs` with interactive CLI read-eval-print loop — reads from `std::io::stdin`, parses commands (search, browse, download, favorites, quit), dispatches to `QobuzApiService`; all user-facing error output must use curated messages (no raw error dumps), with structured `tracing` internally per constitution Principle III per research.md section 9
 - [ ] T063 [US7] Implement search command handler in `src/cli/interactive.rs` — displays numbered results with metadata (title, artist, album) per spec.md acceptance scenario 1
 - [ ] T064 [US7] Implement browse/detail command handler in `src/cli/interactive.rs` — shows detailed info for selected item per spec.md acceptance scenario 2
 - [ ] T065 [US7] Implement download command handler in `src/cli/interactive.rs` — initiates download with quality selection, progress indication, and completion confirmation per spec.md acceptance scenario 3
@@ -216,9 +216,11 @@
 - [ ] T071 Verify all files are under 400-line limit per plan.md constraint
 - [ ] T072 Validate quickstart.md examples compile and run correctly against the implemented library
 - [ ] T073 Run `cargo test` and ensure all unit tests pass
-- [ ] T073a Run `cargo bench` and verify no benchmark regression exceeds 10% in throughput or allocation count for hot paths per constitution Principle IV and Performance & Reliability Standards table
+- [ ] T073a Run `cargo bench` and verify no benchmark regression exceeds 10% in throughput or allocation count for hot paths per constitution Principle IV and Performance & Reliability Standards table. Regression threshold is enforced via CI advisory gate: compare against previous benchmark baseline in `benches/` output
 - [ ] T084 [P] Create `benches/` directory with `criterion` benchmarks for hot paths per research.md section 10: album download pipeline, metadata embedding (FLAC + MP3), search result deserialization, request signature generation (MD5), authentication handshake timing (validate SC-001: auth within 5s on ≥10 Mbps/≤100ms latency). Add `[[bench]]` entries in `Cargo.toml` per constitution Principle IV
 - [ ] T085 [P] Audit all public items for `///` documentation (including `# Arguments` and `# Returns` where applicable) and all modules for `//!` module-level docs per constitution Principle I
+- [ ] T085a [P] Write unit tests in `src/errors.rs` (`#[cfg(test)] mod tests`) validating all 13 `QobuzApiError` variants: verify each variant's `Display` impl produces a human-readable message, that each variant satisfies `Send + Sync + 'static`, and that error construction compiles without panic per FR-018a and M4 remediation
+- [ ] T085b [P] Write unit tests in `src/errors.rs` validating SC-006: assert each `QobuzApiError` variant includes a suggested remediation step in its error message (e.g., "Check your credentials" for `AuthenticationError`, "Verify the content ID exists" for `ResourceNotFoundError`). This validates the actionable error message requirement per constitution Principle III and SC-006
 
 ---
 
@@ -348,4 +350,5 @@ T038: get_release_list  ┘
 - Max 400 lines per file, zero clippy pedantic warnings, no unsafe code
 - Test tasks (T077-T083) follow constitution Principle II (Test-First Engineering): listed FIRST in each implementation section to enforce Red-Green-Refactor — write tests, implement until green, then refactor
 - Benchmark tasks (T084) cover hot paths identified in research.md section 10 per constitution Principle IV
+- Error validation tasks (T085a, T085b) verify FR-018a (all 13 variants) and SC-006 (actionable remediation messages) per constitution Principles I and III
 - `HttpClient` trait (T074) enables deterministic testing per research.md section 8 recommendation
