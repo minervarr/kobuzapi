@@ -12,10 +12,10 @@ pub mod quality {
     pub const FLAC_24_192: i32 = 27;
 }
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Download URL for a track at a specific quality level.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct FileUrl {
     /// Track identifier.
     pub track_id: Option<i32>,

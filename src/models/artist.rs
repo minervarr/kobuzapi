@@ -1,6 +1,6 @@
 //! Artist data model.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::models::{
     album::{Album, Image},
@@ -9,7 +9,7 @@ use crate::models::{
 };
 
 /// A music artist.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Artist {
     /// Unique artist identifier.
     pub id: Option<i32>,
@@ -34,7 +34,7 @@ pub struct Artist {
 }
 
 /// Artist biography text.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Biography {
     /// Biography text content.
     pub text: Option<String>,

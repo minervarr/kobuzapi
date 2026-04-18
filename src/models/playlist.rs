@@ -1,6 +1,6 @@
 //! Playlist data model.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::models::{
     album::Image, search::ItemSearchResult, subscription::User, track::Track,
@@ -8,7 +8,7 @@ use crate::models::{
 };
 
 /// A curated list of tracks.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Playlist {
     /// Unique playlist identifier (may be a string or number from the API).
     #[serde(default, deserialize_with = "deserialize_flexible_string_id")]

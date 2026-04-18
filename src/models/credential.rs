@@ -1,11 +1,11 @@
 //! User authentication credentials.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// User authentication credentials for the Qobuz API.
 ///
 /// All fields are optional to accommodate different authentication methods.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Credential {
     /// Qobuz user ID.
     pub user_id: Option<String>,

@@ -27,19 +27,24 @@ impl MetadataConfig {
                 MetadataField::Album,
                 MetadataField::AlbumArtist,
                 MetadataField::Genre,
-                MetadataField::Date,
+                MetadataField::ReleaseDate,
+                MetadataField::ReleaseYear,
                 MetadataField::Composer,
-                MetadataField::Conductor,
-                MetadataField::Performer,
                 MetadataField::TrackNumber,
+                MetadataField::TrackTotal,
                 MetadataField::DiscNumber,
+                MetadataField::DiscTotal,
                 MetadataField::CoverArt,
                 MetadataField::Isrc,
                 MetadataField::Copyright,
                 MetadataField::Label,
-                MetadataField::Media,
+                MetadataField::MediaType,
                 MetadataField::Comment,
                 MetadataField::Producer,
+                MetadataField::InvolvedPeople,
+                MetadataField::Explicit,
+                MetadataField::Upc,
+                MetadataField::Url,
             ]),
         }
     }
@@ -94,18 +99,20 @@ pub enum MetadataField {
     AlbumArtist,
     /// Genre.
     Genre,
-    /// Release date.
-    Date,
+    /// Full release date (YYYY-MM-DD).
+    ReleaseDate,
+    /// Release year only.
+    ReleaseYear,
     /// Composer.
     Composer,
-    /// Conductor.
-    Conductor,
-    /// Performer.
-    Performer,
     /// Track number.
     TrackNumber,
+    /// Total tracks in album.
+    TrackTotal,
     /// Disc number.
     DiscNumber,
+    /// Total discs in album.
+    DiscTotal,
     /// Cover art image.
     CoverArt,
     /// ISRC code.
@@ -114,12 +121,20 @@ pub enum MetadataField {
     Copyright,
     /// Record label.
     Label,
-    /// Original media type.
-    Media,
+    /// Original media type (album, compilation, etc.).
+    MediaType,
     /// Comment field.
     Comment,
     /// Producer.
     Producer,
+    /// Involved people / musician credits.
+    InvolvedPeople,
+    /// Explicit content flag.
+    Explicit,
+    /// Universal Product Code.
+    Upc,
+    /// Commercial URL.
+    Url,
 }
 
 #[cfg(test)]

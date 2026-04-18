@@ -4,10 +4,13 @@ use std::{
     convert::AsRef,
     fs::create_dir_all,
     path::{Path, PathBuf},
-    time::{SystemTime, UNIX_EPOCH},
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
-use tracing::{info, warn};
+use {
+    tokio::time::sleep,
+    tracing::{info, warn},
+};
 
 use crate::{
     api::{
@@ -21,7 +24,7 @@ use crate::{
         },
         service::QobuzApiService,
     },
-    errors::QobuzApiError::{self, DownloadError},
+    errors::QobuzApiError::{self, DownloadError, HttpError},
     metadata::{
         config::MetadataConfig, embedder::embed_metadata_in_file,
         extractor::extract_comprehensive_metadata,
@@ -35,6 +38,12 @@ use crate::{
     sanitize::sanitize_filename,
     signing::sign_track_file_url,
 };
+
+/// Maximum number of retry attempts on download network errors.
+const MAX_DOWNLOAD_RETRIES: u32 = 3;
+
+/// Base delay in milliseconds for download retry exponential backoff.
+const DOWNLOAD_RETRY_BASE_DELAY_MS: u64 = 2000;
 
 /// Searches for tracks matching the query.
 ///
@@ -166,8 +175,8 @@ pub async fn get_track_file_url_raw(
 
 /// Downloads a single track to the specified directory.
 ///
-/// Filename format: `{NN}. {title}.{ext}`
-/// On signature error, refreshes credentials and retries once.
+/// Retries up to [`MAX_DOWNLOAD_RETRIES`] times on transient network errors,
+/// resuming from the partial file on disk via HTTP Range requests.
 ///
 /// # Arguments
 ///
@@ -202,7 +211,69 @@ pub async fn download_track(
     create_dir_all(output_dir)?;
     let path = output_dir.join(&filename);
 
-    let offset = detect_partial_file(&path);
+    let mut resumed = false;
+
+    for attempt in 0..=MAX_DOWNLOAD_RETRIES {
+        match attempt_download(service, track_id, format_id, &path).await {
+            Ok(r) => {
+                resumed = r;
+                break;
+            }
+            Err(e) if is_retryable_network_error(&e) && attempt < MAX_DOWNLOAD_RETRIES => {
+                let delay = DOWNLOAD_RETRY_BASE_DELAY_MS * 2u64.pow(attempt);
+                warn!(
+                    track_id,
+                    attempt,
+                    delay_ms = delay,
+                    path = %path.display(),
+                    error = %e,
+                    "Download failed, retrying with resume"
+                );
+                sleep(Duration::from_millis(delay)).await;
+            }
+            Err(e) => return Err(e),
+        }
+    }
+
+    info!(
+        track_id,
+        format_id,
+        path = %path.display(),
+        resumed,
+        "Track downloaded"
+    );
+
+    if let Some(cfg) = config {
+        let token = service.require_auth_token()?;
+        let album_info = track.album.as_ref().map(AsRef::as_ref);
+        let mut meta = extract_comprehensive_metadata(&track, album_info, None);
+
+        meta.cover_art_data = fetch_track_cover(service, &meta, token).await;
+        embed_metadata_in_file(&path, &meta, cfg)?;
+    }
+
+    Ok(path)
+}
+
+/// Performs a single download attempt, optionally resuming from a partial file.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+/// * `track_id` - Track identifier
+/// * `format_id` - Quality format ID
+/// * `path` - Destination file path
+///
+/// # Returns
+///
+/// `Ok(true)` if the download resumed from a partial file, `Ok(false)` if fresh.
+async fn attempt_download(
+    service: &QobuzApiService,
+    track_id: i32,
+    format_id: i32,
+    path: &Path,
+) -> Result<bool, QobuzApiError> {
+    let offset = detect_partial_file(path);
     let range = offset.map(|s| format!("bytes={s}-"));
 
     let file_url = get_track_file_url(service, track_id, format_id).await?;
@@ -223,25 +294,28 @@ pub async fn download_track(
         );
     }
 
-    write_response_to_file(response, &path, resumed).await?;
+    write_response_to_file(response, path, resumed).await?;
 
-    info!(
-        track_id,
-        format_id,
-        path = %path.display(),
-        resumed,
-        "Track downloaded"
-    );
+    Ok(resumed)
+}
 
-    if let Some(cfg) = config {
-        let album_info = track.album.as_ref().map(AsRef::as_ref);
-        let mut meta = extract_comprehensive_metadata(&track, album_info, None);
-
-        meta.cover_art_data = fetch_track_cover(service, &meta, token).await;
-        embed_metadata_in_file(&path, &meta, cfg)?;
-    }
-
-    Ok(path)
+/// Checks whether an error is a transient network failure worth retrying.
+///
+/// # Arguments
+///
+/// * `err` - The error to inspect
+///
+/// # Returns
+///
+/// `true` if the error is a connect timeout, body, or decode failure.
+fn is_retryable_network_error(err: &QobuzApiError) -> bool {
+    let HttpError(reqwest_err) = err else {
+        return false;
+    };
+    reqwest_err.is_connect()
+        || reqwest_err.is_timeout()
+        || reqwest_err.is_body()
+        || reqwest_err.is_decode()
 }
 
 #[cfg(test)]

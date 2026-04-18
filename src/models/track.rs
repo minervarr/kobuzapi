@@ -1,11 +1,14 @@
 //! Track data model.
 
-use {serde::Deserialize, serde_json::Value};
+use {
+    serde::{Deserialize, Serialize},
+    serde_json::Value,
+};
 
 use crate::models::{album::Album, artist::Artist};
 
 /// Audio technical details.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct AudioInfo {
     /// Bit depth.
     pub bit_depth: Option<i32>,
@@ -18,7 +21,7 @@ pub struct AudioInfo {
 }
 
 /// An individual music track.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Track {
     /// Unique track identifier.
     pub id: Option<i32>,

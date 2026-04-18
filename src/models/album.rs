@@ -1,11 +1,14 @@
 //! Album data model.
 
-use {serde::Deserialize, serde_json::Value};
+use {
+    serde::{Deserialize, Serialize},
+    serde_json::Value,
+};
 
 use crate::models::artist::Artist;
 
 /// A music album with full metadata.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Album {
     /// Unique album identifier.
     pub id: Option<String>,
@@ -57,6 +60,10 @@ pub struct Album {
     pub streamable: Option<bool>,
     /// List of track IDs (when requested with extra).
     pub track_ids: Option<Vec<i32>>,
+    /// Product URL for commercial information.
+    pub product_url: Option<String>,
+    /// Unix timestamp of when the album was released.
+    pub released_at: Option<i64>,
     /// Copyright notice.
     pub copyright: Option<String>,
     /// Sales metadata.
@@ -89,7 +96,7 @@ impl Album {
 }
 
 /// Music genre.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Genre {
     /// Genre ID.
     pub id: Option<i32>,
@@ -102,7 +109,7 @@ pub struct Genre {
 }
 
 /// Cover art URLs in multiple sizes.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Image {
     /// Small thumbnail URL.
     pub small: Option<String>,
@@ -122,7 +129,7 @@ pub struct Image {
 }
 
 /// Record label.
-#[derive(Clone, Debug, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Label {
     /// Label ID.
     pub id: Option<i32>,
