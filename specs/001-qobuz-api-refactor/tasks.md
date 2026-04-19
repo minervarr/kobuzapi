@@ -173,13 +173,13 @@
 
 ### Implementation for User Story 6
 
-- [ ] T082 [US6] Write unit tests in `src/api/favorites.rs` for: add favorite, remove favorite, get favorites list, get favorite IDs, signed request generation per constitution Principle II
-- [ ] T055 [US6] Create `src/api/favorites.rs` with `add_user_favorites()` — POST `/favorite/create` with signed request, accepts `item_ids` slice and `item_type` string per contracts/public-api.md
-- [ ] T056 [US6] Implement `delete_user_favorites()` in `src/api/favorites.rs` — POST `/favorite/delete` with signed request per contracts/public-api.md
-- [ ] T057 [US6] Implement `get_user_favorites()` in `src/api/favorites.rs` — GET `/favorite/getUserFavorites` with signed request, returns `UserFavorites` per contracts/public-api.md
-- [ ] T058 [US6] Implement `get_user_favorite_ids()` in `src/api/favorites.rs` — GET `/favorite/getUserFavorites` with IDs-only mode, returns `UserFavorites` with populated `*_ids` fields per contracts/public-api.md
-- [ ] T059 [US6] Wire favorites methods into `QobuzApiService` in `src/api/service.rs` — expose all favorites methods as public API
-- [ ] T060 [US6] Add structured tracing for favorites operations in `src/api/favorites.rs`
+- [x] T082 [US6] Write unit tests in `src/api/favorites.rs` for: add favorite, remove favorite, get favorites list, get favorite IDs, signed request generation per constitution Principle II
+- [x] T055 [US6] Create `src/api/favorites.rs` with `add_user_favorites()` — POST `/favorite/create` with signed request, accepts `item_ids` slice and `item_type` string per contracts/public-api.md
+- [x] T056 [US6] Implement `delete_user_favorites()` in `src/api/favorites.rs` — POST `/favorite/delete` with signed request per contracts/public-api.md
+- [x] T057 [US6] Implement `get_user_favorites()` in `src/api/favorites.rs` — GET `/favorite/getUserFavorites` with signed request, returns `UserFavorites` per contracts/public-api.md
+- [x] T058 [US6] Implement `get_user_favorite_ids()` in `src/api/favorites.rs` — GET `/favorite/getUserFavorites` with IDs-only mode, returns `UserFavorites` with populated `*_ids` fields per contracts/public-api.md
+- [x] T059 [US6] Wire favorites methods into `QobuzApiService` in `src/api/service.rs` — expose all favorites methods as public API
+- [x] T060 [US6] Add structured tracing for favorites operations in `src/api/favorites.rs`
 
 **Checkpoint**: Favorites management fully functional. Users can add, remove, and list favorites.
 

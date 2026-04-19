@@ -2,7 +2,10 @@
 
 use std::string::ToString;
 
-use {serde_json::Value, tracing::info};
+use {
+    serde_json::Value,
+    tracing::{info, instrument},
+};
 
 use crate::{
     api::{
@@ -82,6 +85,7 @@ async fn modify_favorites(
 /// # Errors
 ///
 /// Returns a `QobuzApiError` if not authenticated or the API request fails.
+#[instrument(skip(service), fields(item_type, count = item_ids.len()))]
 pub async fn add_user_favorites(
     service: &QobuzApiService,
     item_ids: &[i32],
@@ -112,6 +116,7 @@ pub async fn add_user_favorites(
 /// # Errors
 ///
 /// Returns a `QobuzApiError` if not authenticated or the API request fails.
+#[instrument(skip(service), fields(item_type, count = item_ids.len()))]
 pub async fn delete_user_favorites(
     service: &QobuzApiService,
     item_ids: &[i32],
@@ -177,6 +182,7 @@ async fn fetch_user_favorites(
 /// # Errors
 ///
 /// Returns a `QobuzApiError` if not authenticated or the API request fails.
+#[instrument(skip(service), fields(item_type, limit, offset))]
 pub async fn get_user_favorites(
     service: &QobuzApiService,
     item_type: &str,
@@ -201,9 +207,156 @@ pub async fn get_user_favorites(
 /// # Errors
 ///
 /// Returns a `QobuzApiError` if not authenticated or the API request fails.
+#[instrument(skip(service))]
 pub async fn get_user_favorite_ids(
     service: &QobuzApiService,
 ) -> Result<UserFavorites, QobuzApiError> {
     let mut params: Vec<(String, String)> = vec![("type".to_string(), "ids".to_string())];
     fetch_user_favorites(service, &mut params).await
+}
+
+#[cfg(test)]
+mod tests {
+    use {
+        anyhow::{Result, anyhow, ensure},
+        tokio::runtime::Runtime,
+    };
+
+    use crate::api::{
+        favorites::{
+            add_user_favorites, delete_user_favorites, get_user_favorite_ids, get_user_favorites,
+        },
+        test_support::{MockServer, make_service, make_service_without_auth},
+    };
+
+    macro_rules! assert_favorites_success {
+        ($fn:expr, $ids:expr, $item_type:expr) => {{
+            let body = r#"{"status":"success"}"#;
+            let server = MockServer::start(200, body)?;
+            let service = make_service(&server.base_url())?;
+            let rt = Runtime::new()?;
+            rt.block_on($fn(&service, $ids, $item_type))?;
+            Ok(())
+        }};
+    }
+
+    #[test]
+    fn add_user_favorites_success() -> Result<()> {
+        assert_favorites_success!(add_user_favorites, &[123, 456], "track")
+    }
+
+    #[test]
+    fn add_user_favorites_not_authenticated() -> Result<()> {
+        let server = MockServer::start(200, "{}")?;
+        let service = make_service_without_auth(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(add_user_favorites(&service, &[1], "track"));
+        ensure!(result.is_err());
+        let err = result.err().ok_or_else(|| anyhow!("expected error"))?;
+        ensure!(format!("{err}").contains("Not authenticated"));
+        Ok(())
+    }
+
+    #[test]
+    fn delete_user_favorites_success() -> Result<()> {
+        assert_favorites_success!(delete_user_favorites, &[123], "album")
+    }
+
+    #[test]
+    fn delete_user_favorites_not_authenticated() -> Result<()> {
+        let server = MockServer::start(200, "{}")?;
+        let service = make_service_without_auth(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(delete_user_favorites(&service, &[1], "track"));
+        ensure!(result.is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn get_user_favorites_success() -> Result<()> {
+        let body = r#"{"albums":{"items":[{"id":"123","title":"Fav Album"}],"total":1},"artists":null,"tracks":null}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_user_favorites(&service, "album", Some(10), None))?;
+        let albums = result.albums.ok_or_else(|| anyhow::anyhow!("no albums"))?;
+        let items = albums.items.ok_or_else(|| anyhow::anyhow!("no items"))?;
+        ensure!(items.len() == 1);
+        ensure!(items[0].title.as_deref() == Some("Fav Album"));
+        Ok(())
+    }
+
+    #[test]
+    fn get_user_favorites_empty() -> Result<()> {
+        let body = r#"{"albums":{"items":[],"total":0},"artists":null,"tracks":null}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_user_favorites(&service, "album", None, None))?;
+        let albums = result.albums.ok_or_else(|| anyhow::anyhow!("no albums"))?;
+        let items = albums.items.ok_or_else(|| anyhow::anyhow!("no items"))?;
+        ensure!(items.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn get_user_favorites_not_authenticated() -> Result<()> {
+        let server = MockServer::start(200, "{}")?;
+        let service = make_service_without_auth(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_user_favorites(&service, "track", None, None));
+        ensure!(result.is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn get_user_favorite_ids_success() -> Result<()> {
+        let body = r#"{"album_ids":[1,2,3],"artist_ids":[4,5],"track_ids":[6,7,8,9],"albums":null,"artists":null,"tracks":null}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_user_favorite_ids(&service))?;
+        let album_ids = result.album_ids.ok_or_else(|| anyhow!("no album_ids"))?;
+        ensure!(album_ids == vec![1, 2, 3]);
+        let track_ids = result.track_ids.ok_or_else(|| anyhow!("no track_ids"))?;
+        ensure!(track_ids == vec![6, 7, 8, 9]);
+        Ok(())
+    }
+
+    #[test]
+    fn get_user_favorite_ids_not_authenticated() -> Result<()> {
+        let server = MockServer::start(200, "{}")?;
+        let service = make_service_without_auth(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_user_favorite_ids(&service));
+        ensure!(result.is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn add_favorites_api_error() -> Result<()> {
+        let body = r#"{"status":"error","code":400,"message":"Invalid item type"}"#;
+        let server = MockServer::start(400, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(add_user_favorites(&service, &[1], "invalid_type"));
+        ensure!(result.is_err());
+        let err = result.err().ok_or_else(|| anyhow!("expected error"))?;
+        ensure!(format!("{err}").contains("Invalid item type"));
+        Ok(())
+    }
+
+    #[test]
+    fn get_favorites_with_pagination() -> Result<()> {
+        let body = r#"{"tracks":{"items":[{"id":1,"title":"Song"}],"total":100,"limit":1,"offset":0},"albums":null,"artists":null}"#;
+        let server = MockServer::start(200, body)?;
+        let service = make_service(&server.base_url())?;
+        let rt = Runtime::new()?;
+        let result = rt.block_on(get_user_favorites(&service, "track", Some(1), Some(0)))?;
+        let tracks = result.tracks.ok_or_else(|| anyhow::anyhow!("no tracks"))?;
+        ensure!(tracks.total == Some(100));
+        ensure!(tracks.limit == Some(1));
+        ensure!(tracks.offset == Some(0));
+        Ok(())
+    }
 }
