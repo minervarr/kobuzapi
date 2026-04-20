@@ -12,15 +12,13 @@
 //!
 //! In CI without credentials, run `cargo test` to run only unit tests and the mock integration.
 
-mod common;
-
-use crate::common::{create_authenticated_service, get_test_keywords, init_logging};
+mod test_support;
 
 #[cfg(test)]
 mod tests {
-    crate::common_test_imports!();
+    crate::test_support_imports!();
 
-    use super::{create_authenticated_service, get_test_keywords, init_logging};
+    use crate::test_support::{create_authenticated_service, get_test_keywords, init_logging};
 
     #[test]
     fn init() {

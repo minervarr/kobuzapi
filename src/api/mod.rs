@@ -5,6 +5,7 @@ pub mod content;
 pub mod favorites;
 pub mod http_client;
 pub mod requests;
+pub mod response;
 pub mod service;
 
 #[cfg(test)]

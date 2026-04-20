@@ -1,17 +1,19 @@
 //! Report generation for metadata comparison tests.
+
 use std::{
     collections::{HashMap, HashSet},
     fmt::Write,
+    fs::write,
     path::Path,
 };
 
 use {anyhow::Result, tracing::info};
 
-use crate::metadata_helpers::{
+use crate::metadata_test::{
     DIRECTORY_FILENAME_IGNORED, DURATION_IGNORED, FILE_DATE_TIME_IGNORED, FILE_SIZE_IGNORED,
     FieldDifference::{self, Differs, OnlyInCSharp, OnlyInRust},
     LAME_IGNORED, METADATA_TEST_DIR, PICTURE_IGNORED, ReportSummary, TestTrack, VERSION_IGNORED,
-    reports_dir, track_filename_base, write,
+    reports_dir, track_filename_base,
 };
 
 /// Writes a single field difference to a markdown string.

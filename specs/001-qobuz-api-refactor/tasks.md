@@ -189,18 +189,18 @@
 
 **Purpose**: Final validation, cleanup, and documentation
 
-- [ ] T068 Update `src/lib.rs` re-exports to match final public API surface per contracts/public-api.md
-- [ ] T068a Audit source code for forbidden patterns per constitution Principle I: `rg 'let _' src/` and `rg '\.ok()' src/` must return zero matches. These patterns are prohibited by the constitution but not caught by standard clippy lints
-- [ ] T069 [P] Run `cargo clippy --fix --allow-dirty --all-targets -- -W clippy::pedantic` and resolve all warnings
-- [ ] T070 [P] Run `cargo fmt` and verify formatting
-- [ ] T071 Verify all files are under 400-line limit per plan.md constraint
-- [ ] T072 Validate quickstart.md examples compile and run correctly against the implemented library
-- [ ] T073 Run `cargo test` and ensure all unit tests pass
-- [ ] T073a Run `cargo bench` and verify no benchmark regression exceeds 10% in throughput or allocation count for hot paths per constitution Principle IV and Performance & Reliability Standards table. Regression threshold is enforced via CI advisory gate: compare against previous benchmark baseline in `benches/` output
-- [ ] T084 [P] Create `benches/` directory with `criterion` benchmarks for hot paths per research.md section 10: album download pipeline, metadata embedding (FLAC + MP3), search result deserialization, request signature generation (MD5), authentication handshake timing (validate SC-001: auth within 5s on ≥10 Mbps/≤100ms latency). Add `[[bench]]` entries in `Cargo.toml` per constitution Principle IV
-- [ ] T085 [P] Audit all public items for `///` documentation (including `# Arguments` and `# Returns` where applicable) and all modules for `//!` module-level docs per constitution Principle I
-- [ ] T085a [P] Write unit tests in `src/errors.rs` (`#[cfg(test)] mod tests`) validating all 13 `QobuzApiError` variants: verify each variant's `Display` impl produces a human-readable message, that each variant satisfies `Send + Sync + 'static`, and that error construction compiles without panic per FR-018a and M4 remediation
-- [ ] T085b [P] Write unit tests in `src/errors.rs` validating SC-006: assert each `QobuzApiError` variant includes a suggested remediation step in its error message (e.g., "Check your credentials" for `AuthenticationError`, "Verify the content ID exists" for `ResourceNotFoundError`). This validates the actionable error message requirement per constitution Principle III and SC-006
+- [x] T068 Update `src/lib.rs` re-exports to match final public API surface per contracts/public-api.md
+- [x] T068a Audit source code for forbidden patterns per constitution Principle I: `rg 'let _' src/` and `rg '\.ok()' src/` must return zero matches. These patterns are prohibited by the constitution but not caught by standard clippy lints
+- [x] T069 [P] Run `cargo clippy --fix --allow-dirty --all-targets -- -W clippy::pedantic` and resolve all warnings
+- [x] T070 [P] Run `cargo fmt` and verify formatting
+- [x] T071 Verify all files are under 400-line limit per plan.md constraint
+- [x] T072 Validate quickstart.md examples compile and run correctly against the implemented library
+- [x] T073 Run `cargo test` and ensure all unit tests pass
+- [x] T073a Run `cargo bench` and verify no benchmark regression exceeds 10% in throughput or allocation count for hot paths per constitution Principle IV and Performance & Reliability Standards table. Regression threshold is enforced via CI advisory gate: compare against previous benchmark baseline in `benches/` output
+- [x] T084 [P] Create `benches/` directory with `criterion` benchmarks for hot paths per research.md section 10: album download pipeline, metadata embedding (FLAC + MP3), search result deserialization, request signature generation (MD5), authentication handshake timing (validate SC-001: auth within 5s on ≥10 Mbps/≤100ms latency). Add `[[bench]]` entries in `Cargo.toml` per constitution Principle IV
+- [x] T085 [P] Audit all public items for `///` documentation (including `# Arguments` and `# Returns` where applicable) and all modules for `//!` module-level docs per constitution Principle I
+- [x] T085a [P] Write unit tests in `src/errors.rs` (`#[cfg(test)] mod tests`) validating all 13 `QobuzApiError` variants: verify each variant's `Display` impl produces a human-readable message, that each variant satisfies `Send + Sync + 'static`, and that error construction compiles without panic per FR-018a and M4 remediation
+- [x] T085b [P] Write unit tests in `src/errors.rs` validating SC-006: assert each `QobuzApiError` variant includes a suggested remediation step in its error message (e.g., "Check your credentials" for `AuthenticationError`, "Verify the content ID exists" for `ResourceNotFoundError`). This validates the actionable error message requirement per constitution Principle III and SC-006
 
 ---
 

@@ -8,7 +8,8 @@ use crate::{
     api::{
         auth::{authenticate_with_env, login, login_with_token, refresh_app_credentials},
         content::{
-            albums::{download_album, get_album, search_albums},
+            album_download::download_album,
+            albums::{get_album, search_albums},
             artists::{get_artist, get_release_list, search_artists},
             catalog::search_catalog,
             playlists::{get_playlist, search_playlists},
@@ -121,7 +122,6 @@ impl QobuzApiService {
         }
 
         let client = ReqwestClient::new(&app_id)?;
-
         Ok(Self {
             base_url: BASE_URL.to_string(),
             app_id,
@@ -147,7 +147,6 @@ impl QobuzApiService {
     /// Returns a `QobuzApiError` if credential extraction or HTTP client creation fails.
     pub fn new() -> Result<Self, QobuzApiError> {
         let env_path = Path::new(".env");
-
         let (app_id, app_secret) = if let Some(creds) = load_app_credentials(env_path)? {
             creds
         } else {

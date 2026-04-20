@@ -3,8 +3,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::models::{
-    album::Image, search::ItemSearchResult, subscription::User, track::Track,
-    util::deserialize_flexible_string_id,
+    album::Image, deserialization::deserialize_flexible_string_id, search::ItemSearchResult,
+    subscription::User, track::Track,
 };
 
 /// A curated list of tracks.

@@ -9,6 +9,7 @@ use {
 
 use crate::{
     api::{
+        content::push_pagination_params,
         requests::{self, RequestAuth},
         service::QobuzApiService,
     },
@@ -190,7 +191,7 @@ pub async fn get_user_favorites(
     offset: Option<i32>,
 ) -> Result<UserFavorites, QobuzApiError> {
     let mut params: Vec<(String, String)> = vec![("type".to_string(), item_type.to_string())];
-    requests::push_pagination_params(&mut params, limit, offset);
+    push_pagination_params(&mut params, limit, offset);
     fetch_user_favorites(service, &mut params).await
 }
 

@@ -12,12 +12,23 @@ use {
         io::AsyncWriteExt,
     },
     tokio_stream::StreamExt,
+    tracing::{debug, warn},
 };
 
 use crate::{
-    api::service::QobuzApiService, errors::QobuzApiError,
-    metadata::extractor::ComprehensiveMetadata, models::album::Album,
+    api::{
+        content::tracks::get_track_file_url, requests::download_stream, service::QobuzApiService,
+    },
+    errors::QobuzApiError::{self, DownloadError, HttpError},
+    metadata::extractor::ComprehensiveMetadata,
+    models::album::Album,
 };
+
+/// Maximum number of retry attempts on download network errors.
+pub const MAX_DOWNLOAD_RETRIES: u32 = 3;
+
+/// Base delay in milliseconds for download retry exponential backoff.
+pub const DOWNLOAD_RETRY_BASE_DELAY_MS: u64 = 2000;
 
 /// Detects whether a partial file exists on disk with non-zero size.
 ///
@@ -30,7 +41,10 @@ use crate::{
 /// `Some(size)` if the file exists and has content, `None` otherwise.
 #[must_use]
 pub fn detect_partial_file(path: &Path) -> Option<u64> {
-    let size = metadata(path).ok().map(|m| m.len())?;
+    let size = match metadata(path) {
+        Ok(m) => m.len(),
+        Err(_) => return None,
+    };
     (size > 0).then_some(size)
 }
 
@@ -115,12 +129,88 @@ pub async fn fetch_track_cover(
     meta: &ComprehensiveMetadata,
     token: &str,
 ) -> Option<Vec<u8>> {
-    meta.cover_art_url.as_ref()?;
     let url = meta.cover_art_url.as_deref()?;
-    let resp = service
-        .http_client()
-        .get_with_auth(url, token, None)
-        .await
-        .ok()?;
-    resp.bytes().await.ok().map(|b| b.to_vec())
+    let resp = match service.http_client().get_with_auth(url, token, None).await {
+        Ok(r) => r,
+        Err(e) => {
+            debug!(error = %e, "Cover art HTTP request failed");
+            return None;
+        }
+    };
+    match resp.bytes().await {
+        Err(e) => {
+            debug!(error = %e, "Failed to read cover art bytes");
+            None
+        }
+        Ok(b) => Some(b.to_vec()),
+    }
+}
+
+/// Performs a single download attempt, optionally resuming from a partial file.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service
+/// * `track_id` - Track identifier
+/// * `format_id` - Quality format ID
+/// * `path` - Destination file path
+///
+/// # Returns
+///
+/// `Ok(true)` if the download resumed from a partial file, `Ok(false)` if fresh.
+///
+/// # Errors
+///
+/// Returns a `QobuzApiError` if the track file URL cannot be retrieved, the download stream
+/// fails, or writing to disk fails.
+pub async fn attempt_download(
+    service: &QobuzApiService,
+    track_id: i32,
+    format_id: i32,
+    path: &Path,
+) -> Result<bool, QobuzApiError> {
+    let offset = detect_partial_file(path);
+    let range = offset.map(|s| format!("bytes={s}-"));
+
+    let file_url = get_track_file_url(service, track_id, format_id).await?;
+
+    let url = file_url.url.ok_or_else(|| DownloadError {
+        message: format!("No download URL for track {track_id}"),
+    })?;
+
+    let token = service.require_auth_token()?;
+    let response = download_stream(service.http_client(), &url, token, range.as_deref()).await?;
+
+    let resumed = offset.is_some() && response.status().as_u16() == 206;
+    if offset.is_some() && !resumed {
+        warn!(
+            track_id,
+            path = %path.display(),
+            "Server did not support Range request, re-downloading full file"
+        );
+    }
+
+    write_response_to_file(response, path, resumed).await?;
+
+    Ok(resumed)
+}
+
+/// Checks whether an error is a transient network failure worth retrying.
+///
+/// # Arguments
+///
+/// * `err` - The error to inspect
+///
+/// # Returns
+///
+/// `true` if the error is a connect timeout, body, or decode failure.
+#[must_use]
+pub fn is_retryable_network_error(err: &QobuzApiError) -> bool {
+    let HttpError(reqwest_err) = err else {
+        return false;
+    };
+    reqwest_err.is_connect()
+        || reqwest_err.is_timeout()
+        || reqwest_err.is_body()
+        || reqwest_err.is_decode()
 }

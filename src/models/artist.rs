@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::models::{
     album::{Album, Image},
+    deserialization::{deserialize_flexible_name, deserialize_picture},
     search::ItemSearchResult,
-    util::{deserialize_flexible_name, deserialize_picture},
 };
 
 /// A music artist.

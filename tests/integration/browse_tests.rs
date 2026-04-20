@@ -12,20 +12,15 @@
 //!
 //! In CI without credentials, run `cargo test` to run only unit tests and the mock integration.
 
-mod common;
-
-use crate::common::{
-    create_authenticated_service, get_album_by_query, get_artist_by_query, get_browse_ids,
-    init_logging,
-};
+mod test_support;
 
 #[cfg(test)]
 mod tests {
-    crate::common_test_imports!();
+    crate::test_support_imports!();
 
-    use super::{
-        create_authenticated_service, get_album_by_query, get_artist_by_query, get_browse_ids,
-        init_logging,
+    use crate::test_support::{
+        create_authenticated_service, get_browse_ids, init_logging,
+        query::{get_album_by_query, get_artist_by_query},
     };
 
     #[test]

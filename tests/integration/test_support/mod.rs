@@ -2,28 +2,23 @@
 
 #![allow(dead_code)]
 
-use std::{
-    env::var,
-    path::{Path, PathBuf},
-    sync::OnceLock,
-};
+pub mod query;
+pub mod setup;
+
+use std::{env::var, path::Path, sync::OnceLock};
 
 use {
-    anyhow::{Error, Result, anyhow, bail},
+    anyhow::{Result, anyhow, bail},
     dotenvy::from_path,
-    tempfile::TempDir,
-    tracing::{Level, info, warn},
+    tracing::{Level, warn},
     tracing_subscriber::{EnvFilter, fmt},
 };
 
-use qobuz_api_rust_refactor::{
-    api::service::QobuzApiService,
-    models::{album::Album, artist::Artist, file_url::quality::MP3_320},
-};
+use qobuz_api_rust_refactor::{api::service::QobuzApiService, models::file_url::quality::MP3_320};
 
-/// Common test imports macro for integration tests.
+/// Test support imports macro for integration tests.
 #[macro_export]
-macro_rules! common_test_imports {
+macro_rules! test_support_imports {
     () => {
         use {
             anyhow::{Result, anyhow, ensure},
@@ -50,18 +45,6 @@ static BROWSE_IDS: OnceLock<BrowseIds> = OnceLock::new();
 
 /// Test keywords for search tests, initialized once from environment variables.
 static TEST_KEYWORDS: OnceLock<TestKeywords> = OnceLock::new();
-
-/// Setup for album download tests.
-pub struct AlbumDownloadSetup {
-    /// Authenticated API service.
-    pub service: QobuzApiService,
-    /// Album ID to download.
-    pub album_id: String,
-    /// Temporary directory for downloaded files.
-    pub temp_dir: TempDir,
-    /// Audio format ID.
-    pub format_id: i32,
-}
 
 /// Test data: IDs and queries configurable via `.env`.
 pub struct BrowseIds {
@@ -195,16 +178,6 @@ impl TestKeywords {
     }
 }
 
-/// Setup for wrong credentials tests.
-pub struct WrongCredentialsSetup {
-    /// Authenticated API service (with invalid credentials).
-    pub service: QobuzApiService,
-    /// Track ID for testing.
-    pub track_id: i32,
-    /// Audio format ID.
-    pub format_id: i32,
-}
-
 /// Returns the browse IDs from environment variables.
 ///
 /// # Returns
@@ -240,207 +213,6 @@ pub fn load_env_file() {
     {
         warn!(error = %e, "Failed to load .env");
     }
-}
-
-/// Finds a track ID by query string.
-///
-/// # Arguments
-///
-/// * `service` - The Qobuz API service
-/// * `query` - Search query string
-///
-/// # Returns
-///
-/// The track ID if found.
-pub fn find_track_id(service: &QobuzApiService, query: &str) -> Result<i32> {
-    let search = service.search_tracks(query, Some(1), None)?;
-    let items = search
-        .items
-        .ok_or_else(|| anyhow!("search_tracks returned no items for '{query}'"))?;
-
-    let first = items
-        .first()
-        .ok_or_else(|| anyhow!("empty track results for '{query}'"))?;
-
-    first.id.ok_or_else(|| anyhow!("track missing ID"))
-}
-
-/// Finds an album ID by query string.
-///
-/// # Arguments
-///
-/// * `service` - The Qobuz API service
-/// * `query` - Search query string
-///
-/// # Returns
-///
-/// The album ID if found.
-pub fn find_album_id(service: &QobuzApiService, query: &str) -> Result<String> {
-    let search = service.search_albums(query, Some(1), None)?;
-    let items = search
-        .items
-        .ok_or_else(|| anyhow!("search_albums returned no items for '{query}'"))?;
-
-    let first = items
-        .first()
-        .ok_or_else(|| anyhow!("empty album results for '{query}'"))?;
-
-    first
-        .id
-        .as_ref()
-        .ok_or_else(|| anyhow!("album missing ID"))
-        .map(String::from)
-}
-
-/// Finds an artist ID by query string.
-///
-/// # Arguments
-///
-/// * `service` - The Qobuz API service
-/// * `query` - Search query string
-///
-/// # Returns
-///
-/// The artist ID if found.
-pub fn find_artist_id(service: &QobuzApiService, query: &str) -> Result<i32> {
-    let search = service.search_artists(query, Some(1), None)?;
-    let items = search
-        .items
-        .ok_or_else(|| anyhow!("search_artists returned no items for '{query}'"))?;
-
-    let first = items
-        .first()
-        .ok_or_else(|| anyhow!("empty artist results for '{query}'"))?;
-
-    first.id.ok_or_else(|| anyhow!("artist missing ID"))
-}
-
-/// Gets an album by query string.
-///
-/// # Arguments
-///
-/// * `service` - The Qobuz API service
-/// * `query` - Search query string
-/// * `extra` - Optional extra fields to include
-///
-/// # Returns
-///
-/// The album if found.
-pub fn get_album_by_query(
-    service: &QobuzApiService,
-    query: &str,
-    extra: Option<&str>,
-) -> Result<Album> {
-    let album_id = find_album_id(service, query)?;
-    service.get_album(&album_id, extra).map_err(Error::from)
-}
-
-/// Gets an artist by query string.
-///
-/// # Arguments
-///
-/// * `service` - The Qobuz API service
-/// * `query` - Search query string
-/// * `extra` - Optional extra fields to include
-///
-/// # Returns
-///
-/// The artist if found.
-pub fn get_artist_by_query(
-    service: &QobuzApiService,
-    query: &str,
-    extra: Option<&str>,
-) -> Result<Artist> {
-    let artist_id = find_artist_id(service, query)?;
-    service.get_artist(artist_id, extra).map_err(Error::from)
-}
-
-/// Sets up an album download test.
-///
-/// # Returns
-///
-/// The album download setup if successful.
-pub fn setup_album_download() -> Result<AlbumDownloadSetup> {
-    let config = get_download_config();
-    let service = create_authenticated_service()?;
-    let album_id = find_album_id(&service, config.album_query())?;
-    let temp_dir = TempDir::new()?;
-
-    info!(
-        "Downloading album {album_id} to {}",
-        temp_dir.path().display()
-    );
-
-    Ok(AlbumDownloadSetup {
-        service,
-        album_id,
-        temp_dir,
-        format_id: config.format_id,
-    })
-}
-
-/// Downloads an album using the provided setup.
-///
-/// # Arguments
-///
-/// * `setup` - The album download setup
-/// * `max_tracks` - Optional maximum number of tracks to download
-///
-/// # Returns
-///
-/// A vector of downloaded file paths.
-pub fn download_album(
-    setup: &mut AlbumDownloadSetup,
-    max_tracks: Option<usize>,
-) -> Result<Vec<PathBuf>> {
-    setup
-        .service
-        .download_album(
-            &setup.album_id,
-            setup.format_id,
-            setup.temp_dir.path(),
-            None,
-            max_tracks,
-        )
-        .map_err(Error::from)
-}
-
-/// Sets up a test with wrong credentials.
-///
-/// # Returns
-///
-/// The wrong credentials setup if successful.
-pub fn setup_wrong_credentials() -> Result<WrongCredentialsSetup> {
-    let config = get_download_config();
-
-    let mut service =
-        QobuzApiService::new().map_err(|e| anyhow!("Failed to create service: {e}"))?;
-
-    service.login("invalid_test_user@example.com", "invalid_password")?;
-
-    let track_id = find_track_id(&service, &config.track_query)?;
-
-    Ok(WrongCredentialsSetup {
-        service,
-        track_id,
-        format_id: config.format_id,
-    })
-}
-
-/// Creates an authenticated Qobuz API service.
-///
-/// # Returns
-///
-/// An authenticated service if credentials are valid.
-pub fn create_authenticated_service() -> Result<QobuzApiService> {
-    ensure_env_credentials()?;
-
-    let mut service =
-        QobuzApiService::new().map_err(|e| anyhow!("Failed to create service: {e}"))?;
-    service
-        .authenticate_with_env()
-        .map_err(|e| anyhow!("Authentication failed: {e}"))?;
-    Ok(service)
 }
 
 /// Initializes logging for tests.
@@ -492,4 +264,20 @@ pub fn ensure_env_credentials() -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Creates an authenticated Qobuz API service.
+///
+/// # Returns
+///
+/// An authenticated service if credentials are valid.
+pub fn create_authenticated_service() -> Result<QobuzApiService> {
+    ensure_env_credentials()?;
+
+    let mut service =
+        QobuzApiService::new().map_err(|e| anyhow!("Failed to create service: {e}"))?;
+    service
+        .authenticate_with_env()
+        .map_err(|e| anyhow!("Authentication failed: {e}"))?;
+    Ok(service)
 }

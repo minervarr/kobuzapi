@@ -11,7 +11,7 @@
 //!
 //! In CI without credentials, run `cargo test` to run only unit tests and the mock integration.
 
-mod common;
+mod test_support;
 
 use std::env::var;
 
@@ -19,7 +19,7 @@ use anyhow::{Result, anyhow};
 
 use qobuz_api_rust_refactor::api::service::QobuzApiService;
 
-use crate::common::ensure_env_credentials;
+use crate::test_support::ensure_env_credentials;
 
 /// User credentials loaded from the `.env` file.
 struct UserCredentials {

@@ -1,5 +1,6 @@
 //! Content API operations: search and browse for albums, artists, tracks, playlists.
 
+pub mod album_download;
 pub mod albums;
 pub mod artists;
 pub mod catalog;
@@ -16,6 +17,26 @@ use crate::{
     },
     errors::QobuzApiError,
 };
+
+/// Appends optional `limit` and `offset` pagination parameters to a params vector.
+///
+/// # Arguments
+///
+/// * `params` - Parameter vector to modify
+/// * `limit` - Maximum number of results (if provided)
+/// * `offset` - Pagination offset (if provided)
+pub fn push_pagination_params(
+    params: &mut Vec<(String, String)>,
+    limit: Option<i32>,
+    offset: Option<i32>,
+) {
+    if let Some(l) = limit {
+        params.push(("limit".to_string(), l.to_string()));
+    }
+    if let Some(o) = offset {
+        params.push(("offset".to_string(), o.to_string()));
+    }
+}
 
 /// Retrieves the auth token from the service and sends a signed GET request.
 ///
@@ -78,7 +99,7 @@ pub async fn search<T: DeserializeOwned>(
     offset: Option<i32>,
 ) -> Result<T, QobuzApiError> {
     let mut params = vec![("query".to_string(), query.to_string())];
-    requests::push_pagination_params(&mut params, limit, offset);
+    push_pagination_params(&mut params, limit, offset);
 
     do_signed_get(service, endpoint, &mut params).await
 }
@@ -142,7 +163,7 @@ pub async fn paginated<T: DeserializeOwned, I: ToString>(
     offset: Option<i32>,
 ) -> Result<T, QobuzApiError> {
     let mut params = vec![(id_field.to_string(), id.to_string())];
-    requests::push_pagination_params(&mut params, limit, offset);
+    push_pagination_params(&mut params, limit, offset);
 
     do_signed_get(service, endpoint, &mut params).await
 }

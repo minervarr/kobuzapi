@@ -15,7 +15,7 @@
 //!
 //! In CI without credentials, run `cargo test` to run only unit tests and the mock integration.
 
-mod common;
+mod test_support;
 
 #[cfg(test)]
 mod tests {
@@ -29,9 +29,11 @@ mod tests {
 
     use qobuz_api_rust_refactor::models::file_url::{FileUrl, quality::MP3_320};
 
-    use crate::common::{
-        TRIAL_DURATION_THRESHOLD_SECS, create_authenticated_service, download_album, find_album_id,
-        find_track_id, get_download_config, init_logging, setup_album_download,
+    use crate::test_support::{
+        TRIAL_DURATION_THRESHOLD_SECS, create_authenticated_service, get_download_config,
+        init_logging,
+        query::{find_album_id, find_track_id},
+        setup::{download_album, setup_album_download},
     };
 
     #[test]

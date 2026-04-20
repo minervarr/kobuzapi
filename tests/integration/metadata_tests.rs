@@ -10,8 +10,8 @@
 //!
 //! `cargo test --test metadata-integration --features live-tests`
 
-mod common;
-mod metadata_helpers;
+mod metadata_test;
+mod test_support;
 
 #[cfg(test)]
 mod tests {
@@ -25,15 +25,18 @@ mod tests {
     use qobuz_api_rust_refactor::api::service::QobuzApiService;
 
     use crate::{
-        common::{create_authenticated_service, init_logging},
-        metadata_helpers::{
+        metadata_test::{
             FieldDifference::{self, Differs, OnlyInCSharp, OnlyInRust},
-            ReportSummary, TestTrack, build_file_header, compare_exif_metadata,
-            csharp_metadata_dir, download_test_track, ensure_directories,
-            extract_and_save_metadata, group_field_pair, metadata_dir,
+            ReportSummary, TestTrack, build_file_header,
+            comparison::{compare_exif_metadata, group_field_pair},
+            csharp_metadata_dir,
+            exiftool::{extract_and_save_metadata, parse_exiftool_output},
+            metadata_dir,
             metadata_report::{generate_comparison_report, generate_format_report},
-            parse_exiftool_output, save_track_json, test_tracks, track_filename_base,
+            test_tracks, track_filename_base,
+            track_ops::{download_test_track, ensure_directories, save_track_json},
         },
+        test_support::{create_authenticated_service, init_logging},
     };
 
     const FLAC_FORMAT: FormatInfo = FormatInfo {

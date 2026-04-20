@@ -15,16 +15,18 @@ use {
 use crate::{
     api::{
         content::{
-            download_io::{detect_partial_file, fetch_track_cover, write_response_to_file},
+            download_io::{
+                DOWNLOAD_RETRY_BASE_DELAY_MS, MAX_DOWNLOAD_RETRIES, attempt_download,
+                fetch_track_cover, is_retryable_network_error,
+            },
             get_by_id, search,
         },
         http_client::HttpClient,
-        requests::{
-            RequestAuth, build_url_with_params, download_stream, parse_response, retry_with_backoff,
-        },
+        requests::{RequestAuth, build_url_with_params, retry_with_backoff},
+        response::parse_response,
         service::QobuzApiService,
     },
-    errors::QobuzApiError::{self, DownloadError, HttpError},
+    errors::QobuzApiError,
     metadata::{
         config::MetadataConfig, embedder::embed_metadata_in_file,
         extractor::extract_comprehensive_metadata,
@@ -38,12 +40,6 @@ use crate::{
     sanitize::sanitize_filename,
     signing::sign_track_file_url,
 };
-
-/// Maximum number of retry attempts on download network errors.
-const MAX_DOWNLOAD_RETRIES: u32 = 3;
-
-/// Base delay in milliseconds for download retry exponential backoff.
-const DOWNLOAD_RETRY_BASE_DELAY_MS: u64 = 2000;
 
 /// Searches for tracks matching the query.
 ///
@@ -255,76 +251,12 @@ pub async fn download_track(
     Ok(path)
 }
 
-/// Performs a single download attempt, optionally resuming from a partial file.
-///
-/// # Arguments
-///
-/// * `service` - Authenticated API service
-/// * `track_id` - Track identifier
-/// * `format_id` - Quality format ID
-/// * `path` - Destination file path
-///
-/// # Returns
-///
-/// `Ok(true)` if the download resumed from a partial file, `Ok(false)` if fresh.
-async fn attempt_download(
-    service: &QobuzApiService,
-    track_id: i32,
-    format_id: i32,
-    path: &Path,
-) -> Result<bool, QobuzApiError> {
-    let offset = detect_partial_file(path);
-    let range = offset.map(|s| format!("bytes={s}-"));
-
-    let file_url = get_track_file_url(service, track_id, format_id).await?;
-
-    let url = file_url.url.ok_or_else(|| DownloadError {
-        message: format!("No download URL for track {track_id}"),
-    })?;
-
-    let token = service.require_auth_token()?;
-    let response = download_stream(service.http_client(), &url, token, range.as_deref()).await?;
-
-    let resumed = offset.is_some() && response.status().as_u16() == 206;
-    if offset.is_some() && !resumed {
-        warn!(
-            track_id,
-            path = %path.display(),
-            "Server did not support Range request, re-downloading full file"
-        );
-    }
-
-    write_response_to_file(response, path, resumed).await?;
-
-    Ok(resumed)
-}
-
-/// Checks whether an error is a transient network failure worth retrying.
-///
-/// # Arguments
-///
-/// * `err` - The error to inspect
-///
-/// # Returns
-///
-/// `true` if the error is a connect timeout, body, or decode failure.
-fn is_retryable_network_error(err: &QobuzApiError) -> bool {
-    let HttpError(reqwest_err) = err else {
-        return false;
-    };
-    reqwest_err.is_connect()
-        || reqwest_err.is_timeout()
-        || reqwest_err.is_body()
-        || reqwest_err.is_decode()
-}
-
 #[cfg(test)]
 mod tests {
     use std::fs::write;
 
     use {
         anyhow::{Result, anyhow, ensure},
-        reqwest::Response,
         tempfile::TempDir,
         tokio::runtime::Runtime,
     };
@@ -335,12 +267,9 @@ mod tests {
                 download_io::detect_partial_file,
                 tracks::{get_track, search_tracks},
             },
-            requests::retry_with_backoff,
-            service::QobuzApiService,
-            test_support::{MockServer, SequentialMockServer, make_service},
+            test_support::{MockServer, make_service},
         },
         assert_empty_search_test,
-        errors::QobuzApiError,
     };
 
     #[test]
@@ -422,54 +351,6 @@ mod tests {
         let path = dir.path().join("empty.flac");
         write(&path, b"")?;
         ensure!(detect_partial_file(&path).is_none());
-        Ok(())
-    }
-
-    fn rate_limit_response() -> (u16, String) {
-        (
-            429,
-            r#"{"status":"error","message":"rate limited"}"#.to_string(),
-        )
-    }
-
-    fn make_test_request(service: &QobuzApiService) -> Result<Response, QobuzApiError> {
-        let rt = Runtime::new()?;
-        let client = service.http_client();
-        rt.block_on(retry_with_backoff(
-            client,
-            &format!("{}/test", service.base_url()),
-            "token",
-        ))
-    }
-
-    #[test]
-    fn rate_limit_retry_exhausts_retries() -> Result<()> {
-        let server = SequentialMockServer::start(vec![
-            rate_limit_response(),
-            rate_limit_response(),
-            rate_limit_response(),
-            rate_limit_response(),
-        ])?;
-        let service = make_service(&server.base_url())?;
-        let result = make_test_request(&service);
-        let err = result.err().ok_or_else(|| anyhow!("expected error"))?;
-        ensure!(format!("{err}").contains("Rate limited"));
-        Ok(())
-    }
-
-    #[test]
-    fn rate_limit_retry_succeeds_after_backoff() -> Result<()> {
-        let server = SequentialMockServer::start(vec![
-            rate_limit_response(),
-            rate_limit_response(),
-            (
-                200,
-                r#"{"url":"https://example.com/file.flac"}"#.to_string(),
-            ),
-        ])?;
-        let service = make_service(&server.base_url())?;
-        let result = make_test_request(&service)?;
-        ensure!(result.status().is_success());
         Ok(())
     }
 }
