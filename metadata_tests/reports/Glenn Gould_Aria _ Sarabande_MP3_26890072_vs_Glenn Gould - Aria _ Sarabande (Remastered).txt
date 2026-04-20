@@ -1,2 +1,2 @@
 Differences between Glenn Gould - Aria _ Sarabande - MP3 - 26890072.txt and Glenn Gould - Aria _ Sarabande (Remastered).txt:
-Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/bach-the-goldberg-variations-1981-gould-remastered-glenn-gould/0886445085471
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: Glenn Gould, Piano, Producer - Johann Sebastian Bach, Composer - (Samuel H. Carter, Producer - Stan Tonkel, Recording Engineer - Martin Greenblatt, Recording Engineer - Ray Moore, Recording Engineer - John Johnson, Recording Engineer)

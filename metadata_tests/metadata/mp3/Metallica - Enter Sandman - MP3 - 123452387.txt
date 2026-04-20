@@ -2,14 +2,14 @@
 [System]        File Name                       : Metallica - Enter Sandman - MP3 - 123452387.mp3
 [System]        Directory                       : metadata_tests/downloads/mp3
 [System]        File Size                       : 13 MB
-[System]        File Modification Date/Time     : 2026:04:18 20:39:42+02:00
-[System]        File Access Date/Time           : 2026:04:18 20:39:42+02:00
-[System]        File Inode Change Date/Time     : 2026:04:18 20:39:42+02:00
+[System]        File Modification Date/Time     : 2026:04:21 01:12:46+02:00
+[System]        File Access Date/Time           : 2026:04:21 01:12:47+02:00
+[System]        File Inode Change Date/Time     : 2026:04:21 01:12:47+02:00
 [System]        File Permissions                : -rw-r--r--
 [File]          File Type                       : MP3
 [File]          File Type Extension             : mp3
 [File]          MIME Type                       : audio/mpeg
-[File]          ID3 Size                        : 15494
+[File]          ID3 Size                        : 15195
 [MPEG]          MPEG Audio Version              : 1
 [MPEG]          Audio Layer                     : 3
 [MPEG]          Audio Bitrate                   : 320 kbps
@@ -27,22 +27,21 @@
 [MPEG]          Lame Low Pass Filter            : 20.5 kHz
 [MPEG]          Lame Bitrate                    : 255 kbps
 [MPEG]          Lame Stereo Mode                : Joint Stereo
-[ID3v2_4]       Band                            : Metallica
-[ID3v2_4]       Publisher                       : Blackened Recordings  -  Universal Music
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/metallica-metallica/e98mhimqarxfb
 [ID3v2_4]       ISRC                            : QMKHM1900001
-[ID3v2_4]       Part Of Set                     : 1/1
+[ID3v2_4]       Release Time                    : 1991:08:01
+[ID3v2_4]       Genre                           : Metal
+[ID3v2_4]       Recording Time                  : 1991
 [ID3v2_4]       Album                           : Metallica (Remastered 2021)
 [ID3v2_4]       Track                           : 1/12
-[ID3v2_4]       Recording Time                  : 1991
-[ID3v2_4]       Artist                          : Metallica
-[ID3v2_4]       Musician Credits                : Bob Rock, Producer - Randy Staub, RecordingEngineer - James Hetfield, Producer, Vocalist, ComposerLyricist - Kirk Hammett, Guitar, ComposerLyricist - Lars Ulrich, Producer, ComposerLyricist, DrumKit - Jason Newsted, BassGuitar - MIKE TACCI, RecordingSecondEngineer - Metallica, MainArtist
-[ID3v2_4]       Genre                           : Metal
-[ID3v2_4]       Media                           : album
-[ID3v2_4]       Title                           : Enter Sandman (Remastered 2021)
+[ID3v2_4]       Band                            : Metallica
+[ID3v2_4]       Publisher                       : Blackened Recordings  -  Universal Music
 [ID3v2_4]       Copyright                       : ℗ 2021 Blackened Recordings Inc.
-[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/metallica-metallica/e98mhimqarxfb
+[ID3v2_4]       Title                           : Enter Sandman (Remastered 2021)
+[ID3v2_4]       Media                           : album
+[ID3v2_4]       Artist                          : Metallica
+[ID3v2_4]       Part Of Set                     : 1/1
 [ID3v2_4]       Composer                        : James Hetfield/Kirk Hammett/Lars Ulrich
-[ID3v2_4]       Release Time                    : 1991:08:01
 [ID3v2_4]       Picture MIME Type               : image/jpeg
 [ID3v2_4]       Picture Type                    : Front Cover
 [ID3v2_4]       Picture Description             : 

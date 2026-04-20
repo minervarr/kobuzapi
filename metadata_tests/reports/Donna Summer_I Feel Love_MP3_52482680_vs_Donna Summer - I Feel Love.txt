@@ -1,2 +1,2 @@
 Differences between Donna Summer - I Feel Love - MP3 - 52482680.txt and Donna Summer - I Feel Love.txt:
-Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/on-the-radio-greatest-hits-volumes-i-ii-donna-summer/r5vn4y8r3v9sc
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: Pete Bellotte, Producer, ComposerLyricist - Giorgio Moroder, Producer, ComposerLyricist - Donna Summer, Vocalist, MainArtist, ComposerLyricist

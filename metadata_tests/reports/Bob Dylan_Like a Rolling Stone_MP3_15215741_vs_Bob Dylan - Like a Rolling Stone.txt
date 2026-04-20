@@ -1,2 +1,2 @@
 Differences between Bob Dylan - Like a Rolling Stone - MP3 - 15215741.txt and Bob Dylan - Like a Rolling Stone.txt:
-Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/the-essential-bob-dylan-bob-dylan/0886444477109
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: Bob Dylan, Associated Performer, Composer, Guitar, Harmonica, Lyricist, Main Artist, Piano, Associated Performer, Composer, Guitar, Harmonica, Lyricist, Piano. - Michael Bloomfield, Guitar. - Charlie McCoy, Guitar. - Bobby Gregg, Drums. - Alan Kooper, Organ, Piano. - Paul Griffin, Organ, Piano. - Frank Owens, Piano. - Harvey Goldstein, Bass. - Russ Savakus, Bass. - Tom Wilson, Producer

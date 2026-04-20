@@ -2,14 +2,14 @@
 [System]        File Name                       : Hans Zimmer - Time - MP3 - 2206801.mp3
 [System]        Directory                       : metadata_tests/downloads/mp3
 [System]        File Size                       : 11 MB
-[System]        File Modification Date/Time     : 2026:04:18 20:40:35+02:00
-[System]        File Access Date/Time           : 2026:04:18 20:40:36+02:00
-[System]        File Inode Change Date/Time     : 2026:04:18 20:40:35+02:00
+[System]        File Modification Date/Time     : 2026:04:21 01:13:23+02:00
+[System]        File Access Date/Time           : 2026:04:21 01:13:23+02:00
+[System]        File Inode Change Date/Time     : 2026:04:21 01:13:23+02:00
 [System]        File Permissions                : -rw-r--r--
 [File]          File Type                       : MP3
 [File]          File Type Extension             : mp3
 [File]          MIME Type                       : audio/mpeg
-[File]          ID3 Size                        : 83271
+[File]          ID3 Size                        : 82003
 [MPEG]          MPEG Audio Version              : 1
 [MPEG]          Audio Layer                     : 3
 [MPEG]          Audio Bitrate                   : 320 kbps
@@ -27,22 +27,21 @@
 [MPEG]          Lame Low Pass Filter            : 20.5 kHz
 [MPEG]          Lame Bitrate                    : 255 kbps
 [MPEG]          Lame Stereo Mode                : Joint Stereo
-[ID3v2_4]       Title                           : Time
-[ID3v2_4]       Album                           : Inception  (Music from the Motion Picture)
-[ID3v2_4]       Artist                          : Hans Zimmer
-[ID3v2_4]       Genre                           : Bandes originales de films
-[ID3v2_4]       Recording Time                  : 2010
 [ID3v2_4]       Release Time                    : 2010:07:09
-[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/inception-hans-zimmer/0093624965008
-[ID3v2_4]       Composer                        : Hans Zimmer
-[ID3v2_4]       Band                            : Hans Zimmer
-[ID3v2_4]       ISRC                            : USRE11000577
-[ID3v2_4]       Media                           : album
+[ID3v2_4]       Artist                          : Hans Zimmer
 [ID3v2_4]       Publisher                       : WaterTower Music
+[ID3v2_4]       Band                            : Hans Zimmer
+[ID3v2_4]       Title                           : Time
 [ID3v2_4]       Copyright                       : © 2010 Motion Picture Artwork © 2010 Warner Bros. Entertainment Inc. Motion Picture Photography © 2010 Warner Bros. Entertainment Inc. and Legendary Pictures. ℗ 2010 This compilation WaterTower Music as licensee for Warner Bros. Entertainment Inc.
-[ID3v2_4]       Musician Credits                : Matt Dunkley, Conductor - Johnny Marr, Guitar - Lorne Balfe, Producer, Additional Music - Richard Edwards, Trombone - Richard Watkins, French Horn - Isobel Griffiths, Orchestral Contractor - Alan Meyerson, Mixer - mary Scully, Bass - Andrew Kawczynski, Additional Programmer - Bruce L. Fowler, Orchestration - Carl Rydlund, Orchestration - Chris Barrett, AssistantEngineer - Christopher Nolan, ExecutiveProducer - Chuck Choi, Technical Engineer - Elizabeth Finch, Orchestration - Howard Scarr, Synthesizer Programmer - Jacob Shea, Additional Programmer - Mel Wesson, Designer - Nick Delaplane, Additional Programmer - Pat Sullivan, Masterer - Peter Oso Snell, AssistantEngineer - Rick Giovinazzo, Orchestration - Suzette Moriarty, Orchestration - Thomas Broderick, Technical Engineer - Walter Fowler, Orchestration - Hans Zimmer, Composer, Producer, Synthesizer Programmer, Music, Synthesizer, MainArtist - Alex Gibson, Producer, Music Editor - Anthony Pleeth, Cello - Daniel Kresco, Assistant Mixing Engineer - Dave Stewart, Trombone - Ed Neumeister, Orchestration - Geoff Foster, Recorded by - Kevin Kaska, Orchestration - Mike Higham, AssistantEngineer - Owen Slade, Tuba - Perry Montague-Mason, Lead Violin - Peter Lale, Viola - Ryan Rubin, Music Editor
-[ID3v2_4]       Track                           : 12/12
 [ID3v2_4]       Part Of Set                     : 1/1
+[ID3v2_4]       Album                           : Inception  (Music from the Motion Picture)
+[ID3v2_4]       Media                           : album
+[ID3v2_4]       Genre                           : Bandes originales de films
+[ID3v2_4]       ISRC                            : USRE11000577
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/inception-hans-zimmer/0093624965008
+[ID3v2_4]       Track                           : 12/12
+[ID3v2_4]       Composer                        : Hans Zimmer
+[ID3v2_4]       Recording Time                  : 2010
 [ID3v2_4]       Picture MIME Type               : image/jpeg
 [ID3v2_4]       Picture Type                    : Front Cover
 [ID3v2_4]       Picture Description             : 

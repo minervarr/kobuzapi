@@ -1,6 +1,2 @@
 Differences between Donna Summer - I Feel Love - FLAC - 52482680.txt and Donna Summer - I Feel Love.txt:
-Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/on-the-radio-greatest-hits-volumes-i-ii-donna-summer/r5vn4y8r3v9sc
-Field 'Upc' exists in C# but not in Rust: 0602567831365
-Field 'Involvedpeople' exists in C# but not in Rust: Pete Bellotte, Producer, ComposerLyricist - Giorgio Moroder, Producer, ComposerLyricist - Donna Summer, Vocalist, MainArtist, ComposerLyricist
-Field 'Itunesadvisory' exists in C# but not in Rust: 0
-Field 'Organization' exists in C# but not in Rust: Island Def Jam
+Field 'Performer' exists in Rust but not in C#: Pete Bellotte, Producer, ComposerLyricist - Giorgio Moroder, Producer, ComposerLyricist - Donna Summer, Vocalist, MainArtist, ComposerLyricist

@@ -1,4 +1,2 @@
 Differences between Miles Davis - So What - MP3 - 13176083.txt and Miles Davis - So What.txt:
-Field 'Composer' differs:
-  Rust: M. Davis/Miles Davis
-  C#:   M. Davis
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: Miles Davis, Associated Performer, Main Artist, Trumpet, Associated Performer, Trumpet. - Irving Townsend, Producer. - Jimmy Cobb, Drums. - M. Davis, Composer, Lyricist. - Bill Evans, Piano. - Paul Chambers, Bass. - Julian "Cannonball" Adderley, Alto Saxophone. - John Coltrane, Tenor Saxophone

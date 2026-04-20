@@ -1,6 +1,2 @@
 Differences between Daft Punk - Around the World - FLAC - 1065482.txt and Daft Punk - Around the World.txt:
-Field 'Itunesadvisory' exists in C# but not in Rust: 0
-Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/homework-daft-punk/0724384260958
-Field 'Organization' exists in C# but not in Rust: Parlophone France
-Field 'Upc' exists in C# but not in Rust: 0724384260958
-Field 'Involvedpeople' exists in C# but not in Rust: Daft Punk, MainArtist - Thomas Bangalter, Composer, Producer, Writer - Guy-Manuel de Homem-Christo, Composer, Writer - Guy-Manuel de Homem Christo, Producer
+Field 'Performer' exists in Rust but not in C#: Daft Punk, MainArtist - Thomas Bangalter, Composer, Producer, Writer - Guy-Manuel de Homem-Christo, Composer, Writer - Guy-Manuel de Homem Christo, Producer

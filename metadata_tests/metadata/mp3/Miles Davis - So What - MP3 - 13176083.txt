@@ -2,14 +2,14 @@
 [System]        File Name                       : Miles Davis - So What - MP3 - 13176083.mp3
 [System]        Directory                       : metadata_tests/downloads/mp3
 [System]        File Size                       : 22 MB
-[System]        File Modification Date/Time     : 2026:04:18 20:36:34+02:00
-[System]        File Access Date/Time           : 2026:04:18 20:36:34+02:00
-[System]        File Inode Change Date/Time     : 2026:04:18 20:36:34+02:00
+[System]        File Modification Date/Time     : 2026:04:21 01:11:07+02:00
+[System]        File Access Date/Time           : 2026:04:21 01:11:08+02:00
+[System]        File Inode Change Date/Time     : 2026:04:21 01:11:07+02:00
 [System]        File Permissions                : -rw-r--r--
 [File]          File Type                       : MP3
 [File]          File Type Extension             : mp3
 [File]          MIME Type                       : audio/mpeg
-[File]          ID3 Size                        : 47313
+[File]          ID3 Size                        : 47008
 [MPEG]          MPEG Audio Version              : 1
 [MPEG]          Audio Layer                     : 3
 [MPEG]          Audio Bitrate                   : 320 kbps
@@ -27,22 +27,21 @@
 [MPEG]          Lame Low Pass Filter            : 20.5 kHz
 [MPEG]          Lame Bitrate                    : 255 kbps
 [MPEG]          Lame Stereo Mode                : Joint Stereo
-[ID3v2_4]       Composer                        : M. Davis
 [ID3v2_4]       Media                           : album
-[ID3v2_4]       Part Of Set                     : 1/1
-[ID3v2_4]       Track                           : 1/5
-[ID3v2_4]       Band                            : Miles Davis
-[ID3v2_4]       Genre                           : Jazz
-[ID3v2_4]       Release Time                    : 1959:08:17
 [ID3v2_4]       Album                           : Kind Of Blue
-[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/kind-of-blue-miles-davis/5099749522428
-[ID3v2_4]       Artist                          : Miles Davis
-[ID3v2_4]       Musician Credits                : Miles Davis, Associated Performer, Main Artist, Trumpet, Associated Performer, Trumpet. - Irving Townsend, Producer. - Jimmy Cobb, Drums. - M. Davis, Composer, Lyricist. - Bill Evans, Piano. - Paul Chambers, Bass. - Julian "Cannonball" Adderley, Alto Saxophone. - John Coltrane, Tenor Saxophone
-[ID3v2_4]       Copyright                       : Originally released 1959. All rights reserved by Columbia Records, a division of Sony Music Entertainment
-[ID3v2_4]       Recording Time                  : 1959
+[ID3v2_4]       Release Time                    : 1959:08:17
 [ID3v2_4]       Publisher                       : Columbia
-[ID3v2_4]       ISRC                            : USSM15900113
 [ID3v2_4]       Title                           : So What
+[ID3v2_4]       Track                           : 1/5
+[ID3v2_4]       Recording Time                  : 1959
+[ID3v2_4]       ISRC                            : USSM15900113
+[ID3v2_4]       Genre                           : Jazz
+[ID3v2_4]       Band                            : Miles Davis
+[ID3v2_4]       Copyright                       : Originally released 1959. All rights reserved by Columbia Records, a division of Sony Music Entertainment
+[ID3v2_4]       Artist                          : Miles Davis
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/kind-of-blue-miles-davis/5099749522428
+[ID3v2_4]       Part Of Set                     : 1/1
+[ID3v2_4]       Composer                        : M. Davis
 [ID3v2_4]       Picture MIME Type               : image/jpeg
 [ID3v2_4]       Picture Type                    : Front Cover
 [ID3v2_4]       Picture Description             : 

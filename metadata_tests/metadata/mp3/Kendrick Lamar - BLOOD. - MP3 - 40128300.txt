@@ -2,14 +2,14 @@
 [System]        File Name                       : Kendrick Lamar - BLOOD. - MP3 - 40128300.mp3
 [System]        Directory                       : metadata_tests/downloads/mp3
 [System]        File Size                       : 4.8 MB
-[System]        File Modification Date/Time     : 2026:04:18 20:35:48+02:00
-[System]        File Access Date/Time           : 2026:04:18 20:35:48+02:00
-[System]        File Inode Change Date/Time     : 2026:04:18 20:35:48+02:00
+[System]        File Modification Date/Time     : 2026:04:21 01:10:30+02:00
+[System]        File Access Date/Time           : 2026:04:21 01:10:30+02:00
+[System]        File Inode Change Date/Time     : 2026:04:21 01:10:30+02:00
 [System]        File Permissions                : -rw-r--r--
 [File]          File Type                       : MP3
 [File]          File Type Extension             : mp3
 [File]          MIME Type                       : audio/mpeg
-[File]          ID3 Size                        : 65923
+[File]          ID3 Size                        : 65778
 [MPEG]          MPEG Audio Version              : 1
 [MPEG]          Audio Layer                     : 3
 [MPEG]          Audio Bitrate                   : 320 kbps
@@ -27,22 +27,21 @@
 [MPEG]          Lame Low Pass Filter            : 20.5 kHz
 [MPEG]          Lame Bitrate                    : 255 kbps
 [MPEG]          Lame Stereo Mode                : Joint Stereo
-[ID3v2_4]       Musician Credits                : Kendrick Lamar, MainArtist, ComposerLyricist - D. Tanenbaum, ComposerLyricist - Bekon, Producer - Anthony 'Top Dawg' Tiffith, Producer
-[ID3v2_4]       Copyright                       : ℗ 2017 Aftermath/Interscope (Top Dawg Entertainment)
-[ID3v2_4]       Genre                           : Hip-Hop/Rap
-[ID3v2_4]       Track                           : 1/14
-[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/damn-kendrick-lamar/0060255760871
-[ID3v2_4]       ISRC                            : USUM71703078
-[ID3v2_4]       Title                           : BLOOD.
-[ID3v2_4]       Part Of Set                     : 1/1
-[ID3v2_4]       Publisher                       : Aftermath
-[ID3v2_4]       Composer                        : Kendrick Lamar/D. Tanenbaum
-[ID3v2_4]       Release Time                    : 2017:04:14
 [ID3v2_4]       Media                           : album
-[ID3v2_4]       Album                           : DAMN.
-[ID3v2_4]       Artist                          : Kendrick Lamar
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/damn-kendrick-lamar/0060255760871
+[ID3v2_4]       Genre                           : Hip-Hop/Rap
+[ID3v2_4]       Release Time                    : 2017:04:14
+[ID3v2_4]       Copyright                       : ℗ 2017 Aftermath/Interscope (Top Dawg Entertainment)
+[ID3v2_4]       Composer                        : Kendrick Lamar/D. Tanenbaum
+[ID3v2_4]       Track                           : 1/14
+[ID3v2_4]       Title                           : BLOOD.
+[ID3v2_4]       Publisher                       : Aftermath
 [ID3v2_4]       Band                            : Kendrick Lamar
+[ID3v2_4]       Artist                          : Kendrick Lamar
+[ID3v2_4]       Album                           : DAMN.
+[ID3v2_4]       Part Of Set                     : 1/1
 [ID3v2_4]       Recording Time                  : 2017
+[ID3v2_4]       ISRC                            : USUM71703078
 [ID3v2_4]       Picture MIME Type               : image/jpeg
 [ID3v2_4]       Picture Type                    : Front Cover
 [ID3v2_4]       Picture Description             : 

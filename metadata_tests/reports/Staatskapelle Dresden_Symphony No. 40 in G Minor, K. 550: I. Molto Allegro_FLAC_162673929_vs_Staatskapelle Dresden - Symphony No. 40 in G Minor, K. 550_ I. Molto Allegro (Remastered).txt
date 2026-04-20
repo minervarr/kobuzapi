@@ -1,6 +1,2 @@
 Differences between Staatskapelle Dresden - Symphony No. 40 in G Minor, K. 550_ I. Molto Allegro - FLAC - 162673929.txt and Staatskapelle Dresden - Symphony No. 40 in G Minor, K. 550_ I. Molto Allegro (Remastered).txt:
-Field 'Itunesadvisory' exists in C# but not in Rust: 0
-Field 'Upc' exists in C# but not in Rust: 0885470024561
-Field 'Organization' exists in C# but not in Rust: Eterna
-Field 'Involvedpeople' exists in C# but not in Rust: Wolfgang Amadeus Mozart, Composer - Staatskapelle Dresden, Orchestra, MainArtist - Copyright Control, MusicPublisher - Otmar Suitner, Conductor, MainArtist
-Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/mozart-symphony-no-39-40-staatskapelle-dresden-otmar-suitner/h00nx1b5bbu1a
+Field 'Performer' exists in Rust but not in C#: Wolfgang Amadeus Mozart, Composer - Staatskapelle Dresden, Orchestra, MainArtist - Copyright Control, MusicPublisher - Otmar Suitner, Conductor, MainArtist

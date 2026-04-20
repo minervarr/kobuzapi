@@ -1,2 +1,2 @@
 Differences between Madonna - Like a Virgin - MP3 - 6004880.txt and Madonna - Like a Virgin.txt:
-Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/like-a-virgin-hi-res-version-madonna/0093624951117
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: Bob Ludwig, Masterer - Billy Steinberg, Writer - TOM KELLY, Writer - NILE RODGERS, Producer, Engineer - BERNARD EDWARDS, Bass - Tony Thompson, Drums - Rob Sabino, Synthesizer - Madonna, Vocals, MainArtist - Jason Corsaro, Mixer - Rob Eaton, Engineer

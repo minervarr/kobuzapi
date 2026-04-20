@@ -1,6 +1,2 @@
 Differences between Buena Vista Social Club - Chan Chan - FLAC - 387387265.txt and Buena Vista Social Club - Chan Chan (Remastered 2021).txt:
-Field 'Organization' exists in C# but not in Rust: World Circuit
-Field 'Involvedpeople' exists in C# but not in Rust: Buena Vista Social Club, MainArtist - Compay Segundo, BackgroundVocalist, Congas - Jerry Boys, MixingEngineer, RecordingEngineer - Ry Cooder, Producer, Guitar - Manuel 'Guajiro' Mirabal, Trumpet - Eliades Ochoa, Vocalist, Guitar - Ibrahim Ferrer, BackgroundVocalist - Orlando 'Cachaíto' López, BassGuitar - Carlos Gonzalez, Bongos - Alberto Valdès, Maracas - Bernie Grundman, MasteringEngineer - Francisco Repilado, ComposerLyricist
-Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/buena-vista-social-club-buena-vista-social-club/bzjieyngo06sj
-Field 'Upc' exists in C# but not in Rust: 4050538630107
-Field 'Itunesadvisory' exists in C# but not in Rust: 0
+Field 'Performer' exists in Rust but not in C#: Buena Vista Social Club, MainArtist - Compay Segundo, BackgroundVocalist, Congas - Jerry Boys, MixingEngineer, RecordingEngineer - Ry Cooder, Producer, Guitar - Manuel 'Guajiro' Mirabal, Trumpet - Eliades Ochoa, Vocalist, Guitar - Ibrahim Ferrer, BackgroundVocalist - Orlando 'Cachaíto' López, BassGuitar - Carlos Gonzalez, Bongos - Alberto Valdès, Maracas - Bernie Grundman, MasteringEngineer - Francisco Repilado, ComposerLyricist

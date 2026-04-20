@@ -1,6 +1,2 @@
 Differences between Adele - Hello - FLAC - 28014963.txt and Adele - Hello.txt:
-Field 'Upc' exists in C# but not in Rust: 0634904074067
-Field 'Involvedpeople' exists in C# but not in Rust: Adele
-Field 'Url' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/25-adele/0634904074067
-Field 'Itunesadvisory' exists in C# but not in Rust: 0
-Field 'Organization' exists in C# but not in Rust: XL Recordings
+Field 'Performer' exists in Rust but not in C#: Adele

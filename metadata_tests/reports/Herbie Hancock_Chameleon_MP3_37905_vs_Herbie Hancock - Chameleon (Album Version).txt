@@ -1,4 +1,2 @@
 Differences between Herbie Hancock - Chameleon - MP3 - 37905.txt and Herbie Hancock - Chameleon (Album Version).txt:
-Field 'Artist' differs:
-  Rust: Herbie Hancock
-  C#:   Bennie Maupin/Herbie Hancock
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: H. Mason, Composer. - H. Mason, Lyricist. - Bennie Maupin, Performer. - Material, Producer. - Paul Jackson, Acoustic Bass. - Herbie Hancock, Composer. - Herbie Hancock, Lyricist. - Herbie Hancock, Producer. - Herbie Hancock, Keyboards. - Herbie Hancock, Performer. - B. Maupin, Composer. - B. Maupin, Lyricist. - David Rubinson, Producer. - Bill Summers, Percussion. - P. Jackson, Composer. - P. Jackson, Lyricist. - Harvey Mason, Drums.

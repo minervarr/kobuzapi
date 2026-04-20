@@ -1,2 +1,2 @@
 Differences between Johnny Cash - Hurt - MP3 - 33839468.txt and Johnny Cash - Hurt (Album Version).txt:
-Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/american-iv-the-man-comes-around-johnny-cash/0060253727735
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: Johnny Cash, MainArtist - Rick Rubin, Producer - Benmont Tench, Organ, Piano, Mellotron - Trent Reznor, ComposerLyricist - John Carter Cash, AssociateProducer, RecordingSecondEngineer - Andrew Scheps, RecordingSecondEngineer - Mike Campbell, AcousticGuitar - Thom Russo, RecordingSecondEngineer - Smokey Hormel, AcousticGuitar - Chuck Turner, RecordingSecondEngineer - David Ferguson, MixingEngineer, RecordingEngineer

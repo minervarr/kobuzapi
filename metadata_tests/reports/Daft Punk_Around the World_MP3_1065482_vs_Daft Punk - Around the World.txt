@@ -1,2 +1,2 @@
 Differences between Daft Punk - Around the World - MP3 - 1065482.txt and Daft Punk - Around the World.txt:
-Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/homework-daft-punk/0724384260958
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: Daft Punk, MainArtist - Thomas Bangalter, Composer, Producer, Writer - Guy-Manuel de Homem-Christo, Composer, Writer - Guy-Manuel de Homem Christo, Producer

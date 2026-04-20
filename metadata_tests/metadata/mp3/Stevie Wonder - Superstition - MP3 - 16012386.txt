@@ -2,14 +2,14 @@
 [System]        File Name                       : Stevie Wonder - Superstition - MP3 - 16012386.mp3
 [System]        Directory                       : metadata_tests/downloads/mp3
 [System]        File Size                       : 11 MB
-[System]        File Modification Date/Time     : 2026:04:18 20:38:51+02:00
-[System]        File Access Date/Time           : 2026:04:18 20:38:52+02:00
-[System]        File Inode Change Date/Time     : 2026:04:18 20:38:52+02:00
+[System]        File Modification Date/Time     : 2026:04:21 01:12:13+02:00
+[System]        File Access Date/Time           : 2026:04:21 01:12:13+02:00
+[System]        File Inode Change Date/Time     : 2026:04:21 01:12:13+02:00
 [System]        File Permissions                : -rw-r--r--
 [File]          File Type                       : MP3
 [File]          File Type Extension             : mp3
 [File]          MIME Type                       : audio/mpeg
-[File]          ID3 Size                        : 111765
+[File]          ID3 Size                        : 111497
 [MPEG]          MPEG Audio Version              : 1
 [MPEG]          Audio Layer                     : 3
 [MPEG]          Audio Bitrate                   : 320 kbps
@@ -27,22 +27,21 @@
 [MPEG]          Lame Low Pass Filter            : 20.5 kHz
 [MPEG]          Lame Bitrate                    : 255 kbps
 [MPEG]          Lame Stereo Mode                : Joint Stereo
-[ID3v2_4]       Publisher                       : Motown
-[ID3v2_4]       ISRC                            : USMO17200984
-[ID3v2_4]       Musician Credits                : Stevie Wonder, MainArtist, Producer, RecordingArranger, Vocalist, Clavichord, DrumKit, MoogBass, ComposerLyricist - ROBERT MARGOULEFF, AdditionalProducer, Engineer - Malcolm Cecil, AdditionalProducer - Trevor Lawrence, TenorSaxophone - Steve Madaio, Trumpet
-[ID3v2_4]       Copyright                       : ℗ 1972 UMG Recordings, Inc.
-[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/talking-book-stevie-wonder/0060253780972
-[ID3v2_4]       Recording Time                  : 1972
-[ID3v2_4]       Part Of Set                     : 1/1
-[ID3v2_4]       Release Time                    : 1972:10:28
-[ID3v2_4]       Track                           : 6/10
-[ID3v2_4]       Title                           : Superstition (Album Version)
-[ID3v2_4]       Composer                        : Stevie Wonder
-[ID3v2_4]       Media                           : album
-[ID3v2_4]       Album                           : Talking Book
-[ID3v2_4]       Genre                           : R&B
-[ID3v2_4]       Artist                          : Stevie Wonder
 [ID3v2_4]       Band                            : Stevie Wonder
+[ID3v2_4]       Release Time                    : 1972:10:28
+[ID3v2_4]       Recording Time                  : 1972
+[ID3v2_4]       Composer                        : Stevie Wonder
+[ID3v2_4]       Album                           : Talking Book
+[ID3v2_4]       Artist                          : Stevie Wonder
+[ID3v2_4]       ISRC                            : USMO17200984
+[ID3v2_4]       Media                           : album
+[ID3v2_4]       Genre                           : R&B
+[ID3v2_4]       Copyright                       : ℗ 1972 UMG Recordings, Inc.
+[ID3v2_4]       Part Of Set                     : 1/1
+[ID3v2_4]       Title                           : Superstition (Album Version)
+[ID3v2_4]       Commercial URL                  : https://www.qobuz.com/fr-fr/album/talking-book-stevie-wonder/0060253780972
+[ID3v2_4]       Track                           : 6/10
+[ID3v2_4]       Publisher                       : Motown
 [ID3v2_4]       Picture MIME Type               : image/jpeg
 [ID3v2_4]       Picture Type                    : Front Cover
 [ID3v2_4]       Picture Description             : 

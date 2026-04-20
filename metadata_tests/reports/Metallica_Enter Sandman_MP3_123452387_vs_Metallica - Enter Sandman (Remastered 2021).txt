@@ -1,2 +1,2 @@
 Differences between Metallica - Enter Sandman - MP3 - 123452387.txt and Metallica - Enter Sandman (Remastered 2021).txt:
-Field 'Commercial URL' exists in C# but not in Rust: https://www.qobuz.com/fr-fr/album/metallica-metallica/e98mhimqarxfb
+Field 'Musician Credits / Involved People' exists in C# but not in Rust: Bob Rock, Producer - Randy Staub, RecordingEngineer - James Hetfield, Producer, Vocalist, ComposerLyricist - Kirk Hammett, Guitar, ComposerLyricist - Lars Ulrich, Producer, ComposerLyricist, DrumKit - Jason Newsted, BassGuitar - MIKE TACCI, RecordingSecondEngineer - Metallica, MainArtist
