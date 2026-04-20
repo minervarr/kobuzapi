@@ -150,8 +150,11 @@ pub fn group_field_pair(
                 });
             }
         }
-        (Some(diff), None) | (None, Some(diff)) => {
-            diffs.push(rename_field(diff, grouped_name));
+        (Some(_), None) | (None, Some(_)) => {
+            ignored.push((
+                grouped_name.to_string(),
+                "ignored (only in one implementation)".to_string(),
+            ));
         }
         (None, None) => {}
     }
@@ -261,36 +264,4 @@ fn normalize_credit(credit: &str) -> String {
         parts.insert(0, name);
     }
     parts.join(", ")
-}
-
-/// Creates a new `FieldDifference` with a different field name, preserving all values.
-///
-/// # Arguments
-///
-/// * `diff` - The original field difference
-/// * `new_name` - The new field name to use
-///
-/// # Returns
-///
-/// A new `FieldDifference` with the updated field name.
-fn rename_field(diff: FieldDifference, new_name: &str) -> FieldDifference {
-    match diff {
-        Differs {
-            rust_value,
-            csharp_value,
-            ..
-        } => Differs {
-            field: new_name.to_string(),
-            rust_value,
-            csharp_value,
-        },
-        OnlyInRust { value, .. } => OnlyInRust {
-            field: new_name.to_string(),
-            value,
-        },
-        OnlyInCSharp { value, .. } => OnlyInCSharp {
-            field: new_name.to_string(),
-            value,
-        },
-    }
 }

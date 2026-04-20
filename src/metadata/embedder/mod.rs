@@ -23,10 +23,7 @@ use crate::{
     metadata::{
         config::MetadataConfig,
         embedder::{
-            artist_fields::{
-                apply_album_artist, apply_artist, apply_composer, apply_involved_people,
-                apply_producer,
-            },
+            artist_fields::{apply_album_artist, apply_artist, apply_composer, apply_producer},
             basic_fields::{
                 apply_album, apply_copyright, apply_cover_art, apply_dates, apply_disc_numbers,
                 apply_flac_custom_keys, apply_genre, apply_isrc, apply_label, apply_media_type,
@@ -88,7 +85,6 @@ pub fn embed_metadata_in_file(
     apply_album(tag, metadata, config);
     apply_album_artist(tag, metadata, config, is_flac);
     apply_artist(tag, metadata, config, is_flac);
-    apply_involved_people(tag, metadata, config);
     apply_composer(tag, metadata, config, is_flac);
     apply_producer(tag, metadata, config, is_flac);
     apply_label(tag, metadata, config);

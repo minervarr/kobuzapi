@@ -4,7 +4,7 @@ use std::collections::HashSet;
 
 use lofty::tag::{
     Accessor,
-    ItemKey::{AlbumArtist, Composer, MusicianCredits, Producer},
+    ItemKey::{AlbumArtist, Composer, Producer},
     ItemValue, Tag, TagItem,
 };
 
@@ -12,7 +12,7 @@ use crate::metadata::{
     config::{
         MetadataConfig,
         MetadataField::{
-            AlbumArtist as ConfigAlbumArtist, Artist, Composer as ConfigComposer, InvolvedPeople,
+            AlbumArtist as ConfigAlbumArtist, Artist, Composer as ConfigComposer,
             Producer as ConfigProducer,
         },
     },
@@ -172,27 +172,6 @@ pub fn apply_artist(
             names.join("/")
         };
         tag.set_artist(combined);
-    }
-}
-
-/// Writes the involved people / musician credits from the performers string.
-///
-/// # Arguments
-///
-/// * `tag` - Target tag to write into
-/// * `meta` - Source metadata
-/// * `config` - Field toggle configuration
-pub fn apply_involved_people(tag: &mut Tag, meta: &ComprehensiveMetadata, config: &MetadataConfig) {
-    if !config.is_enabled(InvolvedPeople) {
-        return;
-    }
-    if let Some(performers) = meta.performers.as_ref()
-        && !performers.is_empty()
-    {
-        tag.push(TagItem::new(
-            MusicianCredits,
-            ItemValue::Text(performers.clone()),
-        ));
     }
 }
 
