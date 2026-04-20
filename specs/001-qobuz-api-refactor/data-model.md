@@ -346,6 +346,17 @@ User authentication credentials.
 | `channels` | `Option<i32>` | Channel count |
 | `codec` | `Option<String>` | Audio codec |
 
+#### Subscription
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `Option<i32>` | Subscription ID |
+| `status` | `Option<String>` | Subscription status (e.g., "active", "expired") |
+| `offer` | `Option<String>` | Subscription tier/offer name (e.g., "Studio", "Sublime") |
+| `end_date` | `Option<i64>` | Subscription end timestamp |
+| `periodicity` | `Option<String>` | Billing periodicity (e.g., "monthly", "yearly") |
+| `is_lossless` | `Option<bool>` | Whether lossless quality is included |
+| `is_hires` | `Option<bool>` | Whether Hi-Res quality is included |
+
 #### User
 | Field | Type | Description |
 |-------|------|-------------|

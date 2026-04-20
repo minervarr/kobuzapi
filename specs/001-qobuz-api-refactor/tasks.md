@@ -49,12 +49,12 @@
 - [x] T016a [P] Create `src/models/favorites.rs` with `UserFavorites` struct per data-model.md
 - [x] T017 [P] Create `src/models/subscription.rs` with `Subscription`, `User` structs per data-model.md
 - [x] T018 Create `src/api/mod.rs` with module declarations for `http_client`, `service`, `requests`, `auth`, `content/`, `favorites` per plan.md
-- [x] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()` (consumes signature functions from `src/signing.rs`), response parsing, and retry-with-backoff wrapper (configurable retry limit, default 3 retries, exponential backoff) per research.md sections 1 and 6
-- [x] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md; initialize `reqwest::Client` with connection pooling and timeout defaults (connect timeout: 10s, request timeout: 30s); use a plain `bool` for `credentials_refreshed` since the public contract uses `&mut self` for auth methods (exclusive access), not interior mutability
-- [x] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 and contracts/public-api.md (deterministic testing via trait abstraction)
+- [x] T074 [P] Create `src/api/http_client.rs` with `HttpClient` trait definition (`get`, `post`, `signed_get`, `bytes_stream`) and `ReqwestClient` implementation wrapping `reqwest::Client` per research.md section 8 and contracts/public-api.md (deterministic testing via trait abstraction). **Must complete before T020** — `QobuzApiService` references `Box<dyn HttpClient>` in its struct definition
+- [x] T019 Create `src/api/requests.rs` with HTTP primitives: `get()`, `post()`, `signed_get()` (consumes signature functions from `src/signing.rs`), response parsing, and retry-with-backoff wrapper (configurable retry limit, default 3 retries, exponential backoff) per research.md sections 1 and 6. **Depends on T074** — uses `HttpClient` trait for HTTP abstraction
+- [x] T020 Create `src/api/service.rs` with `QobuzApiService` struct definition (fields: `app_id`, `app_secret`, `user_auth_token`, `client`, `credentials_refreshed`), `new()` and `with_credentials()` constructors per data-model.md and contracts/public-api.md; initialize `reqwest::Client` with connection pooling and timeout defaults (connect timeout: 10s, request timeout: 30s); use a plain `bool` for `credentials_refreshed` since the public contract uses `&mut self` for auth methods (exclusive access), not interior mutability. **Depends on T074** — `client` field is `Box<dyn HttpClient>`
 - [x] T075 [P] Create declarative macros in `src/api/requests.rs` (`search_endpoint!`, `get_endpoint!`) to eliminate duplication across search (T027-T030) and get (T034-T038) method patterns per constitution Principle I
 - [x] T076 [P] Create `tests/integration/` directory with `auth_tests.rs`, `search_tests.rs`, `download_tests.rs`, `favorites_tests.rs`, `metadata_tests.rs` scaffolding (empty test modules with `MockHttpClient` stub) per plan.md project structure
-- [x] T033 Create `src/api/content/mod.rs` with module declarations for albums, artists, tracks, playlists, catalog per plan.md
+- [x] T033 Create `src/api/content/mod.rs` with module declarations for albums, artists, tracks, playlists, catalog per plan.md. Create empty stub files (`touch src/api/content/{albums,artists,tracks,playlists,catalog}.rs`) for each declared submodule to maintain compilation
 
 **Checkpoint**: Foundation ready — all models, HTTP primitives, test infrastructure, and deduplication macros in place. User story implementation can begin.
 
@@ -130,6 +130,7 @@
 ### Implementation for User Story 4
 
 - [x] T080 [US4] Write unit tests in `src/api/content/tracks.rs` and `src/api/content/albums.rs` for: single track download, album download with concurrency, signature error recovery, partial resume, filename formatting, network error context, regional/subscription unavailability error surfacing (verifying `ApiErrorResponse` with unavailability message) per constitution Principle II
+- [x] T081a [US4] Write unit test in `src/api/content/tracks.rs` for retry policy stacking per FR-018c
 - [x] T041 [US4] Implement `get_track_file_url()` in `src/api/content/tracks.rs` — GET `/track/getFileUrl` with signed request (track file URL signature per research.md), returns `FileUrl` per contracts/public-api.md
 - [x] T042 [US4] Implement streaming download function in `src/api/requests.rs` — `bytes_stream()` with `tokio::io::BufWriter` for efficient disk I/O per research.md section 1
 - [x] T043 [US4] Implement `download_track()` in `src/api/content/tracks.rs` — gets file URL, streams to disk, formats filename as `{NN}. {title}.{ext}`, handles signature error recovery with credential refresh per contracts/public-api.md
@@ -151,7 +152,6 @@
 ### Implementation for User Story 5
 
 - [x] T081 [US5] Write unit tests in `src/metadata/extractor.rs` and `src/metadata/embedder.rs` for: comprehensive field extraction, artist deduplication, classical music conductor priority, FLAC/MP3 tag writing, separator formatting, `MetadataConfig` field toggling, special character encoding in metadata values (Unicode, control characters, very long strings) per constitution Principle II
-- [x] T081a [US4] Write unit test in `src/api/content/tracks.rs` for retry policy stacking per FR-018c
 - [x] T047 [P] [US5] Create `src/metadata/mod.rs` with module declarations and re-exports per plan.md
 - [x] T048 [P] [US5] Create `src/metadata/config.rs` with `MetadataConfig` struct (all boolean fields, `Default` impl with `comment: false`, rest `true`) per data-model.md
 - [x] T049 [US5] Create `src/metadata/extractor.rs` with `extract_comprehensive_metadata()` — extracts all metadata fields from API models (`Track`, `Album`, `Artist`) into a structured intermediate representation; uses `rayon::par_iter` for batch extraction when processing album tracks per contracts/public-api.md and constitution Principle IV
@@ -211,6 +211,7 @@
 **Purpose**: Final validation, cleanup, and documentation
 
 - [ ] T068 Update `src/lib.rs` re-exports to match final public API surface per contracts/public-api.md
+- [ ] T068a Audit source code for forbidden patterns per constitution Principle I: `rg 'let _' src/` and `rg '\.ok()' src/` must return zero matches. These patterns are prohibited by the constitution but not caught by standard clippy lints
 - [ ] T069 [P] Run `cargo clippy --fix --allow-dirty --all-targets -- -W clippy::pedantic` and resolve all warnings
 - [ ] T070 [P] Run `cargo fmt` and verify formatting
 - [ ] T071 Verify all files are under 400-line limit per plan.md constraint
@@ -261,6 +262,7 @@ US1 (Auth)
 
 - All Phase 1 tasks marked [P] can run in parallel (T003-T008)
 - All model files in Phase 2 (T010-T017) can run in parallel
+- In Phase 2: T074 (HttpClient trait) must complete before T019 (requests.rs) and T020 (service.rs) — T074 can run in parallel with T009-T018
 - Within US2: search methods for each content type (T027-T030) can run in parallel
 - Within US3: all get methods (T034-T038) can run in parallel
 - US6 (Favorites) can run in parallel with US3/US4/US5 (independent of search/browse/download); however, the sequential phase numbering reflects a deliberate implementation order — developers may reorder phases 5–8 as needed provided US1 completes first
@@ -352,3 +354,5 @@ T038: get_release_list  ┘
 - Benchmark tasks (T084) cover hot paths identified in research.md section 10 per constitution Principle IV
 - Error validation tasks (T085a, T085b) verify FR-018a (all 13 variants) and SC-006 (actionable remediation messages) per constitution Principles I and III
 - `HttpClient` trait (T074) enables deterministic testing per research.md section 8 recommendation
+- Forbidden-pattern audit (T068a) enforces constitution Principle I's `let _`/`.ok()` prohibition which standard clippy lints do not catch
+- T081a is placed in Phase 6 alongside T080 because it tests retry policy stacking (FR-018c) in the download module, not in the metadata module

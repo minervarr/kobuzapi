@@ -158,7 +158,7 @@ A developer or end-user wants an interactive command-line interface to search fo
 - What happens when the web player credential extraction fails (e.g., Qobuz changes their web player structure)? A `CredentialsError` is returned indicating that automatic credential refresh is unavailable and manual configuration is needed.
 - How does the system handle tracks or albums that are not available in the user's region or subscription tier? The API returns a standard error response; the library MUST surface this as an `ApiErrorResponse` with a message indicating regional/subscription unavailability.
 - What happens when metadata fields contain special characters or very long values? Filenames should be sanitized (truncated to 255 bytes maximum, stripped of path separators and control characters) and metadata should be encoded correctly for each audio format.
-- How does the system handle concurrent download requests? Each download should complete independently without interfering with others, bounded by a configurable concurrency limit (default: 4 simultaneous downloads).
+- How does the system handle concurrent download requests? Each download should complete independently without interfering with others, bounded by a configurable concurrency limit (default: 4 simultaneous downloads). If individual tracks in an album download fail, successfully downloaded files remain on disk and a `DownloadError` listing failed track IDs is returned (see FR-008).
 
 ## Requirements *(mandatory)*
 
@@ -166,14 +166,14 @@ A developer or end-user wants an interactive command-line interface to search fo
 
 - **FR-001**: The library MUST authenticate users with the Qobuz API using email/password credentials
 - **FR-002**: The library MUST authenticate users with the Qobuz API using user ID and auth token
-- **FR-003**: The library MUST support automatic authentication from environment variables (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`). `QOBUZ_USERNAME` is treated as an alias for `QOBUZ_EMAIL` for backward compatibility
+- **FR-003**: The library MUST support automatic authentication from environment variables (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`). `QOBUZ_USERNAME` is treated as an alias for `QOBUZ_EMAIL` for backward compatibility. If both `QOBUZ_EMAIL` and `QOBUZ_USERNAME` are set, `QOBUZ_EMAIL` takes precedence. Authentication priority order: (1) `QOBUZ_USER_ID` + `QOBUZ_USER_AUTH_TOKEN` → token-based auth, (2) `QOBUZ_EMAIL` + `QOBUZ_PASSWORD` → email/password auth, (3) `QOBUZ_USERNAME` + `QOBUZ_PASSWORD` → email/password auth (alias)
 - **FR-004**: The library MUST automatically extract and refresh application credentials (app ID and app secret) from the Qobuz web player JavaScript bundle (fetched from `https://play.qobuz.com`). The extraction mechanism and regex patterns are documented in research.md section 5
 - **FR-005**: The library MUST search for albums, artists, tracks, and playlists by text query, and MUST support a combined catalog search that returns results grouped by content type via `SearchResult`
 - **FR-006**: The library MUST retrieve detailed information for albums, artists, tracks, and playlists by their unique identifiers
 - **FR-007**: The library MUST download individual tracks at user-selected quality levels (MP3 320kbps, FLAC 16-bit/44.1kHz, Hi-Res 24-bit/96kHz, Hi-Res 24-bit/192kHz)
-- **FR-008**: The library MUST download complete albums with all tracks organized into artist/album directory structure, using a configurable concurrency limit (default: 4 simultaneous downloads)
+- **FR-008**: The library MUST download complete albums with all tracks organized into artist/album directory structure, using a configurable concurrency limit (default: 4 simultaneous downloads). If individual track downloads fail after all retry attempts, the library MUST return a `DownloadError` listing the failed track IDs and error details. Successfully downloaded files MUST remain on disk. The returned `Vec<PathBuf>` contains only paths of successfully downloaded tracks
 - **FR-009**: The library MUST automatically retry downloads **once** when credential-related signature errors occur, by invoking the credential refresh mechanism defined in FR-004 and retrying the failed download
-- **FR-010**: The library MUST embed comprehensive metadata into downloaded audio files, including title, artist, album, album artist, genre, date, composer, conductor, performer, track number, disc number, and cover art
+- **FR-010**: The library MUST embed comprehensive metadata into downloaded audio files. The minimum required fields are: title, artist, album, album artist, genre, date, composer, conductor, performer, track number, disc number, and cover art. Additional fields available via `MetadataConfig` (isrc, copyright, label, media, comment, producer) are embedded when enabled
 - **FR-011**: The library MUST handle format-specific metadata tagging (Vorbis Comments for FLAC, ID3v2 for MP3)
 - **FR-012**: The library MUST deduplicate artist and composer names when multiple roles reference the same person
 - **FR-013**: The library MUST allow users to configure which metadata fields are embedded via a metadata configuration object (`MetadataConfig`). When all fields are disabled, the download proceeds without any metadata tagging
@@ -188,7 +188,7 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-020**: The project MUST provide an interactive CLI binary for searching, browsing, and downloading music
 - **FR-021**: The library MUST support reading and writing application credentials to `.env` files for persistence, and MUST set file permissions to `0600` (owner read/write only) when creating or writing the file
 - **FR-022**: The library MUST handle classical music metadata with conductor and orchestra information, prioritizing conductor as album artist
-- **FR-023**: The library MUST support resumable partial downloads, allowing interrupted downloads to continue from the last received byte using HTTP range requests. A file is considered partial if it exists on disk and its size is less than the `Content-Length` reported by the server for the full download. The library sends an HTTP `Range: bytes=<existing_size>-` header to resume from the last received byte and verifies the server responds with a `206 Partial Content` status
+- **FR-023**: The library MUST support resumable partial downloads, allowing interrupted downloads to continue from the last received byte using HTTP range requests. A file is considered partial if it exists on disk and its size is less than the `Content-Length` reported by the server for the full download. The library sends an HTTP `Range: bytes=<existing_size>-` header to resume from the last received byte and verifies the server responds with a `206 Partial Content` status. If the server's reported `Content-Length` for the full download does not match the expected total size (indicating the partial file is corrupted or stale), the library MUST discard the partial file and re-download from scratch
 
 ### Constitution Scope Notes
 
@@ -232,4 +232,4 @@ Constitution Principle III references GUI elements and a uniform quality interfa
 - The `.env` file format is acceptable for local credential persistence during development; the library auto-sets `0600` permissions on the file
 - The refactored application targets Linux as the primary platform
 - The existing API endpoint structure (`https://www.qobuz.com/api.json/0.2/`) remains stable
-- Environment variable names (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`) remain unchanged for backward compatibility; `QOBUZ_USERNAME` is supported as an alias for `QOBUZ_EMAIL`
+- Environment variable names (`QOBUZ_USER_ID`, `QOBUZ_USER_AUTH_TOKEN`, `QOBUZ_EMAIL`, `QOBUZ_PASSWORD`) remain unchanged for backward compatibility; `QOBUZ_USERNAME` is supported as an alias for `QOBUZ_EMAIL`. When both `QOBUZ_EMAIL` and `QOBUZ_USERNAME` are set, `QOBUZ_EMAIL` takes precedence

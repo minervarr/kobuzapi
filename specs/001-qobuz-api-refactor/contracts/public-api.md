@@ -143,7 +143,7 @@ Retrieves an artist's releases.
 Gets the download URL for a track at the specified quality.
 
 **Pre-condition**: `user_auth_token` is `Some`.
-**Format IDs**: 5 (MP3 320), 6 (FLAC 16/44.1), 7 (FLAC 24/96), 27 (FLAC 24/192).
+**Format IDs**: 5 (MP3 320), 6 (FLAC 16/44.1), 7 (FLAC 24/96), 27 (FLAC 24/192). Named constants are provided in `src/models/file_url.rs` (e.g., `FORMAT_MP3`, `FORMAT_FLAC`, `FORMAT_HIRES_96`, `FORMAT_HIRES_192`).
 
 #### `download_track(&self, track_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> Result<PathBuf, QobuzApiError>`
 
@@ -159,6 +159,7 @@ Downloads all tracks in an album concurrently. Returns paths to all saved files.
 **Directory format**: `{output_dir}/{artist}/{album_title}/`
 **Concurrency**: When `concurrency` is `None`, defaults to 4 simultaneous downloads. Uses `tokio::sync::Semaphore`.
 **Error recovery**: On signature errors, refreshes credentials once and retries all failed tracks.
+**Partial failure**: If individual tracks fail after all retry attempts, returns `DownloadError` listing failed track IDs. Successfully downloaded files remain on disk. The returned `Vec<PathBuf>` contains only paths of successfully downloaded tracks.
 
 ### Favorites
 

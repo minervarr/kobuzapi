@@ -113,6 +113,43 @@ tests/
 
 **Structure Decision**: Single-project structure grouped by capability/domain. The `api/` module contains the HTTP client layer split by endpoint domain. `models/` contains pure data structures. `metadata/` handles audio file tagging. `cli/` provides the interactive interface. Shared utilities (`signing`, `credentials`, `sanitize`, `errors`) are top-level modules in `src/`. This follows the constitution's "group by capability/domain" rule and avoids the forbidden `models/handlers/utils` anti-pattern.
 
+## CLI Command Grammar
+
+The interactive REPL (US7) accepts the following commands:
+
+**Search**: `search <query> [limit <N>]`
+- Searches all content types (albums, artists, tracks, playlists)
+- Results displayed as numbered lists grouped by type
+- `limit` defaults to 10 if omitted
+
+**Browse**: `browse <type> <id>`
+- `<type>`: `album`, `artist`, `track`, `playlist`
+- Displays full metadata for the selected item
+
+**Download**: `download <type> <id> [quality <level>] [output <path>]`
+- `<type>`: `track` or `album`
+- `<level>`: `mp3` (5), `flac` (6), `hires96` (7), `hires192` (27); defaults to `flac`
+- `output` defaults to current directory
+- Shows progress indication and completion confirmation
+
+**Favorites**: `fav <action> <type> <id...>`
+- `<action>`: `add`, `remove`, `list`, `ids`
+- `<type>`: `album`, `artist`, `track`
+- Multiple IDs accepted for `add`/`remove`
+- `list` and `ids` ignore `<id>` and return all favorites
+
+**Quit**: `quit` or `exit`
+- Exits the REPL
+
+**Quality Level Mapping**:
+
+| Name | Format ID | Description |
+|------|-----------|-------------|
+| `mp3` | 5 | MP3 320kbps |
+| `flac` | 6 | FLAC 16-bit/44.1kHz |
+| `hires96` | 7 | FLAC 24-bit/96kHz |
+| `hires192` | 27 | FLAC 24-bit/192kHz |
+
 ## Complexity Tracking
 
 No violations to justify — all constitution gates pass.
