@@ -121,7 +121,6 @@ pub enum QobuzApiError {
 - `api/` — HTTP client layer (service, requests, auth, content submodules, favorites)
 - `models/` — Pure data structures for API responses
 - `metadata/` — Audio file metadata extraction and embedding
-- `cli/` — Interactive CLI interface
 - Top-level: `errors.rs`, `signing.rs`, `credentials.rs`, `sanitize.rs`
 
 Each file stays under 400 lines. Split impl blocks across files within the same module are acceptable.
@@ -142,20 +141,7 @@ Each file stays under 400 lines. Split impl blocks across files within the same 
 
 ---
 
-## 9. CLI Architecture
-
-### Decision: Simple interactive REPL using `std::io::stdin`
-
-**Rationale**: The spec requires an interactive CLI with a text-based loop for search, browse, and download. Using `std::io::stdin` with line reading keeps dependencies minimal. The CLI module handles input parsing and output formatting, delegating all business logic to the library.
-
-**Alternatives considered**:
-- `clap` for argument parsing: Worth adding for initial CLI args (like `--config`), but the interactive loop doesn't need it.
-- `dialoguer` for interactive prompts: Adds unnecessary dependency for a simple REPL.
-- `rustyline` for readline features: Over-engineered for the current scope.
-
----
-
-## 10. Performance Considerations
+## 9. Performance Considerations
 
 ### Decision: `tokio` for I/O, `rayon` for CPU-bound metadata tagging
 

@@ -10,7 +10,7 @@
 ### Session 2026-04-06
 
 - Q: What is the scope boundary for this refactor? → A: In scope: auth + search + download + metadata; out: streaming, social features
-- Q: Are Favorites and CLI in scope? → A: Both Favorites and CLI are in scope
+- Q: Are Favorites and CLI in scope? → A: Favorites is in scope; CLI is out of scope — keeping the project as a simple library
 - Q: How should credentials be stored? → A: .env file only, with chmod 600 advisory / auto-set permissions
 - Q: What is the download concurrency model? → A: Configurable concurrent limit with a sensible default of 4
 - Q: How should rate limiting be handled? → A: Automatic retry with exponential backoff (configurable, default ~3 retries)
@@ -20,7 +20,7 @@
 - Real-time audio streaming / playback
 - Social features (sharing, public playlists, recommendations, following)
 
-**Confirmed in scope**: Authentication, search, download, metadata embedding, favorites management, and interactive CLI.
+**Confirmed in scope**: Authentication, search, download, metadata embedding, and favorites management.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -134,23 +134,6 @@ A user wants to add albums, artists, and tracks to their Qobuz favorites list, r
 
 ---
 
-### User Story 7 - Interactive CLI (Priority: P3)
-
-A developer or end-user wants an interactive command-line interface to search for music, browse results, and download tracks or albums without writing code. The CLI provides a simple text-based loop for entering queries and selecting results.
-
-**Why this priority**: The CLI is a convenience interface on top of the library. It demonstrates the library's capabilities but the library itself (P1-P2 features) is the primary deliverable.
-
-**Independent Test**: Can be fully tested by running the CLI, entering search queries, selecting results, and initiating downloads, verifying the output at each step.
-
-**Acceptance Scenarios**:
-
-1. **Given** the application is launched, **When** the user enters a search query, **Then** matching results are displayed with numbered options
-2. **Given** search results are displayed, **When** the user selects an item, **Then** detailed information about the selected item is shown
-3. **Given** a selected album or track, **When** the user chooses to download, **Then** the download begins with progress indication and completion confirmation
-4. **Given** the REPL is active, **When** the user issues a favorites command (add, remove, list), **Then** the operation completes with confirmation feedback
-
----
-
 ### Edge Cases
 
 - What happens when the Qobuz API returns rate limit errors? The library should automatically retry with exponential backoff, up to a configurable retry limit (default: 3 retries), before surfacing a clear rate limit error (see FR-018b).
@@ -185,7 +168,6 @@ A developer or end-user wants an interactive command-line interface to search fo
 - **FR-018b**: The library MUST automatically retry rate-limited requests with exponential backoff using a configurable retry limit (default: 3 retries). Backoff delay is `base_delay * 2^attempt` where `base_delay` is 1 second, producing delays of 1s, 2s, 4s for attempts 0–2. Implementation uses `tokio::time::sleep` per research.md section 6
 - **FR-018c**: FR-009 (credential refresh retry) and FR-018b (rate limit retry) are independent retry policies. FR-009 governs credential-related signature errors only: refresh credentials once, then retry the download once. FR-018b governs HTTP-level rate limits (429) and transient network errors, with its own retry budget. These policies stack: a download may trigger FR-009 recovery (refresh + retry), and if the retried request hits a rate limit, FR-018b applies separately.
 - **FR-019**: The library MUST sanitize filenames for cross-platform compatibility
-- **FR-020**: The project MUST provide an interactive CLI binary for searching, browsing, and downloading music
 - **FR-021**: The library MUST support reading and writing application credentials to `.env` files for persistence, and MUST set file permissions to `0600` (owner read/write only) when creating or writing the file
 - **FR-022**: The library MUST handle classical music metadata with conductor and orchestra information, prioritizing conductor as album artist
 - **FR-023**: The library MUST support resumable partial downloads, allowing interrupted downloads to continue from the last received byte using HTTP range requests. A file is considered partial if it exists on disk and its size is less than the `Content-Length` reported by the server for the full download. The library sends an HTTP `Range: bytes=<existing_size>-` header to resume from the last received byte and verifies the server responds with a `206 Partial Content` status. If the server's reported `Content-Length` for the full download does not match the expected total size (indicating the partial file is corrupted or stale), the library MUST discard the partial file and re-download from scratch
@@ -219,7 +201,7 @@ Constitution Principle III references GUI elements and a uniform quality interfa
 - **SC-003**: Downloads complete successfully with files saved in the correct format and quality level as selected by the user. Individual track downloads at FLAC quality complete within 30 seconds per track on a connection with ≥10 Mbps downstream and ≤100ms latency to the Qobuz CDN. Album downloads utilize the configurable concurrency limit (default: 4) to achieve proportional throughput improvement. Validated via criterion benchmark in T084 for download pipeline latency.
 - **SC-004**: Downloaded audio files display complete metadata (title, artist, album, cover art, genre, composer, etc.) correctly in any player supporting Vorbis Comments (FLAC) or ID3v2 (MP3)
 - **SC-005**: The library recovers automatically from expired credentials without user intervention, completing downloads that would otherwise fail
-- **SC-006**: All error scenarios produce structured error messages where every `QobuzApiError` variant includes a human-readable message string identifying the failure category. Error messages for user-facing operations (CLI, download failures) additionally include a suggested remediation step (e.g., "Check your credentials" for `AuthenticationError`, "Verify the content ID exists" for `ResourceNotFoundError`). Validated via unit tests asserting each error variant's message format.
+- **SC-006**: All error scenarios produce structured error messages where every `QobuzApiError` variant includes a human-readable message string identifying the failure category. Error messages for download failures additionally include a suggested remediation step (e.g., "Check your credentials" for `AuthenticationError`, "Verify the content ID exists" for `ResourceNotFoundError`). Validated via unit tests asserting each error variant's message format.
 - **SC-007**: The codebase passes all lint checks with zero warnings
 - **SC-008**: The codebase includes unit tests for core functionality (authentication, search, download, metadata)
 - **SC-009**: The codebase follows consistent module organization grouped by capability/domain, with no file exceeding 400 lines

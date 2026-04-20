@@ -185,28 +185,7 @@
 
 ---
 
-## Phase 9: User Story 7 - Interactive CLI (Priority: P3)
-
-**Goal**: Interactive REPL for searching, browsing, and downloading music without writing code
-
-**Independent Test**: Run CLI, enter search query, select result, view details, initiate download
-
-### Implementation for User Story 7
-
-- [ ] T083 [US7] Write unit tests in `src/cli/interactive.rs` for: command parsing, search output formatting, download handler with quality selection, favorites commands, error output curation (no raw error dumps) per constitution Principle II and Principle III
-- [ ] T061 [US7] Create `src/cli/mod.rs` with module declarations per plan.md
-- [ ] T062 [US7] Create `src/cli/interactive.rs` with interactive CLI read-eval-print loop — reads from `std::io::stdin`, parses commands (search, browse, download, favorites, quit), dispatches to `QobuzApiService`; all user-facing error output must use curated messages (no raw error dumps), with structured `tracing` internally per constitution Principle III per research.md section 9
-- [ ] T063 [US7] Implement search command handler in `src/cli/interactive.rs` — displays numbered results with metadata (title, artist, album) per spec.md acceptance scenario 1
-- [ ] T064 [US7] Implement browse/detail command handler in `src/cli/interactive.rs` — shows detailed info for selected item per spec.md acceptance scenario 2
-- [ ] T065 [US7] Implement download command handler in `src/cli/interactive.rs` — initiates download with quality selection, progress indication, and completion confirmation per spec.md acceptance scenario 3
-- [ ] T066 [US7] Implement favorites command handler in `src/cli/interactive.rs` — add/remove/list favorites from REPL
-- [ ] T067 [US7] Wire CLI entry point in `src/main.rs` — initialize service, authenticate, launch REPL loop
-
-**Checkpoint**: CLI fully functional. Users can interactively search, browse, download, and manage favorites.
-
----
-
-## Phase 10: Polish & Cross-Cutting Concerns
+## Phase 9: Polish & Cross-Cutting Concerns
 
 **Purpose**: Final validation, cleanup, and documentation
 
@@ -231,23 +210,21 @@
 
 - **Setup (Phase 1)**: No dependencies — start immediately
 - **Foundational (Phase 2)**: Depends on Phase 1 completion — BLOCKS all user stories
-- **User Stories (Phase 3-9)**: All depend on Phase 2 completion
+- **User Stories (Phase 3-8)**: All depend on Phase 2 completion
   - US1 (Phase 3): No dependencies on other stories — MVP
   - US2 (Phase 4): Depends on US1 (requires authenticated session for API calls)
   - US3 (Phase 5): Depends on US1 (requires authenticated session; models from Phase 2)
   - US4 (Phase 6): Depends on US1 + US3 (needs track details, file URLs)
   - US5 (Phase 7): Depends on US4 (metadata embedding integrated into download)
   - US6 (Phase 8): Depends on US1 (requires authenticated session, signed requests)
-  - US7 (Phase 9): Depends on all prior stories (US2, US3, US4, US5, US6) — CLI wraps library
-- **Polish (Phase 10)**: Depends on all user stories complete
+- **Polish (Phase 9)**: Depends on all user stories complete
 
 ### User Story Dependencies
 
 ```
 US1 (Auth)
 ├── US2 (Search) → US3 (Browse) → US4 (Download) → US5 (Metadata)
-├── US6 (Favorites)
-└── US7 (CLI) — depends on US2, US3, US4, US5, US6
+└── US6 (Favorites)
 ```
 
 ### Within Each User Story
@@ -335,8 +312,7 @@ T038: get_release_list  ┘
 5. Add US4 (Download) → Test → Core value delivered
 6. Add US5 (Metadata) → Test → Files tagged correctly
 7. Add US6 (Favorites) → Test → Full feature set
-8. Add US7 (CLI) → Test → Interactive interface
-9. Polish → Production ready
+8. Polish → Production ready
 
 ---
 
@@ -350,7 +326,7 @@ T038: get_release_list  ┘
 - All public items must have `///` documentation per AGENTS.md
 - All errors use structured `tracing` with fields per AGENTS.md
 - Max 400 lines per file, zero clippy pedantic warnings, no unsafe code
-- Test tasks (T077-T083) follow constitution Principle II (Test-First Engineering): listed FIRST in each implementation section to enforce Red-Green-Refactor — write tests, implement until green, then refactor
+- Test tasks (T077-T082) follow constitution Principle II (Test-First Engineering): listed FIRST in each implementation section to enforce Red-Green-Refactor — write tests, implement until green, then refactor
 - Benchmark tasks (T084) cover hot paths identified in research.md section 10 per constitution Principle IV
 - Error validation tasks (T085a, T085b) verify FR-018a (all 13 variants) and SC-006 (actionable remediation messages) per constitution Principles I and III
 - `HttpClient` trait (T074) enables deterministic testing per research.md section 8 recommendation

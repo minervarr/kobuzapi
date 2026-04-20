@@ -136,14 +136,6 @@ let config = MetadataConfig {
 service.download_track(12345, 6, Path::new("./downloads"), Some(&config))?;
 ```
 
-### 8. Interactive CLI
-
-```bash
-cargo run
-```
-
-The CLI provides an interactive REPL for searching, browsing, and downloading without writing code.
-
 ## Error Handling
 
 All operations return `Result<T, QobuzApiError>`. Errors are structured and include context:
