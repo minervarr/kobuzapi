@@ -1237,7 +1237,6 @@ dependencies = [
  "dotenvy",
  "lofty",
  "md-5",
- "parking_lot",
  "rayon",
  "regex",
  "reqwest",
