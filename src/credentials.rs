@@ -6,12 +6,11 @@ pub mod web;
 
 use std::{
     fs::{Permissions, read_to_string, set_permissions, write},
+    io::Result as IoResult,
     os::unix::fs::PermissionsExt,
     path::Path,
     string::ToString,
 };
-
-use dotenvy::from_path_iter;
 
 use crate::errors::QobuzApiError::{self, CredentialsError};
 
@@ -36,12 +35,9 @@ pub fn load_app_credentials(path: &Path) -> Result<Option<(String, String)>, Qob
     let mut app_id = None;
     let mut app_secret = None;
 
-    for item in from_path_iter(path).map_err(|e| CredentialsError {
+    for (key, value) in parse_env_file(path).map_err(|e| CredentialsError {
         message: format!("Failed to read .env file: {e}"),
     })? {
-        let (key, value) = item.map_err(|e| CredentialsError {
-            message: format!("Failed to parse .env entry: {e}"),
-        })?;
         match key.as_str() {
             "QOBUZ_APP_ID" => app_id = Some(value),
             "QOBUZ_APP_SECRET" => app_secret = Some(value),
@@ -128,6 +124,61 @@ fn set_file_permissions(path: &Path) -> Result<(), QobuzApiError> {
         set_permissions(path, Permissions::from_mode(0o600))?;
     }
     Ok(())
+}
+
+/// Parses a single line of a `.env` file into a key-value pair.
+///
+/// Returns `None` for blank lines and comment lines (starting with `#`).
+fn parse_env_line(line: &str) -> Option<(String, String)> {
+    let trimmed = line.trim();
+    if trimmed.is_empty() || trimmed.starts_with('#') {
+        return None;
+    }
+
+    let (key, value) = trimmed.split_once('=')?;
+    let key = key.trim().to_string();
+    let value = value.trim();
+
+    let value = unquote(value).to_string();
+
+    Some((key, value))
+}
+
+/// Strips surrounding single or double quotes from a value string.
+fn unquote(s: &str) -> &str {
+    let len = s.len();
+    if len < 2 {
+        return s;
+    }
+
+    let bytes = s.as_bytes();
+    if (bytes[0] == b'"' && bytes[len - 1] == b'"')
+        || (bytes[0] == b'\'' && bytes[len - 1] == b'\'')
+    {
+        &s[1..len - 1]
+    } else {
+        s
+    }
+}
+
+/// Parses a `.env` file and returns all key-value pairs.
+///
+/// Handles comments, blank lines, and optional quoting on values.
+///
+/// # Arguments
+///
+/// * `path` - Path to the `.env` file
+///
+/// # Returns
+///
+/// An `io::Result` with the parsed key-value pairs.
+///
+/// # Errors
+///
+/// Returns an I/O error if the file cannot be read.
+pub fn parse_env_file(path: &Path) -> IoResult<Vec<(String, String)>> {
+    let content = read_to_string(path)?;
+    Ok(content.lines().filter_map(parse_env_line).collect())
 }
 
 #[cfg(test)]

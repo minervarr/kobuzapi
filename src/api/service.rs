@@ -1,12 +1,18 @@
 //! Central API service holding authentication state and providing all operations.
 
-use std::path::{Path, PathBuf};
+use std::{
+    env::VarError,
+    path::{Path, PathBuf},
+};
 
 use {tokio::runtime::Runtime, tracing::info};
 
 use crate::{
     api::{
-        auth::{authenticate_with_env, login, login_with_token, refresh_app_credentials},
+        auth::{
+            authenticate_with_env, authenticate_with_env_from, login, login_with_token,
+            refresh_app_credentials,
+        },
         content::{
             album_download::download_album,
             albums::{get_album, search_albums},
@@ -297,6 +303,29 @@ impl QobuzApiService {
     /// Returns a `QobuzApiError` if no valid credentials are found or login fails.
     pub fn authenticate_with_env(&mut self) -> Result<(), QobuzApiError> {
         authenticate_with_env(self)
+    }
+
+    /// Authenticates using a custom environment variable reader.
+    ///
+    /// Useful when credentials are stored in a parsed `.env` map rather than
+    /// process environment variables.
+    ///
+    /// # Arguments
+    ///
+    /// * `get_env` - Function that retrieves environment variable values by name
+    ///
+    /// # Returns
+    ///
+    /// `Ok(())` on successful authentication.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if no valid credentials are found or login fails.
+    pub fn authenticate_with_env_from<E>(&mut self, get_env: E) -> Result<(), QobuzApiError>
+    where
+        E: Fn(&str) -> Result<String, VarError>,
+    {
+        authenticate_with_env_from(self, get_env)
     }
 
     /// Authenticates with email and MD5-hashed password.

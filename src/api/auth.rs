@@ -71,7 +71,7 @@ pub fn authenticate_with_env(service: &mut QobuzApiService) -> Result<(), QobuzA
 /// # Errors
 ///
 /// Returns `QobuzApiError` if no valid credentials are found or login fails.
-fn authenticate_with_env_from<E>(
+pub fn authenticate_with_env_from<E>(
     service: &mut QobuzApiService,
     get_env: E,
 ) -> Result<(), QobuzApiError>
