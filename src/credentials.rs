@@ -1,4 +1,8 @@
 //! Credential management: `.env` file I/O, web player extraction.
+//!
+//! Web player extraction lives in [`web`].
+
+pub mod web;
 
 use std::{
     fs::{Permissions, read_to_string, set_permissions, write},
@@ -7,7 +11,7 @@ use std::{
     string::ToString,
 };
 
-use {dotenvy::from_path_iter, regex::Regex, reqwest::Client};
+use dotenvy::from_path_iter;
 
 use crate::errors::QobuzApiError::{self, CredentialsError};
 
@@ -109,100 +113,6 @@ pub fn save_app_credentials(
     Ok(())
 }
 
-/// Extracts `app_id` and `app_secret` from the Qobuz web player JavaScript bundle.
-///
-/// # Returns
-///
-/// A tuple of `(app_id, app_secret)` extracted from the web player.
-///
-/// # Errors
-///
-/// Returns `QobuzApiError::CredentialsError` if extraction fails or `QobuzApiError::HttpError` on
-/// network failure.
-pub async fn extract_from_web_player() -> Result<(String, String), QobuzApiError> {
-    let client = Client::builder().user_agent("Mozilla/5.0").build()?;
-
-    let login_page = client
-        .get("https://play.qobuz.com/login")
-        .send()
-        .await?
-        .text()
-        .await?;
-
-    let bundle_url = extract_bundle_url(&login_page)?;
-
-    let bundle_js = client.get(bundle_url).send().await?.text().await?;
-
-    extract_app_credentials(&bundle_js)
-}
-
-/// Extracts the bundle JavaScript URL from the login page HTML.
-///
-/// # Arguments
-///
-/// * `html` - Raw HTML of the Qobuz login page
-///
-/// # Returns
-///
-/// The full URL of the bundle JavaScript file.
-fn extract_bundle_url(html: &str) -> Result<String, QobuzApiError> {
-    let re = Regex::new(r#"src="(/[^"]*bundle[^"]*\.js)""#).map_err(|e| CredentialsError {
-        message: format!("Invalid regex: {e}"),
-    })?;
-
-    let caps = re.captures(html).ok_or_else(|| CredentialsError {
-        message: "Could not find bundle.js URL in login page".to_string(),
-    })?;
-
-    let path = caps.get(1).ok_or_else(|| CredentialsError {
-        message: "Could not extract bundle.js URL from capture group".to_string(),
-    })?;
-
-    Ok(format!("https://play.qobuz.com{}", path.as_str()))
-}
-
-/// Extracts the application ID and secret from the production API config in the bundle JS.
-///
-/// Matches the `production:{api:{appId:"...",appSecret:"..."}` pattern.
-///
-/// # Arguments
-///
-/// * `js` - JavaScript source of the Qobuz web player bundle
-///
-/// # Returns
-///
-/// A tuple of `(app_id, app_secret)`.
-fn extract_app_credentials(js: &str) -> Result<(String, String), QobuzApiError> {
-    let re =
-        Regex::new(r#"production:\{api:\{appId:"(\d+)",appSecret:"([^"]+)""#).map_err(|e| {
-            CredentialsError {
-                message: format!("Invalid regex: {e}"),
-            }
-        })?;
-
-    let caps = re.captures(js).ok_or_else(|| CredentialsError {
-        message: "Could not find production appId/appSecret in bundle JavaScript".to_string(),
-    })?;
-
-    let app_id = caps
-        .get(1)
-        .ok_or_else(|| CredentialsError {
-            message: "Could not extract appId from capture group".to_string(),
-        })?
-        .as_str()
-        .to_string();
-
-    let app_secret = caps
-        .get(2)
-        .ok_or_else(|| CredentialsError {
-            message: "Could not extract appSecret from capture group".to_string(),
-        })?
-        .as_str()
-        .to_string();
-
-    Ok((app_id, app_secret))
-}
-
 /// Sets file permissions to owner-only read/write (`0600`) on Unix systems.
 ///
 /// # Arguments
@@ -225,13 +135,11 @@ mod tests {
     use std::{fs::read_to_string, io::Write, path::Path};
 
     use {
-        anyhow::{Result, anyhow, bail, ensure},
+        anyhow::{Result, anyhow, ensure},
         tempfile::{NamedTempFile, tempdir},
     };
 
-    use crate::credentials::{
-        extract_app_credentials, extract_bundle_url, load_app_credentials, save_app_credentials,
-    };
+    use crate::credentials::{load_app_credentials, save_app_credentials};
 
     fn create_temp_env(contents: &str) -> Result<NamedTempFile> {
         let mut file = NamedTempFile::new()?;
@@ -324,56 +232,6 @@ mod tests {
             content.contains("QOBUZ_USER_ID=123"),
             "should preserve other lines"
         );
-        Ok(())
-    }
-
-    #[test]
-    fn extract_bundle_url_finds_js_url() -> Result<()> {
-        let html = r#"<script src="/resources/8.1.0-b019/bundle.js"></script>"#;
-        let url = extract_bundle_url(html)?;
-        ensure!(
-            url == "https://play.qobuz.com/resources/8.1.0-b019/bundle.js",
-            "url mismatch: got {url}"
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn extract_bundle_url_fails_on_missing_url() -> Result<()> {
-        let html = "<html>No scripts here</html>";
-        if extract_bundle_url(html).is_ok() {
-            bail!("expected error for missing bundle URL");
-        }
-        Ok(())
-    }
-
-    #[test]
-    fn extract_app_credentials_finds_production_config() -> Result<()> {
-        let js = r#"integration:{api:{appId:"123",appSecret:"abc"}},production:{api:{appId:"798273057",appSecret:"05a4851e74ee47fda346f50cfdfc4f09"},braze:f}"#;
-        let (id, secret) = extract_app_credentials(js)?;
-        ensure!(id == "798273057", "id mismatch: got {id}");
-        ensure!(
-            secret == "05a4851e74ee47fda346f50cfdfc4f09",
-            "secret mismatch: got {secret}"
-        );
-        Ok(())
-    }
-
-    #[test]
-    fn extract_app_credentials_fails_on_missing_config() -> Result<()> {
-        let js = r#"integration:{api:{appId:"123",appSecret:"abc"}}"#;
-        if extract_app_credentials(js).is_ok() {
-            bail!("expected error when production config is missing");
-        }
-        Ok(())
-    }
-
-    #[test]
-    fn extract_app_credentials_fails_on_missing_secret() -> Result<()> {
-        let js = r#"production:{api:{appId:"798273057"}}"#;
-        if extract_app_credentials(js).is_ok() {
-            bail!("expected error when appSecret is missing");
-        }
         Ok(())
     }
 }

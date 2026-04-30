@@ -20,7 +20,7 @@ use crate::{
         },
         http_client::{HttpClient, ReqwestClient},
     },
-    credentials::{extract_from_web_player, load_app_credentials, save_app_credentials},
+    credentials::{load_app_credentials, save_app_credentials, web::extract_from_web_player},
     errors::QobuzApiError::{self, AuthenticationError, InitializationError},
     metadata::config::MetadataConfig,
     models::{

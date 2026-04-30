@@ -14,7 +14,7 @@ use {
 
 use crate::{
     api::{http_client::HttpClient, requests, service::QobuzApiService},
-    credentials::{extract_from_web_player, save_app_credentials},
+    credentials::{save_app_credentials, web::extract_from_web_player},
     errors::QobuzApiError::{self, AuthenticationError, CredentialsError},
     signing::to_hex,
 };
