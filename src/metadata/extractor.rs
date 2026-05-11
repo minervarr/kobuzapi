@@ -248,35 +248,18 @@ mod tests {
     fn cover_art_priority() -> Result<()> {
         let image = Image {
             small: Some("s".into()),
-            thumbnail: None,
-            medium: None,
-            large: None,
-            extra_large: None,
-            mega: None,
-            back: None,
+            ..Image::default()
         };
         ensure!(best_cover_url(&image) == Some("s".to_string()));
 
         let image = Image {
             small: Some("s".into()),
-            thumbnail: None,
-            medium: None,
             large: Some("l".into()),
-            extra_large: None,
-            mega: None,
-            back: None,
+            ..Image::default()
         };
         ensure!(best_cover_url(&image) == Some("l".to_string()));
 
-        let image = Image {
-            small: None,
-            thumbnail: None,
-            medium: None,
-            large: None,
-            extra_large: None,
-            mega: None,
-            back: None,
-        };
+        let image = Image::default();
         ensure!(best_cover_url(&image).is_none());
         Ok(())
     }

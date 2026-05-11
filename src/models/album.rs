@@ -109,7 +109,7 @@ pub struct Genre {
 }
 
 /// Cover art URLs in multiple sizes.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize, PartialEq)]
 pub struct Image {
     /// Small thumbnail URL.
     pub small: Option<String>,
@@ -126,6 +126,8 @@ pub struct Image {
     pub mega: Option<String>,
     /// Back cover URL.
     pub back: Option<String>,
+    /// Generic/poster URL (returned by some endpoints instead of the size-specific map).
+    pub url: Option<String>,
 }
 
 /// Record label.
