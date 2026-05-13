@@ -3,6 +3,7 @@
 use std::{
     env::VarError,
     path::{Path, PathBuf},
+    sync::{Arc, atomic::AtomicBool},
 };
 
 use {tokio::runtime::Runtime, tracing::info};
@@ -14,12 +15,11 @@ use crate::{
             refresh_app_credentials,
         },
         content::{
-            album_download::download_album,
             albums::{get_album, search_albums},
             artists::{get_artist, get_release_list, search_artists},
             catalog::search_catalog,
             playlists::{get_playlist, search_playlists},
-            tracks::{download_track, get_track, get_track_file_url, search_tracks},
+            tracks::{get_track, get_track_file_url, search_tracks},
         },
         favorites::{
             add_user_favorites, delete_user_favorites, get_user_favorite_ids, get_user_favorites,
@@ -27,7 +27,7 @@ use crate::{
         http_client::{HttpClient, ReqwestClient},
     },
     credentials::{load_app_credentials, save_app_credentials, web::extract_from_web_player},
-    errors::QobuzApiError::{self, AuthenticationError, InitializationError},
+    errors::QobuzApiError::{self, ApiErrorResponse, AuthenticationError, InitializationError},
     metadata::config::MetadataConfig,
     models::{
         album::Album,
@@ -76,6 +76,32 @@ macro_rules! delegate_with_retry {
                     refresh_app_credentials(self)?;
 
                     rt.block_on($path(self $(, $arg)*))
+                }
+                other => other,
+            }
+        }
+    };
+}
+
+/// Delegates to an async function with auto-refresh, a cancel parameter appended to the signature.
+macro_rules! delegate_with_retry_cancellable {
+    ($vis:vis fn $name:ident($($arg:ident: $ty:ty),* $(,)?) -> $ret:ty = $path:path, cancel: $cancel_ty:ty) => {
+        #[doc = concat!("Delegates to [`", stringify!($path), "`] with auto-refresh on signature errors.")]
+        #[doc = ""]
+        #[doc = "# Errors"]
+        #[doc = ""]
+        #[doc = "Returns a `QobuzApiError` if not authenticated, the API request fails, or refresh fails."]
+        $vis fn $name(&mut self $(, $arg: $ty)*, cancel: $cancel_ty) -> Result<$ret, QobuzApiError> {
+            let rt = Runtime::new()?;
+            let result = rt.block_on($path(self $(, $arg)*, cancel.clone()));
+            match result {
+                Err(ApiErrorResponse { message, .. })
+                    if message.contains("Invalid Request Signature") =>
+                {
+                    info!(concat!("Signature invalid for ", stringify!($path), ", refreshing credentials"));
+                    refresh_app_credentials(self)?;
+                    let rt2 = Runtime::new()?;
+                    rt2.block_on($path(self $(, $arg)*, cancel))
                 }
                 other => other,
             }
@@ -403,8 +429,71 @@ impl QobuzApiService {
 
     // Download - with auto-refresh on signature errors
     delegate_with_retry!(pub fn get_track_file_url(track_id: i32, format_id: i32) -> FileUrl = get_track_file_url);
-    delegate_with_retry!(pub fn download_track(track_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> PathBuf = download_track);
-    delegate_with_retry!(pub fn download_album(album_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_album);
+
+    /// Downloads a single track with cancellation support.
+    ///
+    /// # Arguments
+    ///
+    /// * `track_id` - Track identifier
+    /// * `format_id` - Quality format ID
+    /// * `output_dir` - Directory to save the downloaded file
+    /// * `config` - Optional metadata configuration for tagging
+    /// * `cancel` - Optional cancellation flag checked during the download
+    ///
+    /// # Returns
+    ///
+    /// The path to the downloaded file.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if URL retrieval, download, I/O fails, or `Canceled` if cancelled.
+    pub fn download_track(
+        &mut self,
+        track_id: i32,
+        format_id: i32,
+        output_dir: &Path,
+        config: Option<&MetadataConfig>,
+    ) -> Result<PathBuf, QobuzApiError> {
+        self.download_track_cancellable(track_id, format_id, output_dir, config, None)
+    }
+
+    delegate_with_retry_cancellable!(
+        pub fn download_track_cancellable(track_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> PathBuf = crate::api::content::tracks::download_track,
+        cancel: Option<&AtomicBool>
+    );
+
+    /// Downloads an album.
+    ///
+    /// # Arguments
+    ///
+    /// * `album_id` - Album identifier
+    /// * `format_id` - Quality format ID
+    /// * `output_dir` - Base output directory for downloaded files
+    /// * `config` - Optional metadata configuration for tagging
+    /// * `concurrency` - Maximum number of concurrent track downloads
+    ///
+    /// # Returns
+    ///
+    /// A vector of paths to the downloaded track files.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `QobuzApiError` if album retrieval, track download, or I/O fails.
+    pub fn download_album(
+        &mut self,
+        album_id: &str,
+        format_id: i32,
+        output_dir: &Path,
+        config: Option<&MetadataConfig>,
+        concurrency: Option<usize>,
+    ) -> Result<Vec<PathBuf>, QobuzApiError> {
+        self.download_album_cancellable(album_id, format_id, output_dir, config, concurrency, None)
+    }
+
+    delegate_with_retry_cancellable!(
+        pub fn download_album_cancellable(album_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = crate::api::content::album_download::download_album,
+        cancel: Option<Arc<AtomicBool>>
+    );
 
     // Favorites
     delegate!(pub fn add_user_favorites(item_ids: &[i32], item_type: &str) -> () = add_user_favorites);

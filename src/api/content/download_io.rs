@@ -3,6 +3,7 @@
 use std::{
     fs::{create_dir_all, metadata},
     path::{Path, PathBuf},
+    sync::atomic::{AtomicBool, Ordering::Relaxed},
 };
 
 use {
@@ -19,7 +20,7 @@ use crate::{
     api::{
         content::tracks::get_track_file_url, requests::download_stream, service::QobuzApiService,
     },
-    errors::QobuzApiError::{self, DownloadError, HttpError},
+    errors::QobuzApiError::{self, Canceled, DownloadError, HttpError},
     metadata::extractor::ComprehensiveMetadata,
     models::album::Album,
 };
@@ -55,6 +56,7 @@ pub fn detect_partial_file(path: &Path) -> Option<u64> {
 /// * `response` - HTTP response containing the audio stream
 /// * `path` - Destination file path
 /// * `append` - If `true`, append to existing file; otherwise create/overwrite
+/// * `cancel` - Optional cancellation flag checked between chunks
 ///
 /// # Returns
 ///
@@ -62,11 +64,13 @@ pub fn detect_partial_file(path: &Path) -> Option<u64> {
 ///
 /// # Errors
 ///
-/// Returns a `QobuzApiError` on file I/O or stream read failures.
+/// Returns a `QobuzApiError` on file I/O or stream read failures, or `Canceled` when the
+/// cancellation flag is set.
 pub async fn write_response_to_file(
     response: Response,
     path: &Path,
     append: bool,
+    cancel: Option<&AtomicBool>,
 ) -> Result<(), QobuzApiError> {
     let mut file = if append {
         OpenOptions::new().append(true).open(path).await?
@@ -75,6 +79,9 @@ pub async fn write_response_to_file(
     };
     let mut stream = response.bytes_stream();
     while let Some(chunk) = stream.next().await {
+        if cancel.is_some_and(|c| c.load(Relaxed)) {
+            return Err(Canceled);
+        }
         file.write_all(&chunk?).await?;
     }
     file.flush().await?;
@@ -90,6 +97,7 @@ pub async fn write_response_to_file(
 /// * `output_dir` - Directory to save the file
 /// * `format_id` - Quality format ID (determines file extension)
 /// * `append` - If `true`, append to existing file (resume); otherwise create new
+/// * `cancel` - Optional cancellation flag checked during streaming
 ///
 /// # Returns
 ///
@@ -104,12 +112,13 @@ pub async fn save_track_to_disk(
     output_dir: &Path,
     format_id: i32,
     append: bool,
+    cancel: Option<&AtomicBool>,
 ) -> Result<PathBuf, QobuzApiError> {
     create_dir_all(output_dir)?;
 
     let ext = Album::extension_for_format(format_id);
     let path = output_dir.join(format!("{track_id:02}.{ext}"));
-    write_response_to_file(response, &path, append).await?;
+    write_response_to_file(response, &path, append, cancel).await?;
     Ok(path)
 }
 
@@ -154,6 +163,7 @@ pub async fn fetch_track_cover(
 /// * `track_id` - Track identifier
 /// * `format_id` - Quality format ID
 /// * `path` - Destination file path
+/// * `cancel` - Optional cancellation flag checked during streaming
 ///
 /// # Returns
 ///
@@ -168,6 +178,7 @@ pub async fn attempt_download(
     track_id: i32,
     format_id: i32,
     path: &Path,
+    cancel: Option<&AtomicBool>,
 ) -> Result<bool, QobuzApiError> {
     let offset = detect_partial_file(path);
     let range = offset.map(|s| format!("bytes={s}-"));
@@ -190,7 +201,7 @@ pub async fn attempt_download(
         );
     }
 
-    write_response_to_file(response, path, resumed).await?;
+    write_response_to_file(response, path, resumed, cancel).await?;
 
     Ok(resumed)
 }

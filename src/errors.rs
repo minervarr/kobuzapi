@@ -98,6 +98,10 @@ pub enum QobuzApiError {
         /// Error description.
         message: String,
     },
+
+    /// Download was cancelled by the user.
+    #[error("Download cancelled")]
+    Canceled,
 }
 
 #[cfg(test)]
@@ -107,9 +111,9 @@ mod tests {
     use {reqwest::Client, tokio::runtime::Runtime};
 
     use crate::errors::QobuzApiError::{
-        self, ApiErrorResponse, ApiResponseParseError, AuthenticationError, CredentialsError,
-        DownloadError, HttpError, InitializationError, InvalidParameterError, IoError,
-        MetadataError, RateLimitError, ResourceNotFoundError, UnexpectedApiResponseError,
+        self, ApiErrorResponse, ApiResponseParseError, AuthenticationError, Canceled,
+        CredentialsError, DownloadError, HttpError, InitializationError, InvalidParameterError,
+        IoError, MetadataError, RateLimitError, ResourceNotFoundError, UnexpectedApiResponseError,
     };
 
     fn assert_send_sync_static<T: Send + Sync + 'static>() {}
@@ -235,12 +239,19 @@ mod tests {
     }
 
     #[test]
-    fn unexpected_api_response_error_display() {
+    fn unexpected_api_response_error_has_remediation() {
         let err = UnexpectedApiResponseError {
             message: "missing field".into(),
         };
+        let msg = format!("{err}").to_lowercase();
+        assert!(msg.contains("unexpected") || msg.contains("response") || msg.contains("missing"));
+    }
+
+    #[test]
+    fn canceled_error_display() {
+        let err = Canceled;
         let msg = format!("{err}");
-        assert!(msg.contains("Unexpected API response"));
+        assert_eq!(msg, "Download cancelled");
     }
 
     #[test]

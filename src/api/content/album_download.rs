@@ -4,7 +4,10 @@ use std::{
     fs::{create_dir_all, metadata},
     path::{Path, PathBuf},
     result::Result,
-    sync::Arc,
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering::Relaxed},
+    },
 };
 
 use {
@@ -22,7 +25,7 @@ use crate::{
         requests::{RequestAuth, download_stream},
         service::QobuzApiService,
     },
-    errors::QobuzApiError::{self, DownloadError},
+    errors::QobuzApiError::{self, Canceled, DownloadError},
     metadata::{
         config::{MetadataConfig, MetadataField::CoverArt},
         embedder::embed_metadata_batch,
@@ -31,6 +34,209 @@ use crate::{
     models::album::Album,
     sanitize::sanitize_filename,
 };
+
+/// Prepares the output directory for an album download.
+///
+/// Extracts artist name and album title from the album, sanitizes them, and creates
+/// the `{output_dir}/{artist}/{album_title}/` directory structure.
+///
+/// # Arguments
+///
+/// * `album` - Album containing artist name, title, and track IDs
+/// * `output_dir` - Base output directory
+///
+/// # Returns
+///
+/// A tuple of `(track_ids, dir_path)` where:
+/// - `track_ids`: List of track IDs from the album
+/// - `dir_path`: The created output directory path
+///
+/// # Errors
+///
+/// Returns `QobuzApiError` if the directory cannot be created.
+fn prepare_album_directory(
+    album: &Album,
+    output_dir: &Path,
+) -> Result<(Vec<i32>, PathBuf), QobuzApiError> {
+    let artist_name = album
+        .artist
+        .as_ref()
+        .and_then(|a| a.name.as_deref())
+        .unwrap_or("Unknown Artist");
+
+    let album_title = album.title.as_deref().unwrap_or("Unknown Album");
+
+    let dir = output_dir
+        .join(sanitize_filename(artist_name))
+        .join(sanitize_filename(album_title));
+
+    create_dir_all(&dir)?;
+
+    let track_ids = album.track_ids.clone().unwrap_or_default();
+
+    Ok((track_ids, dir))
+}
+
+/// Downloads all tracks in an album concurrently, returning their file paths.
+///
+/// Spawns a tokio task per track, bounded by a semaphore for concurrency control.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service for signing requests
+/// * `track_ids` - Slice of track IDs to download
+/// * `format_id` - Quality format ID (5=MP3, 6=FLAC 16-bit, 7=FLAC 24-bit/96kHz, 27=FLAC
+///   24-bit/192kHz)
+/// * `dir` - Output directory for downloaded files
+/// * `concurrency` - Maximum number of concurrent downloads
+/// * `cancel` - Optional cancellation flag
+///
+/// # Returns
+///
+/// A vector of paths to the downloaded track files.
+async fn download_album_tracks(
+    service: &QobuzApiService,
+    track_ids: &[i32],
+    format_id: i32,
+    dir: &Path,
+    concurrency: Option<usize>,
+    cancel: Option<Arc<AtomicBool>>,
+) -> Result<Vec<PathBuf>, QobuzApiError> {
+    let max_concurrent = concurrency.unwrap_or(4);
+    let semaphore = Arc::new(Semaphore::new(max_concurrent));
+    let mut handles = Vec::new();
+
+    for &track_id in track_ids {
+        if cancel.as_ref().is_some_and(|c| c.load(Relaxed)) {
+            return Err(Canceled);
+        }
+
+        let permit = Arc::clone(&semaphore)
+            .acquire_owned()
+            .await
+            .map_err(|e| DownloadError {
+                message: format!("Semaphore error: {e}"),
+            })?;
+
+        let dir_clone = dir.to_path_buf();
+        let service_client = QobuzApiService::http_client_ref(&service.app_id)?;
+        let app_id = service.app_id.clone();
+        let app_secret = service.app_secret.clone();
+        let token = service.require_auth_token()?.to_string();
+        let base_url = service.base_url().to_string();
+        let cancel_clone = cancel.clone();
+
+        let handle = spawn(async move {
+            let permit = permit;
+
+            let auth = RequestAuth {
+                app_id: &app_id,
+                app_secret: &app_secret,
+                user_auth_token: &token,
+            };
+
+            let file_url =
+                get_track_file_url_raw(&*service_client, &base_url, &auth, track_id, format_id)
+                    .await?;
+
+            let url = file_url.url.ok_or_else(|| DownloadError {
+                message: format!("No download URL for track {track_id}"),
+            })?;
+
+            let (offset, range) = detect_resume_offset(&dir_clone, track_id, format_id);
+
+            let response =
+                download_stream(&*service_client, &url, &token, range.as_deref()).await?;
+
+            let resumed = offset.is_some() && response.status().as_u16() == 206;
+            warn_if_not_resumed(offset.is_some(), resumed, track_id);
+
+            let path = save_track_to_disk(
+                response,
+                track_id,
+                &dir_clone,
+                format_id,
+                resumed,
+                cancel_clone.as_deref(),
+            )
+            .await?;
+
+            info!(
+                track_id,
+                format_id,
+                path = %path.display(),
+                resumed,
+                "Track downloaded"
+            );
+
+            drop(permit);
+            Ok::<PathBuf, QobuzApiError>(path)
+        });
+
+        handles.push(handle);
+    }
+
+    let mut results = Vec::new();
+    for handle in handles {
+        if cancel.as_ref().is_some_and(|c| c.load(Relaxed)) {
+            return Err(Canceled);
+        }
+
+        match handle.await {
+            Ok(Ok(path)) => results.push(path),
+            Ok(Err(e)) => {
+                error!(error = %e, "Track download failed");
+                return Err(e);
+            }
+            Err(e) => {
+                return Err(DownloadError {
+                    message: format!("Task join error: {e}"),
+                });
+            }
+        }
+    }
+
+    Ok(results)
+}
+
+/// Embeds metadata into downloaded album tracks.
+///
+/// Downloads cover art, fetches track metadata, and embeds it into each file.
+///
+/// # Arguments
+///
+/// * `service` - Authenticated API service for fetching track metadata
+/// * `album` - Album used as fallback metadata source
+/// * `track_ids` - Slice of track IDs matching the results order
+/// * `results` - Downloaded file paths, one per track ID
+/// * `config` - Metadata configuration controlling which fields to embed
+///
+/// # Returns
+///
+/// `Ok(())` on success.
+async fn embed_album_metadata(
+    service: &QobuzApiService,
+    album: &Album,
+    track_ids: &[i32],
+    results: &[PathBuf],
+    config: &MetadataConfig,
+) -> Result<(), QobuzApiError> {
+    let cover_data = download_cover_data(service, album, config).await?;
+
+    let mut file_metas = Vec::new();
+    for (&track_id, path) in track_ids.iter().zip(results.iter()) {
+        let track = get_track(service, track_id).await?;
+        let mut meta = extract_comprehensive_metadata(&track, Some(album), None);
+        meta.cover_art_data.clone_from(&cover_data);
+        file_metas.push((path.clone(), meta));
+    }
+
+    for result in embed_metadata_batch(&file_metas, config) {
+        result?;
+    }
+
+    Ok(())
+}
 
 /// Downloads all tracks in an album concurrently.
 ///
@@ -61,118 +267,27 @@ pub async fn download_album(
     output_dir: &Path,
     config: Option<&MetadataConfig>,
     concurrency: Option<usize>,
+    cancel: Option<Arc<AtomicBool>>,
 ) -> Result<Vec<PathBuf>, QobuzApiError> {
+    if cancel.as_ref().is_some_and(|c| c.load(Relaxed)) {
+        return Err(Canceled);
+    }
+
     let album = get_album(service, album_id, Some("track_ids")).await?;
 
-    let artist_name = album
-        .artist
-        .as_ref()
-        .and_then(|a| a.name.as_deref())
-        .unwrap_or("Unknown Artist");
-
-    let album_title = album.title.as_deref().unwrap_or("Unknown Album");
-
-    let dir = output_dir
-        .join(sanitize_filename(artist_name))
-        .join(sanitize_filename(album_title));
-
-    create_dir_all(&dir)?;
-
-    let track_ids = album.track_ids.clone().unwrap_or_default();
-    let max_concurrent = concurrency.unwrap_or(4);
-    let semaphore = Arc::new(Semaphore::new(max_concurrent));
-    let mut handles = Vec::new();
-
-    for &track_id in &track_ids {
-        let permit = Arc::clone(&semaphore)
-            .acquire_owned()
-            .await
-            .map_err(|e| DownloadError {
-                message: format!("Semaphore error: {e}"),
-            })?;
-
-        let dir_clone = dir.clone();
-        let service_client = QobuzApiService::http_client_ref(&service.app_id)?;
-        let app_id = service.app_id.clone();
-        let app_secret = service.app_secret.clone();
-        let token = service.require_auth_token()?.to_string();
-        let base_url = service.base_url().to_string();
-
-        let handle = spawn(async move {
-            let permit = permit;
-
-            let auth = RequestAuth {
-                app_id: &app_id,
-                app_secret: &app_secret,
-                user_auth_token: &token,
-            };
-
-            let file_url =
-                get_track_file_url_raw(&*service_client, &base_url, &auth, track_id, format_id)
-                    .await?;
-
-            let url = file_url.url.ok_or_else(|| DownloadError {
-                message: format!("No download URL for track {track_id}"),
-            })?;
-
-            let (offset, range) = detect_resume_offset(&dir_clone, track_id, format_id);
-
-            let response =
-                download_stream(&*service_client, &url, &token, range.as_deref()).await?;
-
-            let resumed = offset.is_some() && response.status().as_u16() == 206;
-            warn_if_not_resumed(offset.is_some(), resumed, track_id);
-
-            let path =
-                save_track_to_disk(response, track_id, &dir_clone, format_id, resumed).await?;
-
-            info!(
-                track_id,
-                format_id,
-                path = %path.display(),
-                resumed,
-                "Track downloaded"
-            );
-
-            drop(permit);
-            Ok::<PathBuf, QobuzApiError>(path)
-        });
-
-        handles.push(handle);
+    if cancel.as_ref().is_some_and(|c| c.load(Relaxed)) {
+        return Err(Canceled);
     }
 
-    let mut results = Vec::new();
-    for handle in handles {
-        match handle.await {
-            Ok(Ok(path)) => results.push(path),
-            Ok(Err(e)) => {
-                error!(error = %e, "Track download failed");
-                return Err(e);
-            }
-            Err(e) => {
-                return Err(DownloadError {
-                    message: format!("Task join error: {e}"),
-                });
-            }
-        }
-    }
+    let (track_ids, dir) = prepare_album_directory(&album, output_dir)?;
+
+    let results =
+        download_album_tracks(service, &track_ids, format_id, &dir, concurrency, cancel).await?;
 
     info!(album_id, count = results.len(), "Album download complete");
 
     if let Some(cfg) = config {
-        let cover_data = download_cover_data(service, &album, cfg).await?;
-
-        let mut file_metas = Vec::new();
-        for (&track_id, path) in track_ids.iter().zip(results.iter()) {
-            let track = get_track(service, track_id).await?;
-            let mut meta = extract_comprehensive_metadata(&track, Some(&album), None);
-            meta.cover_art_data.clone_from(&cover_data);
-            file_metas.push((path.clone(), meta));
-        }
-
-        for result in embed_metadata_batch(&file_metas, cfg) {
-            result?;
-        }
+        embed_album_metadata(service, &album, &track_ids, &results, cfg).await?;
     }
 
     Ok(results)

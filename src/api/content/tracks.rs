@@ -4,6 +4,7 @@ use std::{
     convert::AsRef,
     fs::create_dir_all,
     path::{Path, PathBuf},
+    sync::atomic::{AtomicBool, Ordering::Relaxed},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
@@ -26,7 +27,7 @@ use crate::{
         response::parse_response,
         service::QobuzApiService,
     },
-    errors::QobuzApiError,
+    errors::QobuzApiError::{self, Canceled},
     metadata::{
         config::MetadataConfig, embedder::embed_metadata_in_file,
         extractor::extract_comprehensive_metadata,
@@ -195,8 +196,17 @@ pub async fn download_track(
     format_id: i32,
     output_dir: &Path,
     config: Option<&MetadataConfig>,
+    cancel: Option<&AtomicBool>,
 ) -> Result<PathBuf, QobuzApiError> {
+    if cancel.is_some_and(|c| c.load(Relaxed)) {
+        return Err(Canceled);
+    }
+
     let track = get_track(service, track_id).await?;
+
+    if cancel.is_some_and(|c| c.load(Relaxed)) {
+        return Err(Canceled);
+    }
 
     let ext = Album::extension_for_format(format_id);
     let track_num = track.track_number.unwrap_or(track_id);
@@ -210,7 +220,11 @@ pub async fn download_track(
     let mut resumed = false;
 
     for attempt in 0..=MAX_DOWNLOAD_RETRIES {
-        match attempt_download(service, track_id, format_id, &path).await {
+        if cancel.is_some_and(|c| c.load(Relaxed)) {
+            return Err(Canceled);
+        }
+
+        match attempt_download(service, track_id, format_id, &path, cancel).await {
             Ok(r) => {
                 resumed = r;
                 break;
@@ -229,6 +243,10 @@ pub async fn download_track(
             }
             Err(e) => return Err(e),
         }
+    }
+
+    if cancel.is_some_and(|c| c.load(Relaxed)) {
+        return Err(Canceled);
     }
 
     info!(
