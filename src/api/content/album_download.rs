@@ -4,10 +4,7 @@ use std::{
     fs::{create_dir_all, metadata},
     path::{Path, PathBuf},
     result::Result,
-    sync::{
-        Arc,
-        atomic::{AtomicBool, Ordering::Relaxed},
-    },
+    sync::{Arc, atomic::AtomicBool},
 };
 
 use {
@@ -19,13 +16,15 @@ use crate::{
     api::{
         content::{
             albums::get_album,
+            check_cancel,
             download_io::save_track_to_disk,
+            fetch_with_cancel,
             tracks::{get_track, get_track_file_url_raw},
         },
         requests::{RequestAuth, download_stream},
         service::QobuzApiService,
     },
-    errors::QobuzApiError::{self, Canceled, DownloadError},
+    errors::QobuzApiError::{self, DownloadError},
     metadata::{
         config::{MetadataConfig, MetadataField::CoverArt},
         embedder::embed_metadata_batch,
@@ -107,9 +106,7 @@ async fn download_album_tracks(
     let mut handles = Vec::new();
 
     for &track_id in track_ids {
-        if cancel.as_ref().is_some_and(|c| c.load(Relaxed)) {
-            return Err(Canceled);
-        }
+        check_cancel(cancel.as_deref())?;
 
         let permit = Arc::clone(&semaphore)
             .acquire_owned()
@@ -178,9 +175,7 @@ async fn download_album_tracks(
 
     let mut results = Vec::new();
     for handle in handles {
-        if cancel.as_ref().is_some_and(|c| c.load(Relaxed)) {
-            return Err(Canceled);
-        }
+        check_cancel(cancel.as_deref())?;
 
         match handle.await {
             Ok(Ok(path)) => results.push(path),
@@ -269,15 +264,10 @@ pub async fn download_album(
     concurrency: Option<usize>,
     cancel: Option<Arc<AtomicBool>>,
 ) -> Result<Vec<PathBuf>, QobuzApiError> {
-    if cancel.as_ref().is_some_and(|c| c.load(Relaxed)) {
-        return Err(Canceled);
-    }
-
-    let album = get_album(service, album_id, Some("track_ids")).await?;
-
-    if cancel.as_ref().is_some_and(|c| c.load(Relaxed)) {
-        return Err(Canceled);
-    }
+    let album = fetch_with_cancel(cancel.as_deref(), || {
+        get_album(service, album_id, Some("track_ids"))
+    })
+    .await?;
 
     let (track_ids, dir) = prepare_album_directory(&album, output_dir)?;
 

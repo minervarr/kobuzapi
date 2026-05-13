@@ -2,11 +2,18 @@
 
 pub mod album_download;
 pub mod albums;
+pub mod artist_download;
 pub mod artists;
 pub mod catalog;
 pub mod download_io;
+pub mod playlist_download;
 pub mod playlists;
 pub mod tracks;
+
+use std::{
+    future::Future,
+    sync::atomic::{AtomicBool, Ordering::Relaxed},
+};
 
 use serde::de::DeserializeOwned;
 
@@ -15,8 +22,56 @@ use crate::{
         requests::{self, RequestAuth},
         service::QobuzApiService,
     },
-    errors::QobuzApiError,
+    errors::QobuzApiError::{self, Canceled},
 };
+
+/// Checks the cancellation flag and returns `Canceled` if the download was cancelled.
+///
+/// # Arguments
+///
+/// * `cancel` - Optional cancellation flag
+///
+/// # Returns
+///
+/// `Ok(())` if not cancelled.
+///
+/// # Errors
+///
+/// Returns `QobuzApiError::Canceled` if the cancellation flag is set.
+pub fn check_cancel(cancel: Option<&AtomicBool>) -> Result<(), QobuzApiError> {
+    if cancel.is_some_and(|c| c.load(Relaxed)) {
+        return Err(Canceled);
+    }
+    Ok(())
+}
+
+/// Checks cancellation before and after an async fetch, discarding the fetch result on cancel.
+///
+/// # Arguments
+///
+/// * `cancel` - Optional cancellation flag
+/// * `f` - Async closure producing the value to fetch
+///
+/// # Returns
+///
+/// The fetch result if not cancelled.
+///
+/// # Errors
+///
+/// Returns `QobuzApiError::Canceled` if cancelled before or after the fetch.
+pub async fn fetch_with_cancel<T, F, Fut>(
+    cancel: Option<&AtomicBool>,
+    f: F,
+) -> Result<T, QobuzApiError>
+where
+    F: FnOnce() -> Fut,
+    Fut: Future<Output = Result<T, QobuzApiError>>,
+{
+    check_cancel(cancel)?;
+    let result = f().await?;
+    check_cancel(cancel)?;
+    Ok(result)
+}
 
 /// Appends optional `limit` and `offset` pagination parameters to a params vector.
 ///
