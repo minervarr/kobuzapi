@@ -6,15 +6,22 @@ version = "0.1.0"
 [dependencies]
 anyhow = "1.0.102"
 base64 = "0.22.1"
-lofty = "0.24.0"
-md-5 = "0.11.0"
+lofty = { version = "0.24.0", default-features = false }
+md-5 = { version = "0.11.0", default-features = false }
 rayon = "1.12.0"
 regex = "1.12.3"
 reqwest = { version = "0.13.3", features = ["form", "json", "query", "stream"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
 thiserror = "2.0.18"
-tokio = { version = "1.52.1", features = ["full"] }
+tokio = { version = "1.52.3", features = [
+    "fs",
+    "macros",
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "time",
+] }
 tokio-stream = "0.1.18"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
