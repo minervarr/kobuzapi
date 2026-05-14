@@ -55,6 +55,37 @@ pub struct QobuzApiService {
 }
 
 impl QobuzApiService {
+    // Search
+    delegate!(pub fn search_catalog(query: &str, limit: Option<i32>, offset: Option<i32>) -> SearchResult = search_catalog);
+
+    delegate!(pub fn search_albums(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Album>> = search_albums);
+
+    delegate!(pub fn search_artists(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Artist>> = search_artists);
+
+    delegate!(pub fn search_tracks(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Track>> = search_tracks);
+
+    delegate!(pub fn search_playlists(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Playlist>> = search_playlists);
+
+    // Browse
+    delegate!(pub fn get_album(album_id: &str, extra: Option<&str>) -> Album = get_album);
+
+    delegate!(pub fn get_artist(artist_id: i32, extra: Option<&str>) -> Artist = get_artist);
+
+    delegate!(pub fn get_track(track_id: i32) -> Track = get_track);
+
+    delegate!(pub fn get_playlist(playlist_id: &str, extra: Option<&str>) -> Playlist = get_playlist);
+
+    delegate!(pub fn get_release_list(artist_id: i32, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Album>> = get_release_list);
+
+    // Favorites
+    delegate!(pub fn add_user_favorites(item_ids: &[i32], item_type: &str) -> () = add_user_favorites);
+
+    delegate!(pub fn delete_user_favorites(item_ids: &[i32], item_type: &str) -> () = delete_user_favorites);
+
+    delegate!(pub fn get_user_favorites(item_type: &str, limit: Option<i32>, offset: Option<i32>) -> UserFavorites = get_user_favorites);
+
+    delegate!(pub fn get_user_favorite_ids() -> UserFavorites = get_user_favorite_ids);
+
     /// Builds a service with the given credentials and a new HTTP client.
     ///
     /// # Arguments
@@ -336,26 +367,6 @@ impl QobuzApiService {
     pub fn refresh_app_credentials(&mut self) -> Result<(), QobuzApiError> {
         refresh_app_credentials(self)
     }
-
-    // Search
-    delegate!(pub fn search_catalog(query: &str, limit: Option<i32>, offset: Option<i32>) -> SearchResult = search_catalog);
-    delegate!(pub fn search_albums(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Album>> = search_albums);
-    delegate!(pub fn search_artists(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Artist>> = search_artists);
-    delegate!(pub fn search_tracks(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Track>> = search_tracks);
-    delegate!(pub fn search_playlists(query: &str, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Playlist>> = search_playlists);
-
-    // Browse
-    delegate!(pub fn get_album(album_id: &str, extra: Option<&str>) -> Album = get_album);
-    delegate!(pub fn get_artist(artist_id: i32, extra: Option<&str>) -> Artist = get_artist);
-    delegate!(pub fn get_track(track_id: i32) -> Track = get_track);
-    delegate!(pub fn get_playlist(playlist_id: &str, extra: Option<&str>) -> Playlist = get_playlist);
-    delegate!(pub fn get_release_list(artist_id: i32, limit: Option<i32>, offset: Option<i32>) -> ItemSearchResult<Box<Album>> = get_release_list);
-
-    // Favorites
-    delegate!(pub fn add_user_favorites(item_ids: &[i32], item_type: &str) -> () = add_user_favorites);
-    delegate!(pub fn delete_user_favorites(item_ids: &[i32], item_type: &str) -> () = delete_user_favorites);
-    delegate!(pub fn get_user_favorites(item_type: &str, limit: Option<i32>, offset: Option<i32>) -> UserFavorites = get_user_favorites);
-    delegate!(pub fn get_user_favorite_ids() -> UserFavorites = get_user_favorite_ids);
 }
 
 #[cfg(test)]

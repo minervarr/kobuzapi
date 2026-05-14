@@ -23,6 +23,26 @@ use crate::{
 impl QobuzApiService {
     delegate_with_retry!(pub fn get_track_file_url(track_id: i32, format_id: i32) -> FileUrl = get_track_file_url);
 
+    delegate_with_retry_cancellable!(
+        pub fn download_track_cancellable(track_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> PathBuf = download_track,
+        cancel: Option<&AtomicBool>
+    );
+
+    delegate_with_retry_cancellable!(
+        pub fn download_album_cancellable(album_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_album,
+        cancel: Option<Arc<AtomicBool>>
+    );
+
+    delegate_with_retry_cancellable!(
+        pub fn download_artist_cancellable(artist_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_artist,
+        cancel: Option<Arc<AtomicBool>>
+    );
+
+    delegate_with_retry_cancellable!(
+        pub fn download_playlist_cancellable(playlist_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_playlist,
+        cancel: Option<Arc<AtomicBool>>
+    );
+
     /// Downloads a single track with cancellation support.
     ///
     /// # Arguments
@@ -49,11 +69,6 @@ impl QobuzApiService {
     ) -> Result<PathBuf, QobuzApiError> {
         self.download_track_cancellable(track_id, format_id, output_dir, config, None)
     }
-
-    delegate_with_retry_cancellable!(
-        pub fn download_track_cancellable(track_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> PathBuf = download_track,
-        cancel: Option<&AtomicBool>
-    );
 
     /// Downloads an album.
     ///
@@ -82,11 +97,6 @@ impl QobuzApiService {
     ) -> Result<Vec<PathBuf>, QobuzApiError> {
         self.download_album_cancellable(album_id, format_id, output_dir, config, concurrency, None)
     }
-
-    delegate_with_retry_cancellable!(
-        pub fn download_album_cancellable(album_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_album,
-        cancel: Option<Arc<AtomicBool>>
-    );
 
     /// Downloads all albums by an artist.
     ///
@@ -123,11 +133,6 @@ impl QobuzApiService {
         )
     }
 
-    delegate_with_retry_cancellable!(
-        pub fn download_artist_cancellable(artist_id: i32, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_artist,
-        cancel: Option<Arc<AtomicBool>>
-    );
-
     /// Downloads all tracks in a playlist.
     ///
     /// # Arguments
@@ -163,9 +168,4 @@ impl QobuzApiService {
             None,
         )
     }
-
-    delegate_with_retry_cancellable!(
-        pub fn download_playlist_cancellable(playlist_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_playlist,
-        cancel: Option<Arc<AtomicBool>>
-    );
 }
