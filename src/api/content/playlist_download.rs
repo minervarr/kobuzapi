@@ -31,7 +31,6 @@ use crate::{
 /// * `format_id` - Quality format ID
 /// * `output_dir` - Base output directory (playlist name subdirectory is created)
 /// * `config` - Optional metadata configuration for tagging
-/// * `_concurrency` - Unused (included for API consistency with other download functions)
 /// * `cancel` - Optional cancellation flag
 ///
 /// # Returns
@@ -48,7 +47,6 @@ pub async fn download_playlist(
     format_id: i32,
     output_dir: &Path,
     config: Option<&MetadataConfig>,
-    _concurrency: Option<usize>,
     cancel: Option<Arc<AtomicBool>>,
 ) -> Result<Vec<PathBuf>, QobuzApiError> {
     let playlist = fetch_with_cancel(cancel.as_deref(), || {

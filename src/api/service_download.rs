@@ -39,7 +39,7 @@ impl QobuzApiService {
     );
 
     delegate_with_retry_cancellable!(
-        pub fn download_playlist_cancellable(playlist_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>, concurrency: Option<usize>) -> Vec<PathBuf> = download_playlist,
+        pub fn download_playlist_cancellable(playlist_id: &str, format_id: i32, output_dir: &Path, config: Option<&MetadataConfig>) -> Vec<PathBuf> = download_playlist,
         cancel: Option<Arc<AtomicBool>>
     );
 
@@ -141,7 +141,6 @@ impl QobuzApiService {
     /// * `format_id` - Quality format ID
     /// * `output_dir` - Base output directory for downloaded files
     /// * `config` - Optional metadata configuration for tagging
-    /// * `concurrency` - Maximum number of concurrent track downloads (unused for playlists)
     ///
     /// # Returns
     ///
@@ -157,15 +156,7 @@ impl QobuzApiService {
         format_id: i32,
         output_dir: &Path,
         config: Option<&MetadataConfig>,
-        concurrency: Option<usize>,
     ) -> Result<Vec<PathBuf>, QobuzApiError> {
-        self.download_playlist_cancellable(
-            playlist_id,
-            format_id,
-            output_dir,
-            config,
-            concurrency,
-            None,
-        )
+        self.download_playlist_cancellable(playlist_id, format_id, output_dir, config, None)
     }
 }
