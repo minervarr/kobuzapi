@@ -7,7 +7,7 @@ use std::{
     path::Path,
 };
 
-use {anyhow::Result, tracing::info};
+use {anyhow::Result, qobuz_api::sanitize::sanitize_filename, tracing::info};
 
 use crate::metadata_test::{
     DIRECTORY_FILENAME_IGNORED, DURATION_IGNORED, FILE_DATE_TIME_IGNORED, FILE_SIZE_IGNORED,
@@ -69,10 +69,10 @@ pub fn generate_comparison_report(
     let rust_base = track_filename_base(track, format_label);
     let report_name = format!(
         "{artist}_{title}_{format_label}_{id}_vs_{csharp}.txt",
-        artist = track.artist,
-        title = track.title,
+        artist = sanitize_filename(track.artist),
+        title = sanitize_filename(track.title),
         id = track.track_id,
-        csharp = track.csharp_base,
+        csharp = sanitize_filename(track.csharp_base),
     );
     let report_path = reports_dir().join(&report_name);
     let mut content = format!(
