@@ -10,7 +10,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use qobuz_api_rust_refactor::sanitize::sanitize_filename;
+use qobuz_api::sanitize::sanitize_filename;
 
 /// Constructs a [`TestTrack`] from artist, title, track ID, and C# base name.
 macro_rules! track {

@@ -7,7 +7,7 @@ use {
     serde_json::{Result, Value, from_str},
 };
 
-use qobuz_api_rust_refactor::signing::{sign_request, sign_track_file_url};
+use qobuz_api::signing::{sign_request, sign_track_file_url};
 
 /// Benchmarks request signature generation (MD5 hashing).
 fn bench_sign_request(criterion: &mut Criterion) {

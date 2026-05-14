@@ -17,7 +17,7 @@ use std::env::var;
 
 use anyhow::{Result, anyhow};
 
-use qobuz_api_rust_refactor::api::service::QobuzApiService;
+use qobuz_api::api::service::QobuzApiService;
 
 use crate::test_support::ensure_env_credentials;
 
@@ -66,7 +66,7 @@ mod tests {
         tracing::info,
     };
 
-    use qobuz_api_rust_refactor::errors::QobuzApiError::{ApiErrorResponse, AuthenticationError};
+    use qobuz_api::errors::QobuzApiError::{ApiErrorResponse, AuthenticationError};
 
     use super::{create_service, require_user_credentials};
 

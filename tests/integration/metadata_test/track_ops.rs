@@ -13,7 +13,7 @@ use {
     tracing::info,
 };
 
-use qobuz_api_rust_refactor::{
+use qobuz_api::{
     api::service::QobuzApiService,
     metadata::{
         config::MetadataConfig, embedder::embed_metadata_in_file,

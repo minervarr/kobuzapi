@@ -2,7 +2,7 @@
 
 use anyhow::{Error, Result, anyhow};
 
-use qobuz_api_rust_refactor::{
+use qobuz_api::{
     api::service::QobuzApiService,
     models::{album::Album, artist::Artist},
 };

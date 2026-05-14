@@ -8,7 +8,7 @@ use {
     tracing::info,
 };
 
-use qobuz_api_rust_refactor::api::service::QobuzApiService;
+use qobuz_api::api::service::QobuzApiService;
 
 use crate::test_support::{
     create_authenticated_service, get_download_config,

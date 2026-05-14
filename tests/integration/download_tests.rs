@@ -27,7 +27,7 @@ mod tests {
         tracing::info,
     };
 
-    use qobuz_api_rust_refactor::models::file_url::{FileUrl, quality::MP3_320};
+    use qobuz_api::models::file_url::{FileUrl, quality::MP3_320};
 
     use crate::test_support::{
         TRIAL_DURATION_THRESHOLD_SECS, create_authenticated_service, get_download_config,

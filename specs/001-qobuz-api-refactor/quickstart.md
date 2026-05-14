@@ -39,7 +39,7 @@ The library automatically extracts `QOBUZ_APP_ID` and `QOBUZ_APP_SECRET` from th
 ### 3. Basic Usage
 
 ```rust
-use qobuz_api_rust_refactor::{QobuzApiService, MetadataConfig};
+use qobuz_api::{QobuzApiService, MetadataConfig};
 use std::path::Path;
 
 #[tokio::main]

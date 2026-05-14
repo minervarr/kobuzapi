@@ -18,7 +18,7 @@ use {
     tracing_subscriber::{EnvFilter, fmt},
 };
 
-use qobuz_api_rust_refactor::{
+use qobuz_api::{
     api::service::QobuzApiService, credentials::parse_env_file, models::file_url::quality::MP3_320,
 };
 
@@ -31,9 +31,7 @@ macro_rules! test_support_imports {
             tracing::info,
         };
 
-        use qobuz_api_rust_refactor::models::{
-            album::Album, artist::Artist, playlist::Playlist, track::Track,
-        };
+        use qobuz_api::models::{album::Album, artist::Artist, playlist::Playlist, track::Track};
     };
 }
 
