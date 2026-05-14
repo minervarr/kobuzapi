@@ -1,6 +1,9 @@
 [package]
+description = "A Rust client library for the Qobuz music streaming API"
 edition = "2024"
+license = "GPL-3.0-or-later"
 name = "qobuz-api"
+repository = "https://github.com/loxoron218/qobuz-api"
 version = "1.0.0"
 
 [dependencies]
