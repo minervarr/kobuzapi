@@ -58,6 +58,8 @@ pub struct Album {
     pub downloadable: Option<bool>,
     /// Streaming available.
     pub streamable: Option<bool>,
+    /// Explicit content flag.
+    pub parental_warning: Option<bool>,
     /// List of track IDs (when requested with extra).
     pub track_ids: Option<Vec<i32>>,
     /// Product URL for commercial information.

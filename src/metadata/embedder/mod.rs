@@ -4,7 +4,7 @@ mod artist_fields;
 mod basic_fields;
 mod performers;
 
-use std::path::{Path, PathBuf};
+use std::{path::{Path, PathBuf}, thread, time::Duration};
 
 use {
     lofty::{
@@ -55,6 +55,23 @@ use crate::{
 /// # Errors
 ///
 /// Returns a `QobuzApiError` if metadata writing fails.
+fn save_with_retry<F>(mut save_fn: F) -> Result<(), lofty::error::LoftyError>
+where
+    F: FnMut(WriteOptions) -> Result<(), lofty::error::LoftyError>,
+{
+    for attempt in 0..3 {
+        match save_fn(WriteOptions::default()) {
+            Ok(()) => return Ok(()),
+            Err(e) if attempt < 2 => {
+                debug!(attempt, error = %e, "Save failed, retrying after delay");
+                thread::sleep(Duration::from_millis(250 * (attempt as u64 + 1)));
+            }
+            Err(e) => return Err(e),
+        }
+    }
+    unreachable!()
+}
+
 pub fn embed_metadata_in_file(
     path: &Path,
     metadata: &ComprehensiveMetadata,
@@ -98,15 +115,14 @@ pub fn embed_metadata_in_file(
     apply_media_type(tag, metadata, config);
     apply_cover_art(tag, metadata, config);
 
-    if is_flac {
+    let save_result = if is_flac {
         let mut vc: VorbisComments = tag.clone().into();
         apply_flac_custom_keys(&mut vc, metadata, config);
-        vc.save_to_path(path, WriteOptions::default())
-            .map_err(|e| MetadataError(format!("Save failed: {e}")))?;
+        save_with_retry(|opts| vc.save_to_path(path, opts))
     } else {
-        tag.save_to_path(path, WriteOptions::default())
-            .map_err(|e| MetadataError(format!("Save failed: {e}")))?;
-    }
+        save_with_retry(|opts| tag.save_to_path(path, opts))
+    };
+    save_result.map_err(|e| MetadataError(format!("Save failed: {e}")))?;
 
     debug!(path = %path.display(), "Metadata embedded");
     Ok(())

@@ -14,10 +14,16 @@ use {
 
 use crate::{
     api::{http_client::HttpClient, requests, service::QobuzApiService},
-    credentials::{save_app_credentials, web::extract_from_web_player},
+    credentials::{save_app_credentials, web::{extract_from_web_player, extract_from_web_player_full}},
     errors::QobuzApiError::{self, AuthenticationError, CredentialsError},
     signing::to_hex,
 };
+
+/// Response from the Qobuz OAuth callback endpoint (`/oauth/callback`).
+#[derive(Deserialize)]
+struct OAuthCallbackResponse {
+    token: Option<String>,
+}
 
 /// Response from the Qobuz login endpoint.
 #[derive(Deserialize)]
@@ -33,6 +39,8 @@ struct LoginResponse {
 struct LoginUser {
     /// Numeric user ID.
     id: i64,
+    /// Two-letter country/store code (e.g. "US", "FR").
+    country_code: Option<String>,
 }
 
 /// Authenticates using environment variables.
@@ -111,7 +119,7 @@ where
     info!("Using email/password authentication from environment");
 
     let rt = Runtime::new()?;
-    let token = rt.block_on(login_inner(
+    let (token, _user_id) = rt.block_on(login_inner(
         service.http_client(),
         service.base_url(),
         &service.app_id,
@@ -139,15 +147,16 @@ where
 /// # Errors
 ///
 /// Returns a `QobuzApiError` if the login request fails or no token is returned.
+/// Returns `(auth_token, user_id)` on success.
 pub fn login(
     service: &mut QobuzApiService,
     email: &str,
     password: &str,
-) -> Result<(), QobuzApiError> {
+) -> Result<(String, i64), QobuzApiError> {
     info!(email = email, "Attempting login");
 
     let rt = Runtime::new()?;
-    let token = rt.block_on(login_inner(
+    let (token, user_id) = rt.block_on(login_inner(
         service.http_client(),
         service.base_url(),
         &service.app_id,
@@ -155,9 +164,9 @@ pub fn login(
         password,
     ))?;
 
-    service.set_auth_token(token);
+    service.set_auth_token(token.clone());
     info!("Login successful");
-    Ok(())
+    Ok((token, user_id))
 }
 
 /// Inner login logic: hashes the password and sends the login POST request.
@@ -183,7 +192,7 @@ async fn login_inner(
     app_id: &str,
     email: &str,
     password: &str,
-) -> Result<String, QobuzApiError> {
+) -> Result<(String, i64), QobuzApiError> {
     let hashed = to_hex(&Md5::digest(password.as_bytes()));
 
     let mut params = vec![
@@ -194,13 +203,15 @@ async fn login_inner(
     let response: LoginResponse =
         requests::post(client, base_url, "/user/login", &mut params, app_id, "").await?;
 
-    response.user_auth_token.ok_or_else(|| {
+    let token = response.user_auth_token.ok_or_else(|| {
         let err = AuthenticationError {
             message: "Login succeeded but no user_auth_token in response".to_string(),
         };
         error!(error = %err, "Login response missing user_auth_token");
         err
-    })
+    })?;
+    let user_id = response.user.as_ref().map(|u| u.id).unwrap_or(0);
+    Ok((token, user_id))
 }
 
 /// Authenticates with user ID and auth token via `POST /user/login`.
@@ -293,6 +304,74 @@ async fn login_with_token_inner(
     }
 
     Ok(())
+}
+
+/// Full web login: fetches app credentials, then authenticates with email+password.
+///
+/// Returns `(app_id, app_secret, auth_token, user_id)` on success.
+pub fn web_login(email: &str, password: &str) -> Result<(String, String, String, i64), QobuzApiError> {
+    let rt = Runtime::new()?;
+    let (app_id, app_secret) = rt.block_on(extract_from_web_player())?;
+    let mut service = crate::api::service::QobuzApiService::with_credentials(&app_id, &app_secret)?;
+    let (auth_token, user_id) = login(&mut service, email, password)?;
+    Ok((app_id, app_secret, auth_token, user_id))
+}
+
+/// Completes the OAuth login flow: exchanges `code_autorisation` for a session token.
+///
+/// Steps:
+/// 1. Fetches `app_id`, `app_secret`, `private_key` from the web player bundle.
+/// 2. `GET /oauth/callback?code=...&private_key=...&app_id=...` → intermediate `token`.
+/// 3. `POST /user/login` with `X-User-Auth-Token` header → final `user_auth_token` + `user_id`.
+///
+/// Returns `(app_id, app_secret, user_auth_token, user_id, country_code)` on success.
+pub fn oauth_login(code: &str) -> Result<(String, String, String, String, String), QobuzApiError> {
+    let rt = Runtime::new()?;
+    rt.block_on(async {
+        let (app_id, app_secret, private_key) = extract_from_web_player_full().await?;
+
+        let client = reqwest::Client::builder().user_agent("Mozilla/5.0").build()
+            .map_err(|e| AuthenticationError { message: format!("HTTP client: {e}") })?;
+
+        // Step 1: exchange authorization code for intermediate token
+        let cb_resp = client
+            .get("https://www.qobuz.com/api.json/0.2/oauth/callback")
+            .query(&[("code", code), ("private_key", &private_key), ("app_id", &app_id)])
+            .send()
+            .await
+            .map_err(|e| AuthenticationError { message: format!("OAuth callback request: {e}") })?
+            .json::<OAuthCallbackResponse>()
+            .await
+            .map_err(|e| AuthenticationError { message: format!("OAuth callback parse: {e}") })?;
+
+        let token = cb_resp.token.ok_or_else(|| AuthenticationError {
+            message: "OAuth callback returned no token".to_string(),
+        })?;
+
+        // Step 2: exchange intermediate token for full user session
+        let login_resp = client
+            .post("https://www.qobuz.com/api.json/0.2/user/login")
+            .header("X-App-Id", &app_id)
+            .header("X-User-Auth-Token", &token)
+            .header("Content-Type", "text/plain;charset=UTF-8")
+            .body("extra=partner")
+            .send()
+            .await
+            .map_err(|e| AuthenticationError { message: format!("User login request: {e}") })?
+            .json::<LoginResponse>()
+            .await
+            .map_err(|e| AuthenticationError { message: format!("User login parse: {e}") })?;
+
+        let user_auth_token = login_resp.user_auth_token.ok_or_else(|| AuthenticationError {
+            message: "User login returned no user_auth_token".to_string(),
+        })?;
+        let user_id = login_resp.user.as_ref().map(|u| u.id).unwrap_or(0).to_string();
+        let country_code = login_resp.user.as_ref()
+            .and_then(|u| u.country_code.clone())
+            .unwrap_or_default();
+
+        Ok((app_id, app_secret, user_auth_token, user_id, country_code))
+    })
 }
 
 /// Re-extracts app credentials from the Qobuz web player.

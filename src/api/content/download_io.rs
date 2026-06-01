@@ -189,8 +189,7 @@ pub async fn attempt_download(
         message: format!("No download URL for track {track_id}"),
     })?;
 
-    let token = service.require_auth_token()?;
-    let response = download_stream(service.http_client(), &url, token, range.as_deref()).await?;
+    let response = download_stream(service.http_client(), &url, range.as_deref()).await?;
 
     let resumed = offset.is_some() && response.status().as_u16() == 206;
     if offset.is_some() && !resumed {
@@ -224,4 +223,5 @@ pub fn is_retryable_network_error(err: &QobuzApiError) -> bool {
         || reqwest_err.is_timeout()
         || reqwest_err.is_body()
         || reqwest_err.is_decode()
+        || reqwest_err.is_request()
 }

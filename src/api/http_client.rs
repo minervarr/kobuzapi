@@ -16,6 +16,8 @@ type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 ///
 /// Uses boxed futures instead of `async fn` to remain object-safe for `dyn` dispatch.
 pub trait HttpClient: Send + Sync {
+    /// Clones this client into a new boxed instance sharing the same connection pool.
+    fn clone_box(&self) -> Box<dyn HttpClient>;
     /// Sends a GET request with query parameters.
     ///
     /// # Arguments
@@ -65,12 +67,33 @@ pub trait HttpClient: Send + Sync {
         token: &str,
         range: Option<&str>,
     ) -> BoxFuture<'_, Result<Response, QobuzApiError>>;
+
+    /// Sends a plain GET request for CDN file downloads with optional Range header.
+    ///
+    /// Uses a minimal client without API-specific headers (`x-app-id`, auth tokens)
+    /// to avoid confusing CDN edge servers.
+    ///
+    /// # Arguments
+    ///
+    /// * `url` - Full CDN download URL (authentication is embedded in URL parameters)
+    /// * `range` - Optional Range header value (e.g., `"bytes=1024-"`)
+    ///
+    /// # Returns
+    ///
+    /// The HTTP response for streaming.
+    fn get_download(
+        &self,
+        url: &str,
+        range: Option<&str>,
+    ) -> BoxFuture<'_, Result<Response, QobuzApiError>>;
 }
 
 /// Production HTTP client wrapping `reqwest::Client`.
 pub struct ReqwestClient {
-    /// Inner reqwest client with connection pooling.
+    /// API client with `x-app-id` default header and connection pooling.
     inner: Client,
+    /// Minimal CDN client for file downloads — no API headers.
+    cdn: Client,
 }
 
 impl ReqwestClient {
@@ -98,9 +121,14 @@ impl ReqwestClient {
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0",
             )
             .default_headers(default_headers)
+            .connect_timeout(std::time::Duration::from_secs(10))
             .build()?;
 
-        Ok(Self { inner })
+        let cdn = Client::builder()
+            .connect_timeout(std::time::Duration::from_secs(10))
+            .build()?;
+
+        Ok(Self { inner, cdn })
     }
 
     /// Boxes this client as a `dyn HttpClient`.
@@ -115,6 +143,13 @@ impl ReqwestClient {
 }
 
 impl HttpClient for ReqwestClient {
+    fn clone_box(&self) -> Box<dyn HttpClient> {
+        Box::new(Self {
+            inner: self.inner.clone(),
+            cdn: self.cdn.clone(),
+        })
+    }
+
     fn get(
         &self,
         url: &str,
@@ -151,6 +186,24 @@ impl HttpClient for ReqwestClient {
         range: Option<&str>,
     ) -> BoxFuture<'_, Result<Response, QobuzApiError>> {
         let mut req = self.inner.get(url).header("X-User-Auth-Token", token);
+
+        if let Some(r) = range {
+            req = req.header("Range", r);
+        }
+
+        let fut = req.send();
+        Box::pin(async move {
+            let resp = fut.await?;
+            Ok(resp)
+        })
+    }
+
+    fn get_download(
+        &self,
+        url: &str,
+        range: Option<&str>,
+    ) -> BoxFuture<'_, Result<Response, QobuzApiError>> {
+        let mut req = self.cdn.get(url);
 
         if let Some(r) = range {
             req = req.header("Range", r);

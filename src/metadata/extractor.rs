@@ -86,17 +86,30 @@ pub struct ComprehensiveMetadata {
 
 /// Selects the best available cover art URL from an [`Image`](crate::models::album::Image).
 ///
-/// Resolution priority (highest to lowest): mega > extralarge > large > medium > thumbnail > small.
+/// Returns the highest-resolution cover URL available.
+///
+/// Qobuz image URLs contain a size suffix (e.g. `_600.jpg`). Replacing the last
+/// occurrence of `600` with `org` fetches the original master resolution instead.
 #[must_use]
 pub fn best_cover_url(image: &Image) -> Option<String> {
-    image
+    let url = image
         .mega
         .clone()
         .or_else(|| image.extra_large.clone())
         .or_else(|| image.large.clone())
         .or_else(|| image.medium.clone())
         .or_else(|| image.thumbnail.clone())
-        .or_else(|| image.small.clone())
+        .or_else(|| image.small.clone())?;
+
+    Some(upgrade_to_original_resolution(&url))
+}
+
+/// Replaces the last size suffix in a Qobuz image URL with `org` for full resolution.
+fn upgrade_to_original_resolution(url: &str) -> String {
+    match url.rfind("600") {
+        Some(pos) => format!("{}org{}", &url[..pos], &url[pos + 3..]),
+        None => url.to_string(),
+    }
 }
 
 /// Extracts comprehensive metadata from a track, its album, and artist.

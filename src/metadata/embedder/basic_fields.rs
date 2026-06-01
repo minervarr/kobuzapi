@@ -218,19 +218,31 @@ pub fn apply_dates(
 /// * `tag` - Target tag to write into
 /// * `meta` - Source metadata
 /// * `config` - Field toggle configuration
+fn normalize_qobuz_url(url: &str) -> String {
+    let full = if url.starts_with("http") {
+        url.to_string()
+    } else {
+        format!("https://www.qobuz.com{url}")
+    };
+    // Rewrite www.qobuz.com/<locale>/ → open.qobuz.com/ (locale-independent)
+    if let Some(rest) = full.strip_prefix("https://www.qobuz.com/") {
+        if let Some((_locale, path)) = rest.split_once('/') {
+            if _locale.len() == 5 && _locale.as_bytes()[2] == b'-' {
+                return format!("https://open.qobuz.com/{path}");
+            }
+        }
+    }
+    full
+}
+
 pub fn apply_url(tag: &mut Tag, meta: &ComprehensiveMetadata, config: &MetadataConfig) {
     if !config.is_enabled(FieldUrl) {
         return;
     }
     if let Some(url) = meta.product_url.as_ref() {
-        let full = if url.starts_with("http") {
-            url.clone()
-        } else {
-            format!("https://www.qobuz.com{url}")
-        };
         tag.push(TagItem::new(
             CommercialInformationUrl,
-            ItemValue::Text(full),
+            ItemValue::Text(normalize_qobuz_url(url)),
         ));
     }
 }
@@ -318,12 +330,7 @@ pub fn apply_flac_custom_keys(
     if config.is_enabled(FieldUrl)
         && let Some(url) = meta.product_url.as_ref()
     {
-        let full = if url.starts_with("http") {
-            url.clone()
-        } else {
-            format!("https://www.qobuz.com{url}")
-        };
-        vc.push("URL".to_string(), full);
+        vc.push("URL".to_string(), normalize_qobuz_url(url));
     }
 }
 

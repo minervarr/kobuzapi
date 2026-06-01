@@ -1,6 +1,9 @@
 //! HTTP request primitives: GET, POST, signed GET, response parsing, retry-with-backoff.
 
-use std::time::Duration;
+use std::{
+    sync::{Mutex, OnceLock, atomic::{AtomicU32, Ordering::Relaxed}},
+    time::{Duration, Instant},
+};
 
 use {reqwest::Response, serde::de::DeserializeOwned, tokio::time::sleep};
 
@@ -28,6 +31,43 @@ macro_rules! signed_request {
             $auth: &RequestAuth<'_>,
         ) -> Result<T, QobuzApiError> $body
     };
+}
+
+/// Default API requests per minute. 0 = unlimited (rely on 429 backoff).
+static REQUESTS_PER_MINUTE: AtomicU32 = AtomicU32::new(0);
+/// Tracks the reserved time of the last API call for rate limiting.
+static LAST_API_CALL: OnceLock<Mutex<Option<Instant>>> = OnceLock::new();
+
+/// Sets the global API rate limit. Pass `0` to disable rate limiting entirely.
+pub fn set_requests_per_minute(rpm: u32) {
+    REQUESTS_PER_MINUTE.store(rpm, Relaxed);
+}
+
+/// Waits until the next API call slot is available, then reserves it.
+///
+/// Implements a token-bucket style throttle: concurrent callers each get
+/// a reserved time slot spaced `60/rpm` seconds apart, then sleep until
+/// their slot arrives.
+async fn throttle() {
+    let rpm = REQUESTS_PER_MINUTE.load(Relaxed);
+    if rpm == 0 {
+        return;
+    }
+    let interval = Duration::from_secs(60) / rpm;
+    let mutex = LAST_API_CALL.get_or_init(|| Mutex::new(None));
+    let sleep_dur = {
+        let mut last = mutex.lock().unwrap_or_else(|e| e.into_inner());
+        let now = Instant::now();
+        let next_slot = last.map_or(now, |t| {
+            let next = t + interval;
+            if next > now { next } else { now }
+        });
+        *last = Some(next_slot);
+        next_slot.checked_duration_since(now).unwrap_or(Duration::ZERO)
+    };
+    if !sleep_dur.is_zero() {
+        sleep(sleep_dur).await;
+    }
 }
 
 /// Maximum number of retry attempts on rate limiting.
@@ -189,13 +229,16 @@ signed_request!(
     }
 );
 
-/// Sends a GET request to an authenticated endpoint for binary download.
+/// Sends a plain GET request for CDN file downloads.
+///
+/// Uses the minimal CDN client without API-specific headers to avoid
+/// confusing CDN edge servers (Akamai). Authentication is embedded in
+/// the URL parameters (HMAC-signed).
 ///
 /// # Arguments
 ///
 /// * `client` - HTTP client implementation
-/// * `url` - Full download URL
-/// * `token` - User auth token
+/// * `url` - Full CDN download URL
 /// * `range` - Optional Range header value (e.g., `"bytes=1024-"`)
 ///
 /// # Returns
@@ -208,10 +251,9 @@ signed_request!(
 pub async fn download_stream(
     client: &dyn HttpClient,
     url: &str,
-    token: &str,
     range: Option<&str>,
 ) -> Result<Response, QobuzApiError> {
-    let response = client.get_with_auth(url, token, range).await?;
+    let response = client.get_download(url, range).await?;
 
     let status = response.status();
     if status.is_success() || status.as_u16() == 206 {
@@ -248,6 +290,8 @@ pub async fn retry_with_backoff(
     url: &str,
     user_auth_token: &str,
 ) -> Result<Response, QobuzApiError> {
+    throttle().await;
+
     let mut last_error: Option<QobuzApiError> = None;
 
     for attempt in 0..=MAX_RETRIES {
@@ -311,13 +355,19 @@ pub fn build_url_with_params(
 ///
 /// A URL-encoded string with spaces as `+` and special chars as `%XX`.
 fn urlencoding(s: &str) -> String {
-    s.chars()
-        .map(|c| match c {
-            ' ' => "+".to_string(),
-            'a'..='z' | 'A'..='Z' | '0'..='9' | '-' | '_' | '.' | '~' => c.to_string(),
-            _ => format!("%{:02X}", c as u32),
-        })
-        .collect()
+    let mut out = String::new();
+    for byte in s.bytes() {
+        match byte {
+            b' ' => out.push('+'),
+            b'a'..=b'z' | b'A'..=b'Z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                out.push(byte as char);
+            }
+            _ => {
+                out.push_str(&format!("%{:02X}", byte));
+            }
+        }
+    }
+    out
 }
 
 #[cfg(test)]

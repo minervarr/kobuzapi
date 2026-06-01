@@ -5,10 +5,11 @@ use std::{
     path::{Path, PathBuf},
     result::Result,
     sync::{Arc, atomic::AtomicBool},
+    time::Duration,
 };
 
 use {
-    tokio::{spawn, sync::Semaphore},
+    tokio::{fs::remove_file, spawn, sync::Semaphore, time::sleep},
     tracing::{debug, error, info, warn},
 };
 
@@ -17,7 +18,10 @@ use crate::{
         content::{
             albums::get_album,
             check_cancel,
-            download_io::save_track_to_disk,
+            download_io::{
+                DOWNLOAD_RETRY_BASE_DELAY_MS, MAX_DOWNLOAD_RETRIES, is_retryable_network_error,
+                save_track_to_disk,
+            },
             fetch_with_cancel,
             tracks::{get_track, get_track_file_url_raw},
         },
@@ -34,27 +38,38 @@ use crate::{
     sanitize::sanitize_filename,
 };
 
-/// Prepares the output directory for an album download.
-///
-/// Extracts artist name and album title from the album, sanitizes them, and creates
-/// the `{output_dir}/{artist}/{album_title}/` directory structure.
-///
-/// # Arguments
-///
-/// * `album` - Album containing artist name, title, and track IDs
-/// * `output_dir` - Base output directory
-///
-/// # Returns
-///
-/// A tuple of `(track_ids, dir_path)` where:
-/// - `track_ids`: List of track IDs from the album
-/// - `dir_path`: The created output directory path
-///
-/// # Errors
-///
-/// Returns `QobuzApiError` if the directory cannot be created.
+fn quality_tag(format_id: i32, album: &Album) -> String {
+    use crate::models::file_url::quality::*;
+
+    if format_id == MP3_320 {
+        return "(320kbps)".to_string();
+    }
+
+    let (ceil_depth, ceil_rate): (i32, f64) = match format_id {
+        FLAC_24_192 => (24, 192.0),
+        FLAC_24_96 => (24, 96.0),
+        _ => (16, 44.1),
+    };
+
+    let depth = album
+        .maximum_bit_depth
+        .map_or(ceil_depth, |d| d.min(ceil_depth));
+    let rate = album
+        .maximum_sampling_rate
+        .map_or(ceil_rate, |r| r.min(ceil_rate));
+
+    let rate_str = if rate.fract() == 0.0 {
+        format!("{}", rate as i32)
+    } else {
+        format!("{rate}")
+    };
+
+    format!("({depth}-{rate_str})")
+}
+
 fn prepare_album_directory(
     album: &Album,
+    format_id: i32,
     output_dir: &Path,
 ) -> Result<(Vec<i32>, PathBuf), QobuzApiError> {
     let artist_name = album
@@ -64,10 +79,16 @@ fn prepare_album_directory(
         .unwrap_or("Unknown Artist");
 
     let album_title = album.title.as_deref().unwrap_or("Unknown Album");
+    let album_display = match album.version.as_deref().filter(|v| !v.is_empty()) {
+        Some(version) => format!("{album_title} ({version})"),
+        None => album_title.to_string(),
+    };
+    let tag = quality_tag(format_id, album);
+    let folder_name = format!("{} {tag}", sanitize_filename(&album_display));
 
     let dir = output_dir
         .join(sanitize_filename(artist_name))
-        .join(sanitize_filename(album_title));
+        .join(&folder_name);
 
     create_dir_all(&dir)?;
 
@@ -100,7 +121,7 @@ async fn download_album_tracks(
     dir: &Path,
     concurrency: Option<usize>,
     cancel: Option<Arc<AtomicBool>>,
-) -> Result<Vec<PathBuf>, QobuzApiError> {
+) -> Result<Vec<(i32, PathBuf)>, QobuzApiError> {
     let max_concurrent = concurrency.unwrap_or(4);
     let semaphore = Arc::new(Semaphore::new(max_concurrent));
     let mut handles = Vec::new();
@@ -116,7 +137,7 @@ async fn download_album_tracks(
             })?;
 
         let dir_clone = dir.to_path_buf();
-        let service_client = QobuzApiService::http_client_ref(&service.app_id)?;
+        let service_client = service.clone_http_client();
         let app_id = service.app_id.clone();
         let app_secret = service.app_secret.clone();
         let token = service.require_auth_token()?.to_string();
@@ -132,66 +153,195 @@ async fn download_album_tracks(
                 user_auth_token: &token,
             };
 
-            let file_url =
-                get_track_file_url_raw(&*service_client, &base_url, &auth, track_id, format_id)
-                    .await?;
+            let mut last_err: Option<QobuzApiError> = None;
 
-            let url = file_url.url.ok_or_else(|| DownloadError {
-                message: format!("No download URL for track {track_id}"),
-            })?;
+            for attempt in 0..=MAX_DOWNLOAD_RETRIES {
+                check_cancel(cancel_clone.as_deref())?;
 
-            let (offset, range) = detect_resume_offset(&dir_clone, track_id, format_id);
+                let file_url = match get_track_file_url_raw(
+                    &*service_client,
+                    &base_url,
+                    &auth,
+                    track_id,
+                    format_id,
+                )
+                .await
+                {
+                    Ok(fu) => fu,
+                    Err(e) if is_retryable_network_error(&e)
+                        && attempt < MAX_DOWNLOAD_RETRIES =>
+                    {
+                        let delay = DOWNLOAD_RETRY_BASE_DELAY_MS * 2u64.pow(attempt);
+                        warn!(
+                            track_id,
+                            attempt,
+                            delay_ms = delay,
+                            error = %e,
+                            "Track URL fetch failed, retrying"
+                        );
+                        sleep(Duration::from_millis(delay)).await;
+                        last_err = Some(e);
+                        continue;
+                    }
+                    Err(e) => {
+                        drop(permit);
+                        return Err(e);
+                    }
+                };
 
-            let response =
-                download_stream(&*service_client, &url, &token, range.as_deref()).await?;
+                let url = match file_url.url {
+                    Some(u) => u,
+                    None => {
+                        drop(permit);
+                        return Err(DownloadError {
+                            message: format!("No download URL for track {track_id}"),
+                        });
+                    }
+                };
 
-            let resumed = offset.is_some() && response.status().as_u16() == 206;
-            warn_if_not_resumed(offset.is_some(), resumed, track_id);
+                let (offset, range) = detect_resume_offset(&dir_clone, track_id, format_id);
 
-            let path = save_track_to_disk(
-                response,
-                track_id,
-                &dir_clone,
-                format_id,
-                resumed,
-                cancel_clone.as_deref(),
-            )
-            .await?;
+                let response =
+                    download_stream(&*service_client, &url, range.as_deref()).await;
 
-            info!(
-                track_id,
-                format_id,
-                path = %path.display(),
-                resumed,
-                "Track downloaded"
-            );
+                // HTTP 416 means the Range offset equals or exceeds the file size —
+                // the file on disk is already complete. Return it as-is.
+                if let Err(ref e) = response {
+                    if offset.is_some() && format!("{e}").contains("416") {
+                        let ext = crate::models::album::Album::extension_for_format(format_id);
+                        let existing = dir_clone.join(format!("{track_id:02}.{ext}"));
+                        if existing.exists() {
+                            info!(track_id, format_id, path = %existing.display(), "Track already complete, skipping");
+                            drop(permit);
+                            return Ok((track_id, existing));
+                        }
+                    }
+                }
+
+                let response = match response {
+                    Ok(r) => r,
+                    Err(e) if is_retryable_network_error(&e)
+                        && attempt < MAX_DOWNLOAD_RETRIES =>
+                    {
+                        let delay = DOWNLOAD_RETRY_BASE_DELAY_MS * 2u64.pow(attempt);
+                        warn!(
+                            track_id,
+                            attempt,
+                            delay_ms = delay,
+                            error = %e,
+                            "Track download failed, retrying with resume"
+                        );
+                        sleep(Duration::from_millis(delay)).await;
+                        last_err = Some(e);
+                        continue;
+                    }
+                    Err(e) => {
+                        drop(permit);
+                        return Err(e);
+                    }
+                };
+
+                let resumed = offset.is_some() && response.status().as_u16() == 206;
+                warn_if_not_resumed(offset.is_some(), resumed, track_id);
+
+                if offset.is_some() && !resumed {
+                    let ext = crate::models::album::Album::extension_for_format(format_id);
+                    let partial_path = dir_clone.join(format!("{track_id:02}.{ext}"));
+                    if partial_path.exists() {
+                        if let Err(e) = remove_file(&partial_path).await {
+                            warn!(track_id, error = %e, "Failed to remove partial file before re-download");
+                        }
+                    }
+                }
+
+                match save_track_to_disk(
+                    response,
+                    track_id,
+                    &dir_clone,
+                    format_id,
+                    resumed,
+                    cancel_clone.as_deref(),
+                )
+                .await
+                {
+                    Ok(path) => {
+                        info!(
+                            track_id,
+                            format_id,
+                            path = %path.display(),
+                            resumed,
+                            "Track downloaded"
+                        );
+                        drop(permit);
+                        return Ok((track_id, path));
+                    }
+                    Err(e) if is_retryable_network_error(&e)
+                        && attempt < MAX_DOWNLOAD_RETRIES =>
+                    {
+                        let delay = DOWNLOAD_RETRY_BASE_DELAY_MS * 2u64.pow(attempt);
+                        warn!(
+                            track_id,
+                            attempt,
+                            delay_ms = delay,
+                            error = %e,
+                            "Track streaming failed, retrying with resume"
+                        );
+                        sleep(Duration::from_millis(delay)).await;
+                        last_err = Some(e);
+                        continue;
+                    }
+                    Err(e) => {
+                        drop(permit);
+                        return Err(e);
+                    }
+                }
+            }
 
             drop(permit);
-            Ok::<PathBuf, QobuzApiError>(path)
+            Err(last_err.unwrap_or_else(|| DownloadError {
+                message: format!(
+                    "Track {track_id} failed after {MAX_DOWNLOAD_RETRIES} retries"
+                ),
+            }))
         });
 
         handles.push(handle);
     }
 
     let mut results = Vec::new();
+    let mut failed = 0usize;
     for handle in handles {
         check_cancel(cancel.as_deref())?;
 
         match handle.await {
-            Ok(Ok(path)) => results.push(path),
+            Ok(Ok(pair)) => results.push(pair),
             Ok(Err(e)) => {
-                error!(error = %e, "Track download failed");
-                return Err(e);
+                error!(error = %e, "Track download failed, continuing with remaining tracks");
+                failed += 1;
             }
             Err(e) => {
-                return Err(DownloadError {
-                    message: format!("Task join error: {e}"),
-                });
+                error!(error = %e, "Track task join error, continuing with remaining tracks");
+                failed += 1;
             }
         }
     }
 
+    if results.is_empty() && failed > 0 {
+        return Err(DownloadError {
+            message: format!("All {failed} track(s) failed to download"),
+        });
+    }
+
+    if failed > 0 {
+        warn!(failed, succeeded = results.len(), "Some tracks failed to download");
+    }
+
     Ok(results)
+}
+
+/// Splits a vec of `(track_id, path)` pairs into parallel slices for metadata embedding.
+fn unzip_track_results(pairs: Vec<(i32, PathBuf)>) -> (Vec<i32>, Vec<PathBuf>) {
+    pairs.into_iter().unzip()
 }
 
 /// Embeds metadata into downloaded album tracks.
@@ -269,18 +419,20 @@ pub async fn download_album(
     })
     .await?;
 
-    let (track_ids, dir) = prepare_album_directory(&album, output_dir)?;
+    let (track_ids, dir) = prepare_album_directory(&album, format_id, output_dir)?;
 
-    let results =
+    let pairs =
         download_album_tracks(service, &track_ids, format_id, &dir, concurrency, cancel).await?;
 
-    info!(album_id, count = results.len(), "Album download complete");
+    info!(album_id, count = pairs.len(), "Album download complete");
+
+    let (downloaded_ids, paths) = unzip_track_results(pairs);
 
     if let Some(cfg) = config {
-        embed_album_metadata(service, &album, &track_ids, &results, cfg).await?;
+        embed_album_metadata(service, &album, &downloaded_ids, &paths, cfg).await?;
     }
 
-    Ok(results)
+    Ok(paths)
 }
 
 /// Detects a partial file on disk and returns the byte offset and Range header value for resumable

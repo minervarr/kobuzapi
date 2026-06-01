@@ -35,6 +35,14 @@ impl HttpClient for MockHttpClient {
     ) -> BoxFuture<'_, Result<Response, QobuzApiError>> {
         unimplemented!("mock not yet configured")
     }
+
+    fn get_download(
+        &self,
+        _url: &str,
+        _range: Option<&str>,
+    ) -> BoxFuture<'_, Result<Response, QobuzApiError>> {
+        unimplemented!("mock not yet configured")
+    }
 }
 
 #[cfg(test)]

@@ -216,6 +216,41 @@ impl QobuzApiService {
         &*self.client
     }
 
+    /// Clones the HTTP client, sharing the underlying connection pool.
+    ///
+    /// Use this instead of creating a new client when spawning concurrent tasks.
+    ///
+    /// # Returns
+    ///
+    /// A boxed `HttpClient` sharing the same connection pool as this service.
+    #[must_use]
+    pub fn clone_http_client(&self) -> Box<dyn HttpClient> {
+        self.client.clone_box()
+    }
+
+    /// Creates a lightweight service instance for use inside spawned tasks.
+    ///
+    /// Shares the caller's connection pool via a pre-cloned `HttpClient` instead of
+    /// building a new one. Intended for concurrent download tasks that cannot borrow
+    /// the parent service across an await point.
+    #[must_use]
+    pub fn new_for_task(
+        app_id: String,
+        app_secret: String,
+        auth_token: String,
+        client: Box<dyn HttpClient>,
+        base_url: String,
+    ) -> Self {
+        Self {
+            base_url,
+            app_id,
+            app_secret,
+            user_auth_token: Some(auth_token),
+            client,
+            credentials_refreshed: false,
+        }
+    }
+
     /// Returns whether credentials have been refreshed this session.
     ///
     /// # Returns
@@ -325,7 +360,7 @@ impl QobuzApiService {
     /// # Errors
     ///
     /// Returns a `QobuzApiError` if the login request fails.
-    pub fn login(&mut self, email: &str, password: &str) -> Result<(), QobuzApiError> {
+    pub fn login(&mut self, email: &str, password: &str) -> Result<(String, i64), QobuzApiError> {
         login(self, email, password)
     }
 

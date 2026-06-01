@@ -12,12 +12,6 @@ use crate::errors::QobuzApiError::{self, CredentialsError};
 
 /// Extracts `app_id` and `app_secret` from the Qobuz web player JavaScript bundle.
 ///
-/// The `app_id` is extracted as plain text from the production API config.
-/// The `app_secret` is derived via a multi-step process: extracting `seed` and
-/// `timezone` from an `initialSeed` call, locating the timezone object to find
-/// `info` and `extras` fields, concatenating and truncating them, then base64
-/// decoding the result.
-///
 /// # Returns
 ///
 /// A tuple of `(app_id, app_secret)` extracted from the web player.
@@ -27,6 +21,23 @@ use crate::errors::QobuzApiError::{self, CredentialsError};
 /// Returns `QobuzApiError::CredentialsError` if extraction fails or `QobuzApiError::HttpError` on
 /// network failure.
 pub async fn extract_from_web_player() -> Result<(String, String), QobuzApiError> {
+    let (app_id, app_secret, _) = extract_from_web_player_full().await?;
+    Ok((app_id, app_secret))
+}
+
+/// Extracts `app_id`, `app_secret`, and `private_key` from the Qobuz web player bundle.
+///
+/// `private_key` is returned as an empty string if not found in the current bundle.
+///
+/// # Returns
+///
+/// A tuple of `(app_id, app_secret, private_key)`.
+///
+/// # Errors
+///
+/// Returns `QobuzApiError::CredentialsError` if extraction fails or `QobuzApiError::HttpError` on
+/// network failure.
+pub async fn extract_from_web_player_full() -> Result<(String, String, String), QobuzApiError> {
     let client = Client::builder().user_agent("Mozilla/5.0").build()?;
 
     let login_page = client
@@ -42,8 +53,9 @@ pub async fn extract_from_web_player() -> Result<(String, String), QobuzApiError
 
     let app_id = extract_app_id_from_bundle(&bundle_js)?;
     let app_secret = extract_app_secret_from_bundle(&bundle_js)?;
+    let private_key = extract_private_key_from_bundle(&bundle_js).unwrap_or_default();
 
-    Ok((app_id, app_secret))
+    Ok((app_id, app_secret, private_key))
 }
 
 /// Extracts the bundle JavaScript URL from the login page HTML.
@@ -186,6 +198,16 @@ fn extract_app_secret_from_bundle(js: &str) -> Result<String, QobuzApiError> {
     String::from_utf8(decoded).map_err(|e| CredentialsError {
         message: format!("Decoded app secret is not valid UTF-8: {e}"),
     })
+}
+
+/// Extracts the OAuth private key from the bundle JS, if present.
+///
+/// Matches `privateKey:"..."` — present in newer Qobuz bundles, absent in older ones.
+fn extract_private_key_from_bundle(js: &str) -> Option<String> {
+    let re = Regex::new(r#"privateKey:\s*"([A-Za-z0-9]{6,30})""#).ok()?;
+    re.captures(js)
+        .and_then(|c| c.get(1))
+        .map(|m| m.as_str().to_string())
 }
 
 /// Returns the given string with its first character uppercased.
