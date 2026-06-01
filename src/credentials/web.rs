@@ -21,23 +21,6 @@ use crate::errors::QobuzApiError::{self, CredentialsError};
 /// Returns `QobuzApiError::CredentialsError` if extraction fails or `QobuzApiError::HttpError` on
 /// network failure.
 pub async fn extract_from_web_player() -> Result<(String, String), QobuzApiError> {
-    let (app_id, app_secret, _) = extract_from_web_player_full().await?;
-    Ok((app_id, app_secret))
-}
-
-/// Extracts `app_id`, `app_secret`, and `private_key` from the Qobuz web player bundle.
-///
-/// `private_key` is returned as an empty string if not found in the current bundle.
-///
-/// # Returns
-///
-/// A tuple of `(app_id, app_secret, private_key)`.
-///
-/// # Errors
-///
-/// Returns `QobuzApiError::CredentialsError` if extraction fails or `QobuzApiError::HttpError` on
-/// network failure.
-pub async fn extract_from_web_player_full() -> Result<(String, String, String), QobuzApiError> {
     let client = Client::builder().user_agent("Mozilla/5.0").build()?;
 
     let login_page = client
@@ -48,14 +31,12 @@ pub async fn extract_from_web_player_full() -> Result<(String, String, String), 
         .await?;
 
     let bundle_url = extract_bundle_url(&login_page)?;
-
     let bundle_js = client.get(bundle_url).send().await?.text().await?;
 
     let app_id = extract_app_id_from_bundle(&bundle_js)?;
     let app_secret = extract_app_secret_from_bundle(&bundle_js)?;
-    let private_key = extract_private_key_from_bundle(&bundle_js).unwrap_or_default();
 
-    Ok((app_id, app_secret, private_key))
+    Ok((app_id, app_secret))
 }
 
 /// Extracts the bundle JavaScript URL from the login page HTML.
@@ -198,16 +179,6 @@ fn extract_app_secret_from_bundle(js: &str) -> Result<String, QobuzApiError> {
     String::from_utf8(decoded).map_err(|e| CredentialsError {
         message: format!("Decoded app secret is not valid UTF-8: {e}"),
     })
-}
-
-/// Extracts the OAuth private key from the bundle JS, if present.
-///
-/// Matches `privateKey:"..."` — present in newer Qobuz bundles, absent in older ones.
-fn extract_private_key_from_bundle(js: &str) -> Option<String> {
-    let re = Regex::new(r#"privateKey:\s*"([A-Za-z0-9]{6,30})""#).ok()?;
-    re.captures(js)
-        .and_then(|c| c.get(1))
-        .map(|m| m.as_str().to_string())
 }
 
 /// Returns the given string with its first character uppercased.

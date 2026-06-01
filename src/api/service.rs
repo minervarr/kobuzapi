@@ -380,11 +380,12 @@ impl QobuzApiService {
     /// # Errors
     ///
     /// Returns a `QobuzApiError` if the token validation request fails.
+    /// Returns the country code from the API response (e.g. "US", "FR").
     pub fn login_with_token(
         &mut self,
         user_id: &str,
         auth_token: &str,
-    ) -> Result<(), QobuzApiError> {
+    ) -> Result<String, QobuzApiError> {
         login_with_token(self, user_id, auth_token)
     }
 
