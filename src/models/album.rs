@@ -5,7 +5,7 @@ use {
     serde_json::Value,
 };
 
-use crate::models::artist::Artist;
+use crate::models::{artist::Artist, search::ItemSearchResult, track::Track};
 
 /// A music album with full metadata.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
@@ -62,6 +62,8 @@ pub struct Album {
     pub parental_warning: Option<bool>,
     /// List of track IDs (when requested with extra).
     pub track_ids: Option<Vec<i32>>,
+    /// Full track objects (when requested with extra=tracks).
+    pub tracks: Option<ItemSearchResult<Box<Track>>>,
     /// Product URL for commercial information.
     pub product_url: Option<String>,
     /// Unix timestamp of when the album was released.
